@@ -1,0 +1,15 @@
+# built output and fetched data -- the workflow regenerates these
+site/
+node_modules/
+data/*.csv
+data/raw/*.csv
+*.part
+data/raw/espn/
+data/audit_report.json
+pipeline/props.json
+pipeline/pred.json
+pipeline/lgavg.json
+__pycache__/
+*.pyc
+.DS_Store
+data/history/

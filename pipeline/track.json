@@ -1,0 +1,276 @@
+{
+ "all": {
+  "n": 1871,
+  "gm": 10.15,
+  "vm": 9.83,
+  "gt": 10.61,
+  "vt": 10.36,
+  "su": 64,
+  "ats": 51.1,
+  "atsn": 1828,
+  "atsw": 934,
+  "ou": 51.0,
+  "oun": 1854
+ },
+ "by": {
+  "2019": {
+   "n": 256,
+   "gm": 10.4,
+   "vm": 10.21,
+   "gt": 10.91,
+   "vt": 10.83,
+   "su": 65,
+   "ats": 51.2,
+   "atsn": 246,
+   "atsw": 126,
+   "ou": 52.9,
+   "oun": 255
+  },
+  "2020": {
+   "n": 256,
+   "gm": 10.2,
+   "vm": 9.83,
+   "gt": 10.61,
+   "vt": 10.15,
+   "su": 66,
+   "ats": 51.6,
+   "atsn": 256,
+   "atsw": 132,
+   "ou": 52.2,
+   "oun": 251
+  },
+  "2021": {
+   "n": 272,
+   "gm": 11.03,
+   "vm": 10.78,
+   "gt": 11.17,
+   "vt": 10.79,
+   "su": 62,
+   "ats": 54.9,
+   "atsn": 268,
+   "atsw": 147,
+   "ou": 48.0,
+   "oun": 269
+  },
+  "2022": {
+   "n": 271,
+   "gm": 8.93,
+   "vm": 8.74,
+   "gt": 10.6,
+   "vt": 10.39,
+   "su": 63,
+   "ats": 51.0,
+   "atsn": 261,
+   "atsw": 133,
+   "ou": 48.5,
+   "oun": 268
+  },
+  "2023": {
+   "n": 272,
+   "gm": 10.55,
+   "vm": 9.9,
+   "gt": 10.5,
+   "vt": 10.24,
+   "su": 59,
+   "ats": 47.7,
+   "atsn": 258,
+   "atsw": 123,
+   "ou": 51.9,
+   "oun": 270
+  },
+  "2024": {
+   "n": 272,
+   "gm": 9.91,
+   "vm": 9.61,
+   "gt": 9.87,
+   "vt": 9.73,
+   "su": 70,
+   "ats": 47.0,
+   "atsn": 268,
+   "atsw": 126,
+   "ou": 53.5,
+   "oun": 269
+  },
+  "2025": {
+   "n": 272,
+   "gm": 10.01,
+   "vm": 9.72,
+   "gt": 10.61,
+   "vt": 10.39,
+   "su": 64,
+   "ats": 54.2,
+   "atsn": 271,
+   "atsw": 147,
+   "ou": 50.0,
+   "oun": 272
+  }
+ },
+ "wk1": {
+  "n": 112,
+  "gm": 9.67,
+  "vm": 9.67,
+  "gt": 10.38,
+  "vt": 10.25,
+  "su": 58,
+  "ats": 54.1,
+  "atsn": 111,
+  "atsw": 60,
+  "ou": 51.8,
+  "oun": 112
+ },
+ "held": {
+  "n": 816,
+  "gm": 10.16,
+  "vm": 9.74,
+  "gt": 10.33,
+  "vt": 10.12,
+  "su": 64,
+  "ats": 49.7,
+  "atsn": 797,
+  "atsw": 396,
+  "ou": 51.8,
+  "oun": 811
+ },
+ "ptsfit": {
+  "r2": 0.807,
+  "td": 5.1,
+  "yds": 0.0231,
+  "to": -1.2,
+  "b0": 4.04,
+  "rmse": 4.37
+ },
+ "factors": [
+  {
+   "k": "Wind, cold and roof",
+   "scope": "player production",
+   "v": "large",
+   "t": null,
+   "n": 3742,
+   "s": "This is where conditions bite hardest, and GridIron now applies it to every projection. Fitted continuously on 3,424 team-games against each team\u2019s own leave-one-out baseline, so a windy stadium\u2019s run-heavy habits cannot masquerade as weather: each mph of sustained wind above 8 costs 0.13 pass attempts (t = \u22122.7) and 0.05 yards per attempt (t = \u22124.6), and every 10\u00b0F below 45 costs a further 0.16 yards per attempt (t = \u22122.4). Indoors adds 0.10 yards per carry. One caution that halves most published weather effects: these are fitted on SUSTAINED wind, not gusts \u2014 gusts run roughly 1.8x higher, and using them here would double the penalty."
+  },
+  {
+   "k": "Wind, cold and roof",
+   "scope": "the betting line",
+   "v": "priced",
+   "t": null,
+   "n": 2895,
+   "s": "The same conditions barely move game totals, and the market prices them. GridIron adds no conditions adjustment to its totals: hand-set adjustments left held-out error unchanged (10.328 vs 10.329 with none) and adjustments fitted on 2019-22 made it worse (10.393)."
+  },
+  {
+   "k": "Venue home-field edge",
+   "scope": "margin",
+   "v": "real",
+   "t": 4.2,
+   "n": 4038,
+   "s": "Real in raw results: a venue measured 4 points friendlier than average predicts about +1.6 points of home margin. But the team ratings already absorb it \u2014 adding per-venue edges on top made held-out 2023-25 margin error worse (10.166 vs 10.161), so GridIron uses one flat 1.2-point edge, and none at neutral sites. The venue edge on each card is context, not an input."
+  },
+  {
+   "k": "Referee crew tendency",
+   "scope": "everything tested",
+   "v": "none",
+   "t": -0.9,
+   "n": 2544,
+   "s": "The one factor that is genuinely empty. A crew\u2019s career scoring average has no measurable relationship to the next game\u2019s total \u2014 correlation \u22120.02 against the market and against a raw baseline alike. A 17-game sample has a \u00b13-point standard error, so a crew that looks 8 points off league average is almost certainly just noise. Read the crew name on a card as trivia."
+  },
+  {
+   "k": "Denver altitude",
+   "scope": "visiting offense",
+   "v": "none",
+   "t": null,
+   "n": 59,
+   "s": "Nothing detectable. Visiting teams gain 338 yards at Mile High against 353 everywhere else \u2014 a 15-yard gap with a \u00b124-yard error bar across 59 games. The reputation is not visible in the production."
+  },
+  {
+   "k": "Venue \"difficulty\" rankings",
+   "scope": "visiting offense",
+   "v": "confounded",
+   "t": null,
+   "n": 3742,
+   "s": "Buffalo, Cleveland, San Francisco and Kansas City each suppress visiting offense by more than 30 yards, and Detroit inflates it by 49. But those are the defenses those teams fielded, not the buildings. Treat any raw venue ranking as a defense ranking wearing a disguise."
+  },
+  {
+   "k": "Rest and travel",
+   "scope": "the betting line",
+   "v": "priced",
+   "t": null,
+   "n": 637,
+   "s": "Home teams off 3+ extra days go over the total by 1.7 points \u2014 the only rest effect that clears its own error bar, and it clears it barely."
+  }
+ ],
+ "blend": {
+  "w": 15,
+  "note": "The mix that minimised error in backtesting was 13% GridIron / 87% market on margin. GridIron gets 15% here."
+ },
+ "note_scope": "Two different questions get asked of every factor here: does it change what happens on the field, and does it beat the price. A factor can be emphatically yes on the first and no on the second.",
+ "wpcal": {
+  "err": 2.92,
+  "bands": [
+   {
+    "b": 10,
+    "n": 77,
+    "p": 16.5,
+    "a": 26.0
+   },
+   {
+    "b": 20,
+    "n": 147,
+    "p": 25.7,
+    "a": 28.9
+   },
+   {
+    "b": 30,
+    "n": 258,
+    "p": 35.6,
+    "a": 36.2
+   },
+   {
+    "b": 40,
+    "n": 349,
+    "p": 44.8,
+    "a": 46.3
+   },
+   {
+    "b": 50,
+    "n": 381,
+    "p": 54.8,
+    "a": 49.9
+   },
+   {
+    "b": 60,
+    "n": 312,
+    "p": 64.9,
+    "a": 68.4
+   },
+   {
+    "b": 70,
+    "n": 216,
+    "p": 74.5,
+    "a": 75.5
+   },
+   {
+    "b": 80,
+    "n": 104,
+    "p": 83.9,
+    "a": 85.6
+   },
+   {
+    "b": 90,
+    "n": 21,
+    "p": 91.6,
+    "a": 95.2
+   }
+  ]
+ },
+ "qb": {
+  "k": 3.9000000000000004,
+  "n": 506,
+  "s": "A backup under centre is worth 3.9 points of margin, fitted on 2019-22. On the 229 held-out 2023-25 games that involved one, it cut GridIron\u2019s margin error from 10.36 to 9.89. An offseason quarterback change carried no measurable direction in week 1, so GridIron applies nothing for it and simply flags it."
+ },
+ "excluded": {
+  "margin_flat": 10.161,
+  "margin_venue": 10.166,
+  "total_none": 10.329,
+  "total_hand": 10.328,
+  "total_fitted": 10.393
+ }
+}

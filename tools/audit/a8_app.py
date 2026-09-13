@@ -1,0 +1,231 @@
+"""What the reader sees: every rendered number, label and direction on the board, drawers and Model
+page compared with the data it came from -- plus code-level regressions from earlier bugs."""
+import os, re, json, math, glob, subprocess
+from common import num, APP, PIPE, ROOT, nfl
+
+M='−'
+def nums(s): return [float(x.replace(M,'-').replace(',','')) for x in re.findall(r'[+%s-]?\d[\d,]*\.?\d*'%M,s or '')]
+def miles(a,b):
+    t=math.pi/180; h=math.sin((b[0]-a[0])*t/2)**2+math.cos(a[0]*t)*math.cos(b[0]*t)*math.sin((b[1]-a[1])*t/2)**2
+    return round(2*3958.8*math.asin(math.sqrt(h)))
+
+def run(A):
+    A.section('what the reader sees'); D=A.D; G={g['id']:g for g in D['games']}
+    out='/tmp/gi_audit_render.json'
+    r=subprocess.run(['node',os.path.join(os.path.dirname(__file__),'render_dump.js'),out],capture_output=True,text=True,timeout=120)
+    if r.returncode or not os.path.exists(out):
+        A.check('U0','Page renders headlessly',['render failed: '+(r.stderr or r.stdout)[-300:]]); return
+    R=json.load(open(out))
+    txt=' '.join(c['text'] for c in R['cards'])+' '+(R['model'].get('text') or '')+' '+json.dumps(R['drawers'])
+    junk=sorted({m for m in re.findall(r'undefined|NaN|\[object|\bnull\b|Infinity',txt)})
+    A.check('U0','Page renders with no script errors and no undefined / NaN / null text',R['errors']+junk)
+
+    def splab(g,v):
+        return 'PK' if abs(v)<0.05 else (g['h'] if v<0 else g['a']), abs(v)
+    bad=[]
+    for c in R['cards']:
+        g=G[c['id']]; p=D['pred'][c['id']]; n=g['a']+'@'+g['h']
+        sp,tot,wpc=c['pred'][0],c['pred'][1],c['pred'][2]
+        for (label,shown),val in zip(sp['rows'],(p['sp'],p['bsp'],g.get('spread'))):
+            if val is None: continue
+            team,mag=splab(g,val); got=nums(shown)
+            if (team=='PK' and shown!='PK') or (team!='PK' and (not shown.startswith(team) or not got or abs(abs(got[-1])-mag)>0.051)):
+                bad.append('%s %s spread shows "%s", data %s -> %s %s'%(n,label,shown,val,team,mag))
+        for (label,shown),val in zip(tot['rows'],(p['tot'],p['btot'],g.get('ou'))):
+            if val is not None and abs(nums(shown)[0]-val)>0.051: bad.append('%s %s total shows "%s", data %s'%(n,label,shown,val))
+        d=p['dsp']; want='agrees with the market' if abs(d)<0.25 else '%s pts toward %s'%(('%.1f'%abs(d)).rstrip('0').rstrip('.'),g['a'] if d>0 else g['h'])
+        if sp['lean']!=want: bad.append('%s spread lean "%s", data says "%s"'%(n,sp['lean'],want))
+        d=p['dtot']; want='agrees with the market' if abs(d)<0.25 else '%s pts toward the %s'%(('%.1f'%abs(d)).rstrip('0').rstrip('.'),'over' if d>0 else 'under')
+        if tot['lean']!=want: bad.append('%s total lean "%s", data says "%s"'%(n,tot['lean'],want))
+        if wpc['wpl']!=['%s %d%%'%(g['a'],100-p['wp']),'%s %d%%'%(g['h'],p['wp'])]: bad.append('%s win prob shows %s, data home %d%%'%(n,wpc['wpl'],p['wp']))
+        im=(g['ou']/2+g['spread']/2, g['ou']/2-g['spread']/2) if g.get('ou') is not None and g.get('spread') is not None else None
+        if im and 'implied %.1f / %.1f'%im not in (c['meta'] or '').replace('implied','implied '): 
+            got=nums((c['meta'] or '').split('implied')[-1]) if 'implied' in (c['meta'] or '') else []
+            if len(got)<2 or abs(got[0]-im[0])>0.051 or abs(got[1]-im[1])>0.051: bad.append('%s implied totals show %s, expected %.2f / %.2f'%(n,got,im[0],im[1]))
+    A.check('U1','Prediction cells, lean text, win probability and implied totals match the data on every card',bad,len(R['cards']))
+
+    bad=[]
+    for c in R['cards']:
+        g=G[c['id']]; p=D['pred'][c['id']]; n=g['a']+'@'+g['h']; W={w['k']:w for w in c['wf']}
+        for key,val in (('%s offense vs %s defense'%(g['an'],g['hn']),p['a']['p0']),('%s offense vs %s defense'%(g['hn'],g['an']),p['h']['p0'])):
+            if key not in W or abs(nums(W[key]['v'])[0]-val)>0.051: bad.append('%s row "%s" shows %s, data %.1f'%(n,key,W.get(key,{}).get('v'),val))
+        tot=W.get('Projected score')
+        if not tot or nums(tot['v'])[:2]!=[round(p['pa'],1),round(p['ph'],1)]: bad.append('%s projected score shows %s, data %.1f-%.1f'%(n,tot and tot['v'],p['pa'],p['ph']))
+        for s in p.get('steps',[]):
+            if abs(s['v'])<0.05 and not g.get('neutral'):
+                if s['k'] in W: bad.append('%s shows a zero "%s" row'%(n,s['k']))
+                continue
+            v=nums(W.get(s['k'],{}).get('v'))
+            if s['k'] not in W or (abs(s['v'])>=0.05 and (len(v)<2 or abs(v[0]-s['v']/2)>0.051 or abs(v[1]+s['v']/2)>0.051)):
+                bad.append('%s shift row "%s" shows %s, data moves %.2f toward %s'%(n,s['k'],W.get(s['k'],{}).get('v'),s['v']/2,g['h']))
+    A.check('U2','Breakdown rows and the projected score show exactly the prediction data',bad,len(R['cards']))
+
+    bad=[]
+    for c in R['cards']:
+        for row in c['inj']:
+            rd=D['redist'].get(nfl(row['t'])) or D['redist'].get(row['t']) or {}
+            to={m['n']:m for m in rd.get('to',[])}
+            for s in row['to']:
+                nm,vals=re.split(r' (?=[\d.]+→)',s)[0],nums(s.replace('→',' '))
+                m=to.get(nm)
+                if not m or abs(vals[-2]-m['b'])>0.051 or abs(vals[-1]-m['a'])>0.051: bad.append('%s "%s", data %s'%(row['t'],s,m and (m['b'],m['a'])))
+    for c in R['cards']:
+        g=G[c['id']]
+        for row in c['rows']:
+            pj=D['proj'].get(row['oid']); rs=D['res'].get(row['oid'])
+            if row['med'] and pj and abs(float(row['med'])-pj['med'])>0.051: bad.append('%s median shows %s, data %s'%(D['players'][row['oid']]['n'],row['med'],pj['med']))
+            if row['act'] and rs and abs(float(row['act'])-num(rs.get('pts')))>0.051: bad.append('%s actual shows %s, data %s'%(D['players'][row['oid']]['n'],row['act'],rs.get('pts')))
+    A.check('U3','Injury panel before/after values and every matchup-row projection or actual match the data',bad)
+
+    src=open(os.path.join(APP,'context.js'),encoding='utf-8').read()
+    ST={m.group(1):(float(m.group(2)),float(m.group(3)),int(m.group(4))) for m in re.finditer(r"([A-Z]{2,3}):\{v:'[^']*',la:(-?[\d.]+),lo:(-?[\d.]+),el:(-?\d+)",src)}
+    NV={m.group(1):(float(m.group(2)),float(m.group(3)),int(m.group(4))) for m in re.finditer(r"'([^']+)':\{la:(-?[\d.]+),lo:(-?[\d.]+),el:(-?\d+)",src)}
+    bad=[]
+    for c in R['cards']:
+        g=G[c['id']]; n=g['a']+'@'+g['h']; C={x['k']:x for x in c['cells']}
+        ven=NV.get(g.get('venue')) if g.get('neutral') else ST.get(g['h'])
+        if ven and 'Elevation' in C and int(nums(C['Elevation']['v'])[0])!=ven[2]: bad.append('%s elevation shows %s, venue %d'%(n,C['Elevation']['v'],ven[2]))
+        if ven and ST.get(g['a']) and 'Visitor travel' in C and abs(nums(C['Visitor travel']['v'])[0]-miles(ST[g['a']][:2],ven[:2]))>1:
+            bad.append('%s travel shows %s, great-circle %d mi'%(n,C['Visitor travel']['v'],miles(ST[g['a']][:2],ven[:2])))
+        f=g.get('hfa')
+        if f and not g.get('neutral') and ('Venue edge' not in C or abs(nums(C['Venue edge']['v'])[0]-f['e'])>0.051): bad.append('%s venue edge shows %s, data %s'%(n,C.get('Venue edge',{}).get('v'),f['e']))
+        rf=g.get('ref') or {}
+        if rf.get('n') and ('Referee' not in C or abs(nums(C['Referee']['meta'])[0]-(rf['avg']-rf['lg']))>0.051): bad.append('%s referee delta shows %s, data %.1f'%(n,C.get('Referee',{}).get('meta'),rf.get('avg',0)-rf.get('lg',0)))
+        if g.get('h_pace') is not None and g.get('a_pace') is not None:
+            comb=(g['h_pace']+g['a_pace'])/2
+            if 'Pace' not in C or abs(nums(C['Pace']['v'])[0]-comb)>0.051: bad.append('%s pace shows %s, data %.2f'%(n,C.get('Pace',{}).get('v'),comb))
+        elif 'Pace' not in C: bad.append('%s shows no pace factor (a team is missing pace data)'%n)
+        for flag,label in (('div','Divisional'),('neutral','Neutral site')):
+            if bool(g.get(flag))!=(label in C): bad.append('%s %s cell %s but flag is %s'%(n,label,'shown' if label in C else 'missing',g.get(flag)))
+        for s in ('a','h'):
+            has=any(x['k']=='New quarterback' and x['v']==g[s] for x in c['cells'])
+            if bool(g.get(s+'_qbnew'))!=has: bad.append('%s new-QB cell for %s %s but flag is %s'%(n,g[s],'shown' if has else 'missing',g.get(s+'_qbnew')))
+    A.check('U4','Context cells (elevation, travel, venue edge, referee, pace, divisional, neutral, new QB) match the data',bad,len(R['cards']))
+
+    bad=[]
+    KEYS={'Receiving yards':'qry','Receptions':'qrec','Rushing yards':'qru','Passing yards':'qpy'}
+    for dr in R['drawers']:
+        p=D['proj'][dr['oid']]; nm=D['players'][dr['oid']]['n']
+        CH={}
+        for k,v in dr['chain']:
+            for lab in ('Conditions','Someone else is out'):
+                if k and k.startswith(lab): CH[lab]=v
+        if abs(float(dr['big'])-p['med'])>0.051: bad.append('%s headline %s, data %s'%(nm,dr['big'],p['med']))
+        if p.get('wx') and abs(p['wx']['m']-1)>=0.005:
+            v=nums((CH.get('Conditions') or '').replace(chr(0x2192),' '))
+            if len(v)<3 or abs(v[0]-100*(p['wx']['m']-1))>0.051 or abs(v[1]-p['wx']['b'])>0.051 or abs(v[2]-p['wx'].get('a',p['med']))>0.051:
+                bad.append('%s conditions row "%s", data %+.1f%% %s -> %s'%(nm,CH.get('Conditions'),100*(p['wx']['m']-1),p['wx']['b'],p['med']))
+        if p.get('inj') and abs(p['inj']['m']-1)>=0.005:
+            v=nums((CH.get('Someone else is out') or '').split('%')[-1].replace(chr(0x2192),' '))
+            if len(v)<2 or abs(v[-2]-p['inj']['b'])>0.051 or abs(v[-1]-p['inj'].get('a',p['med']))>0.051:
+                bad.append('%s injury row "%s", data %s -> %s'%(nm,CH.get('Someone else is out'),p['inj']['b'],p['med']))
+        mk=(D.get('props') or {}).get('by',{}).get(dr['oid'],{})
+        for lab,line,read in dr['market']:
+            v=mk.get(KEYS[lab]); L2=nums(line); pct=int(nums(read)[0]); side=read.split()[0]
+            want_side='over' if v['rel']>0.5 else 'under'; want_pct=round(100*max(v['rel'],1-v['rel']))
+            mv=None if v['open'] in (None,v['line']) else v['line']-v['open']
+            if abs(L2[0]-v['line'])>0.01 or (mv is not None and (len(L2)<2 or abs(L2[1]-mv)>0.051)) or side!=want_side or abs(pct-want_pct)>1:
+                bad.append('%s %s shows %s / %s, data line %s open %s rel %.3f'%(nm,lab,line,read,v['line'],v['open'],v['rel']))
+        if mk and dr['line'] is not None and not any(abs(float(dr['line'])-x['line'])<0.01 for x in mk.values()):
+            bad.append('%s calculator opens on %s, not a DraftKings line %s'%(nm,dr['line'],[x['line'] for x in mk.values()]))
+    A.check('U5','Player drawers: headline, conditions row, DraftKings lines, movement and reads match the data',bad,len(R['drawers']))
+
+    T=D['track'].get('held') or D['track']['all']; tiles={t[0]:t for t in R['model']['tiles']}; bad=[]
+    for k,want in (('Margin error',T['gm']),('Total error',T['gt']),('Against the spread',T['ats']),('Picks the winner',T['su'])):
+        if k not in tiles or abs(nums(tiles[k][1])[0]-want)>0.051: bad.append('tile %s shows %s, data %s'%(k,tiles.get(k),want))
+    if len(R['model']['wprows'])!=len(D['track']['wpcal']['bands']): bad.append('calibration rows %d, bands %d'%(len(R['model']['wprows']),len(D['track']['wpcal']['bands'])))
+    if len(R['model']['frows'])!=len(D['track']['factors']): bad.append('factor rows %d, factors %d'%(len(R['model']['frows']),len(D['track']['factors'])))
+    for c in R['cards']:
+        want='On %s games from 2023'%'{:,}'.format(T['atsn'])+chr(0x2013)+'25 that the model never trained on, GridIron picked %.1f%%'%T['ats']
+        if want not in (c['foot'] or ''): bad.append('%s footer does not read "%s"'%(c['id'],want)); break
+    A.check('U6','Model page tiles, calibration rows, factor rows and card footers match the track record',bad)
+
+    # ---------------- code regressions from bugs already hit ----------------
+    bad=[]
+    for f in ('app.js','context.js'):
+        b=open(os.path.join(APP,f),'rb').read(); nb=sum(1 for x in b if x>127)
+        if nb: bad.append('%s has %d non-ASCII bytes (served without a charset they turn to mojibake)'%(f,nb))
+        names=re.findall(r'^function\s+([A-Za-z_$][\w$]*)\s*\(',b.decode('ascii','replace'),re.M)
+        dup=sorted({x for x in names if names.count(x)>1})
+        if dup: bad.append('%s defines these functions more than once (the later copy silently wins): %s'%(f,dup))
+    for f in glob.glob(os.path.join(PIPE,'*.py'))+[os.path.join(ROOT,'refresh.py')]:
+        if os.path.basename(f).startswith(('gen','model')): continue
+        for i,l in enumerate(open(f,encoding='utf-8'),1):
+            if ('/tmp/' in l or 'scratchpad' in l) and not l.lstrip().startswith('#'): bad.append('%s:%d hardcoded path'%(os.path.basename(f),i))
+    js=open(os.path.join(APP,'app.js'),encoding='ascii').read()
+    for lit in {'{:,}'.format(T['atsn']),'%.1f%%'%T['ats'],'%.2f'%T['gm'],'%.2f'%T['vm'],'1,828','49.8%','10.28'}:
+        for m in re.finditer(re.escape(lit),js): bad.append('app.js hardcodes "%s" near: %s'%(lit,js[max(0,m.start()-50):m.end()+10].replace('\n',' ')))
+    A.check('U7','Code regressions: ASCII-only scripts, no duplicate functions, no hardcoded paths or stale track numbers',bad)
+
+    # ---------------- a game in progress, rendered from a fixture built out of real ESPN payloads ----------------
+    RAWE=os.path.join(ROOT,'data','raw','espn')
+    fin=[g for g in D['games'] if g.get('state')=='post' and os.path.exists(os.path.join(RAWE,'f_%s.json'%g['id']))]
+    pre=[g for g in D['games'] if g.get('state')=='pre']
+    if not fin or not pre or not D.get('espn'):
+        A.check('U8','A game in progress shows its live score, clock and box-score lines exactly',
+                ['cannot build the fixture: need a finished game with a saved box score, a scheduled game and the ESPN id map']); return
+    tg,pg=fin[0],pre[0]
+    sb=json.load(open(os.path.join(RAWE,'sb2.json')))
+    for e in sb['events']:
+        if e['id']!=tg['id']: continue
+        c=e['competitions'][0]
+        c['status']={'clock':522.0,'displayClock':'8:42','period':3,'type':{'id':'2','name':'STATUS_IN_PROGRESS','state':'in','completed':False,
+                     'description':'In Progress','detail':'8:42 - 3rd Quarter','shortDetail':'8:42 - 3rd'}}
+        for x in c['competitors']: x['score']='17' if x['homeAway']=='away' else '7'
+        c['situation']={'possession':[x['team']['id'] for x in c['competitors'] if x['homeAway']=='away'][0],'shortDownDistanceText':'2nd & 7','isRedZone':False}
+    box=json.load(open(os.path.join(RAWE,'f_%s.json'%tg['id'])))
+    fx='/tmp/gi_live_fixture.json'; json.dump({'scoreboard':sb,'summaries':{tg['id']:box}},open(fx,'w'))
+    out2='/tmp/gi_audit_render_live.json'
+    if os.path.exists(out2): os.remove(out2)
+    r=subprocess.run(['node',os.path.join(os.path.dirname(__file__),'render_dump.js'),out2],capture_output=True,text=True,timeout=180,
+                     env=dict(os.environ,GRIDIRON_FIXTURE_FILE=fx))
+    if r.returncode or not os.path.exists(out2):
+        A.check('U8','A game in progress shows its live score, clock and box-score lines exactly',['live render failed: '+(r.stderr or r.stdout)[-300:]]); return
+    RL=json.load(open(out2)); bad=list(RL['errors'])
+    fnum=lambda x: float(x) if re.match(r'^-?\d+(\.\d+)?$',str(x).strip()) else 0.0
+    want={}
+    for tm in box.get('boxscore',{}).get('players',[]):
+        for grp in tm.get('statistics',[]):
+            for a in grp.get('athletes',[]):
+                gs=D['espn'].get(str(a['athlete']['id']))
+                if not gs: continue
+                v=dict(zip(grp.get('labels',[]),a.get('stats',[]))); e=want.setdefault(gs,{})
+                if grp['name']=='receiving':
+                    e.update(rec=fnum(v.get('REC')),ry=fnum(v.get('YDS')),rtd=fnum(v.get('TD')))
+                    if 'TGTS' in v: e['tgt']=fnum(v['TGTS'])
+                if grp['name']=='rushing': e.update(car=fnum(v.get('CAR')),ru=fnum(v.get('YDS')),rutd=fnum(v.get('TD')))
+                if grp['name']=='passing':
+                    ca=str(v.get('C/ATT','0/0')).split('/'); e.update(cmp=fnum(ca[0]),att=fnum(ca[-1]),py=fnum(v.get('YDS')),ptd=fnum(v.get('TD')),int=fnum(v.get('INT')))
+                if grp['name']=='fumbles': e['fum']=fnum(v.get('LOST'))
+    f=lambda x: '%d'%x if float(x).is_integer() else repr(float(x))
+    def sline(e):
+        b=[]
+        if e.get('tgt'): b.append('%s/%s for %s yds'%(f(e.get('rec',0)),f(e['tgt']),f(e.get('ry',0))))
+        if e.get('car'): b.append('%s car, %s yds'%(f(e['car']),f(e.get('ru',0))))
+        if e.get('att'): b.append('%s/%s, %s yds'%(f(e.get('cmp',0)),f(e['att']),f(e.get('py',0))))
+        td=e.get('rtd',0)+e.get('rutd',0)+e.get('ptd',0)
+        if td: b.append('%s TD'%f(td))
+        if e.get('int'): b.append('%s INT'%f(e['int']))
+        return (' '+chr(0xb7)+' ').join(b)
+    ppr=lambda e: math.floor((e.get('rec',0)+0.1*e.get('ry',0)+6*e.get('rtd',0)+0.1*e.get('ru',0)+6*e.get('rutd',0)+0.04*e.get('py',0)
+                              +4*e.get('ptd',0)-2*e.get('int',0)-2*e.get('fum',0))*10+0.5)/10
+    card=[c for c in RL['cards'] if c['id']==tg['id']]
+    if not card: bad.append('the in-progress game has no card')
+    else:
+        c=card[0]
+        if not c['score'] or 'LIVE' not in c['score'] or nums(c['score'])[:2]!=[17.0,7.0]: bad.append('live card score shows %r, fixture is LIVE 17-7'%c['score'])
+        if '8:42 - 3rd' not in (c['meta'] or ''): bad.append('live card does not show the clock: %r'%c['meta'])
+        matched=0
+        for row in c['rows']:
+            e=want.get(row['oid'])
+            if not e: continue
+            matched+=1; nm=D['players'].get(row['oid'],{}).get('n',row['oid'])
+            if row['n2']!=sline(e): bad.append('%s live line %r, ESPN box score gives %r'%(nm,row['n2'],sline(e)))
+            if row['act'] is None or abs(float(row['act'])-ppr(e))>0.051: bad.append('%s live points %r, ESPN box score gives %.1f'%(nm,row['act'],ppr(e)))
+        if matched<3: bad.append('only %d matchup rows matched box-score players, so the live-line test is not meaningful'%matched)
+    side=[x for x in RL['sidebar'] if D['games'][x['gi']]['id']==tg['id']]
+    if not side or '8:42 - 3rd' not in side[0]['text'] or '17-7' not in side[0]['text']: bad.append('sidebar live entry reads %r'%(side[0]['text'] if side else None))
+    pc=[c for c in RL['cards'] if c['id']==pg['id']]
+    if pc and ((pc[0]['score'] and 'LIVE' in pc[0]['score']) or '8:42' in (pc[0]['meta'] or '')): bad.append('a scheduled game picked up live styling')
+    if 'scores' not in (RL.get('stamp') or ''): bad.append('freshness stamp does not report live scores: %r'%RL.get('stamp'))
+    A.check('U8','A game in progress shows its live score, clock and box-score lines, computed exactly from ESPN\'s payload',bad)
