@@ -126,8 +126,8 @@ def stage_weather():
     say('sustained wind for %d of %d venues; recorded conditions added for %d finished games'%(n,len(D['games']),rec))
     for m in missing: say('!! no weather: '+m)
 
-def run(script,label):
-    r=subprocess.run([sys.executable,os.path.join(PIPE,script)],capture_output=True,text=True,cwd=PIPE)
+def run(script,label,args=()):
+    r=subprocess.run([sys.executable,os.path.join(PIPE,script)]+list(args),capture_output=True,text=True,cwd=PIPE)
     tail=(r.stdout or r.stderr).strip().split('\n')[-3:]
     for t in tail: say(t[:150])
     if r.returncode:
@@ -144,6 +144,7 @@ def stage_stats():    run('stats.py','stats')
 def stage_results():  run('results.py','results')
 def stage_injuries(): run('injuries.py','injuries')
 def stage_project(): run('project.py','project')
+def stage_learn():   run('learn.py','learn',['review'])
 def stage_backtest(): run('backtest.py','backtest')
 def stage_predict(): run('predict.py','predict')
 def stage_props():   run('props.py','props')
@@ -164,7 +165,7 @@ def stage_embed():
 
 def stage_audit():
     """independent audit; any FAIL stops the run before anything is published"""
-    mods=[] if LANE in (None,'daily') else [os.path.basename(p)[:-3] for p in sorted(glob.glob(os.path.join(ROOT,'tools','audit','a[0-8]_*.py')))]
+    mods=[] if LANE in (None,'daily') else [os.path.basename(p)[:-3] for p in sorted(glob.glob(os.path.join(ROOT,'tools','audit','a[0-8]_*.py'))+glob.glob(os.path.join(ROOT,'tools','audit','a10_*.py')))]
     r=subprocess.run([sys.executable,os.path.join(ROOT,'tools','audit','run.py')]+mods,capture_output=True,text=True)
     for line in (r.stdout or '').strip().split('\n'):
         if line.startswith(('  FAIL','         -')) or line[:1].isdigit(): say(line[:170])
@@ -202,6 +203,7 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('results', stage_results, 'finished-game stat lines and PPR points'),
         ('injuries',stage_injuries,'injury report matched by ESPN id'),
         ('project', stage_project, 'player projections: model inputs -> weather -> injury fallout -> simulate'),
+        ('learn',   stage_learn,   'weekly model review: re-test every weight on games it never saw; change only on strong, confirmed evidence'),
         ('backtest',stage_backtest,'track record from the exact live model'),
         ('predict', stage_predict, 'game predictions from the backtested model'),
         ('props',   stage_props,   'DraftKings prop lines'),
@@ -211,7 +213,7 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('audit',   stage_audit,   'independent audit -- stops the run on any failure'),
         ('check',   stage_check,   'sanity report')]
 LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','injuries','project','predict','props','ids','site','audit'],
-       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','injuries','project','backtest','predict','props','ids','site','audit']}
+       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','injuries','project','learn','backtest','predict','props','ids','site','audit']}
 
 if __name__=='__main__':
     a=sys.argv[1:]

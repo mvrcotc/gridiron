@@ -432,8 +432,13 @@ function predBlock(g){
         ' \u00b7 in every player projection below; not added to the game total</span>'+
         '<span class="wv '+(pc>0?'up':'dn')+'">'+(pc>0?'+':'\u2212')+Math.abs(pc).toFixed(1)+'%</span></div>';
   }
-  rows+='<div class="wf zero"><span class="wk">Referee crew</span>'+
-    '<span class="wd">no measurable effect on scoring \u2014 given zero weight</span><span class="wv">0.0</span></div>';
+  (p.tsteps||[]).forEach(function(s){
+    rows+='<div class="wf shift"><span class="wk">'+esc(s.k)+'</span><span class="wd">'+esc(s.w)+
+      ' \u00b7 adds to the total, split evenly between the teams</span><span class="wv">'+(num(s.v)>=0?'+':'\u2212')+Math.abs(num(s.v)).toFixed(1)+' total</span></div>';
+  });
+  if(!(p.tsteps||[]).some(function(s){ return s.k==='Referee crew'; }))
+    rows+='<div class="wf zero"><span class="wk">Referee crew</span>'+
+      '<span class="wd">no measurable effect on scoring so far \u2014 zero weight, re-tested every week</span><span class="wv">0.0</span></div>';
   return '<div class="gc-pred">'+
     '<div class="pr-hd"><span class="pr-t">GridIron\u2019s <em class="s">own call</em></span></div>'+
     liveStrip(g)+
@@ -1445,6 +1450,49 @@ function trackExtras(){
     'GridIron distribution this week. '+esc(D.props.note)+'</div>';
   return out;
 }
+var LSTAT={'holds':['At its best value','hold'],'watching':['Watching','watch'],'rejected':['Rejected','rej'],
+  'pending':['Passed once \u2014 confirming','pend'],'confirmed':['Confirmed','pend'],'applied':['Changed','chg'],
+  'proposed':['Awaiting approval','prop'],'declined earlier':['Declined','rej'],'not reviewed yet':['Not reviewed yet','hold']};
+function decisionBox(d,cls){
+  var st=LSTAT[d.status]||[d.status||'Open',cls];
+  var ck=(d.checks||[]).map(function(c){ return '<li class="'+(c.ok?'ok':'no')+'">'+(c.ok?'\u2713 ':'\u2717 ')+esc(c.text)+'</li>'; }).join('');
+  var pr=(d.pros||[]).map(function(x){ return '<li>'+esc(x.text)+' <i>+'+num(x.pts).toFixed(2)+'</i></li>'; }).join('');
+  var co=(d.cons||[]).map(function(x){ return '<li>'+esc(x.text)+' <i>\u2212'+num(x.pts).toFixed(2)+'</i></li>'; }).join('');
+  return '<div class="ldec l-'+cls+'"><div class="ldh"><span class="fv lv-'+cls+'">'+esc(cls==='prop'?'Awaiting approval':st[0])+'</span>'+
+    '<b>'+esc(d.title||d.name||'')+'</b></div>'+(ck?'<ul class="lchk">'+ck+'</ul>':'')+
+    '<div class="lpc"><div><span class="lpl">Pros</span><ul>'+(pr||'<li>none</li>')+'</ul></div>'+
+    '<div><span class="lpl">Cons</span><ul>'+(co||'<li>none</li>')+'</ul></div></div>'+
+    '<div class="lnet">pros minus cons '+(num(d.net)>=0?'+':'\u2212')+Math.abs(num(d.net)).toFixed(2)+
+    (cls==='prop'?' \u00b7 the owner approves or declines it in GitHub Actions (proposal '+esc(d.id)+')':'')+'</div></div>';
+}
+function learnCard(){
+  var L=D.learn; if(!L||!L.weights) return '';
+  var R=L.rules||{}, LR=L.last_review;
+  var h='<div class="mcard wide" id="learn"><h3>How GridIron <em>learns</em></h3>'+
+    '<p class="sub3">After each week of games, every weight below is re-tested on games its new value never saw, against the weights that were actually in force. '+
+    'A weight changes only when the gain clears '+Math.round(100*(1-num(R.alpha,0.05)))+'% confidence after correcting for how many ideas were tested at once, '+
+    'holds up in at least '+num(R.better_blocks,3)+' seasons, does no damage elsewhere, scores more pros than cons, and passes again the following week. '+
+    'Small moves apply on their own and are undone if they then do worse; big moves, or switching a factor on or off, wait for the owner\u2019s approval.</p>';
+  if(LR) h+='<div class="lrev"><span><b>Last review</b> '+esc(LR.date)+'</span><span>games through '+num(LR.cutoff[0])+' week '+num(LR.cutoff[1])+'</span>'+
+    '<span>'+num(LR.tested)+' ideas tested</span><span>'+(LR.applied.length?LR.applied.length+' change applied':'no change')+'</span>'+
+    (LR.proposed.length?'<span>'+LR.proposed.length+' awaiting approval</span>':'')+'<span>weights version '+num(L.version)+'</span></div>';
+  h+='<div class="ftab ltab">';
+  L.weights.forEach(function(w){
+    var st=LSTAT[w.status]||[w.status,'hold'];
+    h+='<div class="frow lrow"><span class="fk">'+esc(w.name)+'<small>'+esc(w.what)+'</small></span>'+
+      '<span class="fv lv-'+st[1]+'">'+esc(st[0])+'</span>'+
+      '<span class="fs"><b class="lval">'+esc(w.value)+'</b>'+(w.last_change?' \u00b7 changed '+esc(w.last_change.date)+' ('+esc(w.last_change.how)+')':'')+'</span></div>';
+  });
+  h+='</div>';
+  (L.proposals||[]).forEach(function(p){ h+=decisionBox(p,'prop'); });
+  var ds=(L.decisions||[]).filter(function(d){ return LR&&d.review===LR.id&&d.status!=='rejected'&&d.status!=='proposed'; });
+  ds.sort(function(a,b){ return num(a.p_adj,1)-num(b.p_adj,1); });
+  if(ds.length){
+    h+='<h4 class="fh">Closest to changing</h4><p class="sub3">The ideas with the strongest evidence in the latest review, and exactly why each has not changed the model.</p>';
+    ds.slice(0,3).forEach(function(d){ h+=decisionBox(d,(LSTAT[d.status]||['','watch'])[1]); });
+  } else if(!(L.proposals||[]).length) h+='<div class="verdict">Nothing came close in the latest review.</div>';
+  return h+'</div>';
+}
 function trackCard(){
   var T=D.track; if(!T) return '';
   var A=T.held||T.all, W=T.wk1, F=T.ptsfit;
@@ -1471,9 +1519,12 @@ function trackCard(){
     'result: the closing line absorbs injury news, lineup changes and sharp money that a box-score model '+
     'never sees. Use GridIron\u2019s number to understand <em class="s">why</em> a game is priced where it is, '+
     'and treat a gap as a prompt to go look at the factors below it \u2014 not as an edge.</div>'+
+    (num(W.gm)-num(W.vm)<=0.1?
     '<div class="verdict ok"><b>The one bright spot.</b> In week 1, when nobody has current-season data and '+
     'the market\u2019s information advantage is smallest, GridIron runs '+num(W.gm).toFixed(2)+' against the '+
-    'line\u2019s '+num(W.vm).toFixed(2)+' \u2014 effectively parity. This week is as close as the model gets.</div>';
+    'line\u2019s '+num(W.vm).toFixed(2)+' \u2014 effectively parity.</div>':
+    '<div class="verdict"><b>Week 1.</b> Even in week 1, when nobody has current-season data, GridIron runs '+num(W.gm).toFixed(2)+
+    ' against the line\u2019s '+num(W.vm).toFixed(2)+'. The market is ahead from the first week.</div>');
   var VLAB={large:'Large',real:'Real',priced:'Priced in',none:'No effect',confounded:'Confounded'};
   h+='<h4 class="fh">Which intangibles actually move a game</h4>'+
      '<p class="sub3">'+esc(T.note_scope||'')+'</p>'+
@@ -1490,14 +1541,14 @@ function trackCard(){
     'each offensive touchdown is worth '+num(F.td).toFixed(1)+' points, every 100 yards adds '+
     num(F.yds*100).toFixed(1)+', and a turnover costs '+num(Math.abs(F.to)).toFixed(1)+'. That conversion '+
     'explains '+Math.round(num(F.r2)*100)+'% of team scoring, so even a perfect box-score forecast would '+
-    'still miss by about '+num(F.rmse).toFixed(1)+' points a side. Blending GridIron with the market at '+
-    num(T.blend.w)+'% was the mix that minimised error in backtesting.</div></div>';
+    'still miss by about '+num(F.rmse).toFixed(1)+' points a side. GridIron gets '+
+    num(T.blend.w)+'% of the blended line; the learning loop re-tests that share every week.</div></div>';
   return h;
 }
 
 function drawModel(){
   var C=D.cal; if(!C) return;
-  var h=trackCard();
+  var h=trackCard()+learnCard();
   /* calibration */
   var worst=Math.max.apply(null,C.pit.map(function(v){return Math.abs(v-0.1);}));
   h+='<div class="mcard"><h3>Calibration</h3>'+

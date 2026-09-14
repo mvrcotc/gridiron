@@ -14,3 +14,4 @@ __pycache__/
 .DS_Store
 data/history/
 .claude/launch.json
+pipeline/learning/new_proposals/

@@ -1,0 +1,46 @@
+{
+ "model": "pregame",
+ "current": 1,
+ "versions": [
+  {
+   "v": 1,
+   "date": "2026-09-14",
+   "cutoff": [
+    2022,
+    99
+   ],
+   "how": "origin",
+   "note": "The weights GridIron launched with: ratings tuned on 2019-22 (hp2.json), backup-QB value and win-probability calibration fitted on 2019-22, blend chosen in backtesting. Factors that failed their held-out tests start at zero weight.",
+   "params": {
+    "kY": 8,
+    "cY": 0.45,
+    "kP": 6,
+    "cP": 0.35,
+    "kT": 40,
+    "cT": 0.35,
+    "kO": 4,
+    "cO": 0.2,
+    "kE": 320,
+    "cE": 0.6,
+    "kS": 10,
+    "cS": 0.55,
+    "decay": 0.9,
+    "wB": 0.3,
+    "wE": 0.1,
+    "wS": 0.6,
+    "hfa": 1.2,
+    "qb": 3.9,
+    "wp_a": -0.5607864974415988,
+    "wp_b": 1.2945221678285592,
+    "wp_sd": 13.150882601642925,
+    "blend": 0.15,
+    "venue": 0.0,
+    "rest": 0.0,
+    "wx_dome": 0.0,
+    "wx_wind": 0.0,
+    "wx_cold": 0.0,
+    "ref": 0.0
+   }
+  }
+ ]
+}

@@ -157,6 +157,17 @@ def run(A):
         for m in re.finditer(re.escape(lit),js): bad.append('app.js hardcodes "%s" near: %s'%(lit,js[max(0,m.start()-50):m.end()+10].replace('\n',' ')))
     A.check('U7','Code regressions: ASCII-only scripts, no duplicate functions, no hardcoded paths or stale track numbers',bad)
 
+    Lr=R['model'].get('learn') or {}; LD=D.get('learn') or {}; bad=[]
+    if not LD.get('weights'): bad.append('no learning data published')
+    else:
+        if len(Lr.get('rows',[]))!=len(LD['weights']): bad.append('learning table shows %d rows, data has %d weight groups'%(len(Lr.get('rows',[])),len(LD['weights'])))
+        for row,w in zip(Lr.get('rows',[]),LD['weights']):
+            if not (row['k'] or '').startswith(w['name']) or row['v']!=w['value']: bad.append('learning row %r shows %r; data %s = %s'%(row['k'],row['v'],w['name'],w['value']))
+        LR=LD.get('last_review'); rv=Lr.get('rev') or ''
+        if LR and ('%d week %d'%tuple(LR['cutoff']) not in rv or '%d ideas tested'%LR['tested'] not in rv or 'version %d'%LD['version'] not in rv): bad.append('last-review line reads %r'%rv)
+        if len(LD.get('proposals',[]))>Lr.get('dec',0): bad.append('open proposals are not all shown')
+    A.check('U10','Model page lists every weight group with its current value and status, and the latest review',bad,len(LD.get('weights',[])))
+
     # ---------------- a game in progress, rendered from a fixture built out of real ESPN payloads ----------------
     RAWE=os.path.join(ROOT,'data','raw','espn')
     fin=[g for g in D['games'] if g.get('state')=='post' and os.path.exists(os.path.join(RAWE,'f_%s.json'%g['id']))]

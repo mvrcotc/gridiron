@@ -12,11 +12,21 @@ on:
         type: choice
         options: [live, daily]
         default: live
+      proposal:
+        description: "Model change proposal id, from its GitHub issue (only when approving or declining one)"
+        type: string
+        default: ""
+      decision:
+        description: "What to do with that proposal"
+        type: choice
+        options: [none, approve, reject]
+        default: none
 
 permissions:
   contents: write
   pages: write
   id-token: write
+  issues: write
 
 concurrency:
   group: gridiron-refresh
@@ -36,6 +46,7 @@ jobs:
         id: lane
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then lane="${{ inputs.lane }}"
+            if [ -n "${{ inputs.decision }}" ] && [ "${{ inputs.decision }}" != "none" ]; then lane=daily; fi
           elif [ "${{ github.event.schedule }}" = "3 9 * * *" ]; then lane=daily
           else lane=live; fi
           echo "lane=$lane" >> "$GITHUB_OUTPUT"
@@ -62,6 +73,15 @@ jobs:
             data/raw/cov.csv
           key: nflverse-${{ steps.lane.outputs.bucket }}
 
+      - name: Apply the owner's decision on a model proposal
+        if: github.event_name == 'workflow_dispatch' && inputs.decision != 'none'
+        env:
+          PROPOSAL: ${{ inputs.proposal }}
+          DECISION: ${{ inputs.decision }}
+        run: |
+          python3 refresh.py --stage sources
+          python3 pipeline/learn.py "$DECISION" "$PROPOSAL"
+
       - name: Refresh, rebuild and audit
         env:
           SOURCES_CACHED: ${{ steps.sources.outputs.cache-hit }}
@@ -73,8 +93,18 @@ jobs:
         run: |
           git config user.name "gridiron-bot"
           git config user.email "gridiron-bot@users.noreply.github.com"
-          git add data/gi2.json pipeline/track.json
-          if ! git diff --cached --quiet; then git commit -m "Daily data baseline $(date -u +%F)" && git push; fi
+          git add data/gi2.json pipeline/track.json pipeline/champion.json pipeline/learning
+          if ! git diff --cached --quiet; then git commit -m "Daily data baseline and model review $(date -u +%F)" && git pull --rebase -q && git push; fi
+
+      - name: Open an issue for each new model change proposal
+        if: steps.lane.outputs.lane == 'daily'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          for f in pipeline/learning/new_proposals/*.md; do
+            gh issue create -R "$GITHUB_REPOSITORY" --title "$(head -1 "$f" | sed 's/^## //')" --body-file "$f"
+          done
 
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -57,7 +57,7 @@ setTimeout(async()=>{
       market:all(dr,'.mkrow').map(x=>[T(x.querySelector('.mkk')),T(x.querySelector('.mkl')),T(x.querySelector('.mkp'))])});
     const sc=d.getElementById('scrim'); if(sc) sc.click(); await sleep(40); }
   d.querySelector('.navitem[data-go="model"]').click(); await sleep(150);
-  out.model={tiles:all(d,'.ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),
-    frows:all(d,'.frow').map(T),wprows:all(d,'.wprow').map(T),text:T(d.getElementById('modelgrid'))};
+  out.model={learn:{rows:all(d,'.ltab .lrow').map(r=>({k:T(r.querySelector('.fk')),st:T(r.querySelector('.fv')),v:T(r.querySelector('.lval'))})),rev:T(d.querySelector('.lrev')),dec:all(d,'.ldec').length},tiles:all(d,'.ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),
+    frows:all(d,'.ftab:not(.ltab) .frow').map(T),wprows:all(d,'.wprow').map(T),text:T(d.getElementById('modelgrid'))};
   out.errors=errs; fs.writeFileSync(process.argv[2]||'/dev/stdout',JSON.stringify(out)); W.close();
 },700);

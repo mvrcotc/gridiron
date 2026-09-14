@@ -4,7 +4,7 @@ Exit code 1 if any check FAILs -- refresh.py uses that to refuse publishing."""
 import os, sys, glob, json, importlib, time, traceback
 HERE=os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0,HERE)
 from common import Audit, DATA
-mods=sys.argv[1:] or sorted(os.path.basename(p)[:-3] for p in glob.glob(os.path.join(HERE,'a[0-9]_*.py')))
+mods=sys.argv[1:] or sorted(os.path.basename(p)[:-3] for p in glob.glob(os.path.join(HERE,'a[0-9]_*.py'))+glob.glob(os.path.join(HERE,'a[0-9][0-9]_*.py')))
 mods=[m for a in mods for m in ([a] if a.startswith('a') and '_' in a else
       [os.path.basename(p)[:-3] for p in glob.glob(os.path.join(HERE,a+'_*.py'))])]
 A=Audit(); t0=time.time()
