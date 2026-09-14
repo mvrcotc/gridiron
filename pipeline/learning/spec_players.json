@@ -1,0 +1,40 @@
+{
+ "about": "Rules of the player projection model's weekly review. Same process as the game models, scored player-week by player-week on expected PPR points. The simulator spread (vol, yshape) and injury absorption are in the registry but not yet re-tested by the loop.",
+ "unit": "player-weeks",
+ "first_season": 2020,
+ "eval_last_seasons": 4,
+ "alpha": 0.05,
+ "bootstrap": 2000,
+ "min_eval_games": 2000,
+ "min_block_games": 500,
+ "min_better_blocks": 3,
+ "max_worse_blocks": 1,
+ "confirm_min_new_games": 100,
+ "cooldown_weeks": 4,
+ "collateral": {"pts": 0.02, "rec": 0.02, "yds": 0.2},
+ "rollback": {"min_games": 400, "alpha": 0.05},
+ "score": {
+  "z_cap": 4.0, "extra_block": 0.5, "secondary_better": 0.5, "simpler": 0.5, "move_per_step": 0.5, "adds_factor": 1.0,
+  "worse_block": 0.5, "secondary_worse": 0.5, "further_from_market": 0.5, "concentrated": 0.5, "near_threshold": 0.5, "unstable": 0.5
+ },
+ "categories": [
+  {"id": "pl_history", "name": "Last season's games", "what": "how much a player's previous season counts next to this season's games",
+   "kind": "linear", "params": ["prev_weight"], "metric": "pts", "values": [0.0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5, 0.75, 1.0],
+   "bounds": {"prev_weight": [0.0, 1.0]}, "step": 0.1, "min_change": 0.05},
+  {"id": "pl_volume_trust", "name": "Volume trust", "what": "how many team plays before a player's own target and carry share outweighs his position's average",
+   "kind": "ratio", "params": ["k_ts", "k_cshare"], "metric": "pts", "ratios": [0.512, 0.64, 0.8, 1.25, 1.5625, 1.953125],
+   "ratio_bounds": [0.25, 4.0], "step": 1.25, "min_change": 1.25},
+  {"id": "pl_efficiency_trust", "name": "Efficiency trust", "what": "how many targets and carries before a player's own catch rate, yards and touchdown rates are trusted",
+   "kind": "ratio", "params": ["k_cr", "k_ypt", "k_adot", "k_ypc", "k_rutd"], "metric": "pts", "ratios": [0.512, 0.64, 0.8, 1.25, 1.5625, 1.953125],
+   "ratio_bounds": [0.25, 4.0], "step": 1.25, "min_change": 1.25},
+  {"id": "pl_passing_trust", "name": "Passing trust", "what": "how many attempts before a quarterback's own completion, yardage, touchdown and interception rates are trusted",
+   "kind": "ratio", "params": ["k_pcmp", "k_pass"], "metric": "pts", "ratios": [0.512, 0.64, 0.8, 1.25, 1.5625, 1.953125],
+   "ratio_bounds": [0.25, 4.0], "step": 1.25, "min_change": 1.25},
+  {"id": "pl_opponent", "name": "Opponent pass defence", "what": "how strongly the opposing pass defence moves a receiver's yards per target",
+   "kind": "linear", "params": ["opp_scale"], "metric": "pts", "values": [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
+   "bounds": {"opp_scale": [0.0, 2.0]}, "step": 0.25, "min_change": 0.25},
+  {"id": "pl_script", "name": "Game script", "what": "how strongly the point spread shifts a team between passing and running",
+   "kind": "linear", "params": ["script_scale"], "metric": "pts", "values": [0.0, 0.5, 1.0, 1.5, 2.0, 3.0],
+   "bounds": {"script_scale": [0.0, 3.0]}, "step": 0.5, "min_change": 0.5}
+ ]
+}

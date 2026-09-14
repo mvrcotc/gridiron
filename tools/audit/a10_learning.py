@@ -61,11 +61,12 @@ def run(A):
                         if not lo-1e-9<=x<=hi+1e-9: bad.append('%s %s=%s outside [%s, %s]'%(tag,p,x,lo,hi))
     A.check('LG1','Both weights registries (pregame and live) are complete, numbered in order, and every weight sits inside its allowed range',bad,nv)
 
-    bad=[]; tested={}; nchg=0
+    bad=[]; nchg=0
+    tested=dict(jl(os.path.join(L,'decisions.json'),{}))     # permanent decision records; the review log only keeps recent weeks
     for rev in LOG:
         for r in rev.get('results',[]):
             if r.get('status') in ('applied','proposed'):
-                tested['%s:%s:%s'%(rev['id'],r.get('model','pregame'),r['category'])]=r
+                tested.setdefault('%s:%s:%s'%(rev['id'],r.get('model','pregame'),r['category']),r)
     for model,CH,SPEC in REG:
         VS=sorted(CH['versions'],key=lambda v:v['v']); autos=defaultdict(list); per_cut=defaultdict(int)
         for v in VS[1:]:

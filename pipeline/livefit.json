@@ -1,8 +1,155 @@
 {
  "fit": "2019-2022",
  "test": "2023-2025",
- "n_train_plays": 184195,
+ "version": 1,
  "n_test_plays": 140336,
+ "report": {
+  "wp_all": {
+   "gridiron": {
+    "n": 140155,
+    "brier": 0.15304,
+    "logloss": 0.45898
+   },
+   "nflfastr": {
+    "n": 140155,
+    "brier": 0.16064,
+    "logloss": 0.47579
+   },
+   "nflfastr_with_line": {
+    "n": 140155,
+    "brier": 0.14666,
+    "logloss": 0.44307
+   }
+  },
+  "wp_by_quarter": [
+   {
+    "q": 1,
+    "gridiron": {
+     "n": 30254,
+     "brier": 0.21102,
+     "logloss": 0.61001
+    },
+    "nflfastr_with_line": {
+     "n": 30254,
+     "brier": 0.19993,
+     "logloss": 0.58516
+    }
+   },
+   {
+    "q": 2,
+    "gridiron": {
+     "n": 39429,
+     "brier": 0.17566,
+     "logloss": 0.52364
+    },
+    "nflfastr_with_line": {
+     "n": 39429,
+     "brier": 0.16789,
+     "logloss": 0.50516
+    }
+   },
+   {
+    "q": 3,
+    "gridiron": {
+     "n": 30626,
+     "brier": 0.14119,
+     "logloss": 0.43173
+    },
+    "nflfastr_with_line": {
+     "n": 30626,
+     "brier": 0.13746,
+     "logloss": 0.42163
+    }
+   },
+   {
+    "q": 4,
+    "gridiron": {
+     "n": 39846,
+     "brier": 0.09573,
+     "logloss": 0.30129
+    },
+    "nflfastr_with_line": {
+     "n": 39846,
+     "brier": 0.09227,
+     "logloss": 0.29022
+    }
+   }
+  ],
+  "wp_calibration": [
+   {
+    "b": 0,
+    "n": 16272,
+    "p": 3.1,
+    "a": 4.0
+   },
+   {
+    "b": 10,
+    "n": 9155,
+    "p": 15.1,
+    "a": 17.7
+   },
+   {
+    "b": 20,
+    "n": 10800,
+    "p": 25.2,
+    "a": 24.7
+   },
+   {
+    "b": 30,
+    "n": 13381,
+    "p": 35.2,
+    "a": 34.0
+   },
+   {
+    "b": 40,
+    "n": 15751,
+    "p": 45.1,
+    "a": 45.1
+   },
+   {
+    "b": 50,
+    "n": 14922,
+    "p": 54.9,
+    "a": 57.0
+   },
+   {
+    "b": 60,
+    "n": 14649,
+    "p": 64.9,
+    "a": 68.8
+   },
+   {
+    "b": 70,
+    "n": 12444,
+    "p": 74.8,
+    "a": 78.3
+   },
+   {
+    "b": 80,
+    "n": 10952,
+    "p": 84.9,
+    "a": 88.5
+   },
+   {
+    "b": 90,
+    "n": 21829,
+    "p": 97.1,
+    "a": 97.0
+   }
+  ],
+  "final_margin_mae": {
+   "gridiron_live": 6.881,
+   "market_faded": 6.783,
+   "n": 140336
+  },
+  "final_total_mae": {
+   "gridiron_live": 7.234,
+   "market_faded": 7.204,
+   "n": 140336
+  }
+ },
+ "built": "2026-09-14T14:04:35Z",
+ "note": "every play predicted by the live weights in force at its week, from the pregame numbers GridIron showed",
  "ep": {
   "yard_bands": [
    1,
@@ -298,171 +445,9 @@
   "alpha": 0.00229,
   "beta": 0.82557
  },
- "platt_validation": {
-  "season": 2022,
-  "raw": {
-   "brier": 0.17953,
-   "logloss": 0.54605
-  },
-  "calibrated": {
-   "brier": 0.1791,
-   "logloss": 0.53937
-  }
- },
  "total": {
   "t_prior": 0.8026,
   "t_frac": 9.3898,
   "t_ep": 0.6842
- },
- "report": {
-  "wp_all": {
-   "gridiron": {
-    "n": 140155,
-    "brier": 0.15178,
-    "logloss": 0.45595
-   },
-   "gridiron_uncalibrated": {
-    "n": 140155,
-    "brier": 0.15171,
-    "logloss": 0.45777
-   },
-   "nflfastr": {
-    "n": 140155,
-    "brier": 0.16064,
-    "logloss": 0.47579
-   },
-   "nflfastr_with_line": {
-    "n": 140155,
-    "brier": 0.14666,
-    "logloss": 0.44307
-   }
-  },
-  "wp_by_quarter": [
-   {
-    "q": 1,
-    "gridiron": {
-     "n": 30254,
-     "brier": 0.20849,
-     "logloss": 0.60387
-    },
-    "nflfastr_with_line": {
-     "n": 30254,
-     "brier": 0.19993,
-     "logloss": 0.58516
-    }
-   },
-   {
-    "q": 2,
-    "gridiron": {
-     "n": 39429,
-     "brier": 0.1745,
-     "logloss": 0.52053
-    },
-    "nflfastr_with_line": {
-     "n": 39429,
-     "brier": 0.16789,
-     "logloss": 0.50516
-    }
-   },
-   {
-    "q": 3,
-    "gridiron": {
-     "n": 30626,
-     "brier": 0.14002,
-     "logloss": 0.42908
-    },
-    "nflfastr_with_line": {
-     "n": 30626,
-     "brier": 0.13746,
-     "logloss": 0.42163
-    }
-   },
-   {
-    "q": 4,
-    "gridiron": {
-     "n": 39846,
-     "brier": 0.09527,
-     "logloss": 0.30041
-    },
-    "nflfastr_with_line": {
-     "n": 39846,
-     "brier": 0.09227,
-     "logloss": 0.29022
-    }
-   }
-  ],
-  "wp_calibration": [
-   {
-    "b": 0,
-    "n": 16261,
-    "p": 3.1,
-    "a": 4.0
-   },
-   {
-    "b": 10,
-    "n": 9246,
-    "p": 15.1,
-    "a": 17.3
-   },
-   {
-    "b": 20,
-    "n": 11028,
-    "p": 25.1,
-    "a": 24.5
-   },
-   {
-    "b": 30,
-    "n": 13344,
-    "p": 35.1,
-    "a": 34.8
-   },
-   {
-    "b": 40,
-    "n": 15536,
-    "p": 45.1,
-    "a": 43.8
-   },
-   {
-    "b": 50,
-    "n": 15001,
-    "p": 54.9,
-    "a": 57.1
-   },
-   {
-    "b": 60,
-    "n": 14909,
-    "p": 64.8,
-    "a": 68.8
-   },
-   {
-    "b": 70,
-    "n": 12120,
-    "p": 74.8,
-    "a": 79.4
-   },
-   {
-    "b": 80,
-    "n": 10863,
-    "p": 84.9,
-    "a": 89.6
-   },
-   {
-    "b": 90,
-    "n": 21847,
-    "p": 97.1,
-    "a": 97.1
-   }
-  ],
-  "final_margin_mae": {
-   "gridiron_live": 6.843,
-   "market_faded": 6.783,
-   "n": 140336
-  },
-  "final_total_mae": {
-   "gridiron_live": 7.234,
-   "market_faded": 7.204,
-   "n": 140336
-  }
- },
- "built": "2026-09-14T12:46:53Z"
+ }
 }

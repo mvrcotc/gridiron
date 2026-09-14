@@ -35,7 +35,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     outputs:
       lane: ${{ steps.lane.outputs.lane }}
       started: ${{ steps.lane.outputs.started }}
@@ -51,12 +51,13 @@ jobs:
           else lane=live; fi
           echo "lane=$lane" >> "$GITHUB_OUTPUT"
           echo "started=$(date +%s)" >> "$GITHUB_OUTPUT"
+          echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
           echo "bucket=$(date -u +%Y-%m-%d)-$(( 10#$(date -u +%H) / 6 ))" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install "numpy>=2,<3"
+      - run: pip install "numpy>=2,<3" "pandas>=2,<3"
 
       - uses: actions/setup-node@v4
         with:
@@ -73,6 +74,15 @@ jobs:
             data/raw/cov.csv
           key: nflverse-${{ steps.lane.outputs.bucket }}
 
+      # play-by-play for the live model's weekly review; rebuilt from nflverse only when a review needs newer plays
+      - name: Restore the play-by-play history
+        if: steps.lane.outputs.lane == 'daily'
+        uses: actions/cache@v4
+        with:
+          path: data/history/history.sqlite
+          key: history-${{ steps.lane.outputs.week }}
+          restore-keys: history-
+
       - name: Apply the owner's decision on a model proposal
         if: github.event_name == 'workflow_dispatch' && inputs.decision != 'none'
         env:
@@ -80,7 +90,7 @@ jobs:
           DECISION: ${{ inputs.decision }}
         run: |
           python3 refresh.py --stage sources
-          python3 pipeline/learn.py "$DECISION" "$PROPOSAL"
+          python3 pipeline/learn.py "$DECISION" "$PROPOSAL" --update-history
 
       - name: Refresh, rebuild and audit
         env:

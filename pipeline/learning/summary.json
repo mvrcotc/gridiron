@@ -1,6 +1,16 @@
 {
  "updated": "2026-09-14",
+ "models": {
+  "pregame": "Pregame odds model",
+  "live": "Live in-game model"
+ },
  "champion": {
+  "v": 1,
+  "date": "2026-09-14",
+  "how": "origin",
+  "versions": 1
+ },
+ "live_champion": {
   "v": 1,
   "date": "2026-09-14",
   "how": "origin",
@@ -36,6 +46,308 @@
   "wx_cold": 0.0,
   "ref": 0.0
  },
+ "live_params": {
+  "ep": {
+   "yard_bands": [
+    1,
+    11,
+    21,
+    31,
+    41,
+    51,
+    61,
+    71,
+    81,
+    91,
+    100
+   ],
+   "dist_bands": [
+    1,
+    4,
+    8,
+    13,
+    100
+   ],
+   "table": [
+    [
+     [
+      6.212,
+      5.612,
+      5.124,
+      5.676
+     ],
+     [
+      5.749,
+      5.091,
+      4.548,
+      5.278
+     ],
+     [
+      5.04,
+      4.208,
+      3.77,
+      4.577
+     ],
+     [
+      3.469,
+      2.91,
+      2.882,
+      3.195
+     ]
+    ],
+    [
+     [
+      4.752,
+      4.778,
+      4.766,
+      4.215
+     ],
+     [
+      4.848,
+      4.529,
+      4.228,
+      3.751
+     ],
+     [
+      4.277,
+      3.858,
+      3.51,
+      3.057
+     ],
+     [
+      2.961,
+      2.698,
+      2.708,
+      2.655
+     ]
+    ],
+    [
+     [
+      4.098,
+      4.075,
+      4.113,
+      3.715
+     ],
+     [
+      4.186,
+      3.883,
+      3.597,
+      3.277
+     ],
+     [
+      3.587,
+      3.258,
+      3.002,
+      2.682
+     ],
+     [
+      2.261,
+      2.055,
+      2.073,
+      2.056
+     ]
+    ],
+    [
+     [
+      3.429,
+      3.364,
+      3.443,
+      3.07
+     ],
+     [
+      3.446,
+      3.17,
+      2.883,
+      2.553
+     ],
+     [
+      2.875,
+      2.465,
+      2.15,
+      1.8
+     ],
+     [
+      1.43,
+      0.955,
+      0.863,
+      0.855
+     ]
+    ],
+    [
+     [
+      2.785,
+      3.068,
+      2.791,
+      2.541
+     ],
+     [
+      2.869,
+      2.537,
+      2.243,
+      1.944
+     ],
+     [
+      2.287,
+      1.78,
+      1.466,
+      1.07
+     ],
+     [
+      0.612,
+      0.182,
+      -0.012,
+      -0.154
+     ]
+    ],
+    [
+     [
+      2.2,
+      2.36,
+      2.208,
+      1.974
+     ],
+     [
+      2.277,
+      1.949,
+      1.662,
+      1.449
+     ],
+     [
+      1.667,
+      1.171,
+      0.899,
+      0.586
+     ],
+     [
+      0.036,
+      -0.302,
+      -0.454,
+      -0.509
+     ]
+    ],
+    [
+     [
+      1.646,
+      1.753,
+      1.656,
+      1.389
+     ],
+     [
+      1.65,
+      1.305,
+      1.123,
+      0.826
+     ],
+     [
+      1.093,
+      0.58,
+      0.381,
+      0.048
+     ],
+     [
+      -0.46,
+      -0.74,
+      -0.781,
+      -0.866
+     ]
+    ],
+    [
+     [
+      1.019,
+      1.019,
+      1.03,
+      0.654
+     ],
+     [
+      1.129,
+      0.781,
+      0.486,
+      0.096
+     ],
+     [
+      0.512,
+      0.072,
+      -0.236,
+      -0.604
+     ],
+     [
+      -1.003,
+      -1.234,
+      -1.442,
+      -1.514
+     ]
+    ],
+    [
+     [
+      0.395,
+      0.395,
+      0.425,
+      0.046
+     ],
+     [
+      0.534,
+      0.076,
+      -0.142,
+      -0.447
+     ],
+     [
+      -0.127,
+      -0.564,
+      -0.835,
+      -1.13
+     ],
+     [
+      -1.588,
+      -1.742,
+      -1.877,
+      -2.004
+     ]
+    ],
+    [
+     [
+      -0.099,
+      -0.099,
+      -0.072,
+      -0.504
+     ],
+     [
+      -0.65,
+      -0.376,
+      -0.63,
+      -1.07
+     ],
+     [
+      -1.339,
+      -1.084,
+      -1.271,
+      -1.733
+     ],
+     [
+      -2.319,
+      -2.112,
+      -2.303,
+      -2.446
+     ]
+    ]
+   ]
+  },
+  "margin": {
+   "a_ep": 0.6333,
+   "b_prior": 1.1364,
+   "c_frac": -0.6509,
+   "sigma": 13.5,
+   "eps": 2.3
+  },
+  "platt": {
+   "alpha": 0.00229,
+   "beta": 0.82557
+  },
+  "total": {
+   "t_prior": 0.8026,
+   "t_frac": 9.3898,
+   "t_ep": 0.6842
+  }
+ },
  "last_review": {
   "id": "R2025-18",
   "date": "2026-09-14",
@@ -44,130 +356,197 @@
    18
   ],
   "games": 1871,
-  "tested": 14,
+  "tested": 19,
   "applied": [],
   "proposed": [],
-  "rollback": null
+  "models": {
+   "pregame": {
+    "games": 1871,
+    "champion": 1,
+    "rollback": null,
+    "tested": 14,
+    "champion_after": 1,
+    "seconds": 1.6
+   },
+   "live": {
+    "games": 1871,
+    "champion": 1,
+    "rollback": null,
+    "tested": 5,
+    "champion_after": 1,
+    "seconds": 4.6
+   }
+  }
  },
  "weights": [
   {
+   "model": "pregame",
    "id": "ratings_mix",
    "name": "Rating ingredients",
    "what": "how the team ratings weigh yards, efficiency (EPA) and points scored",
    "value": "yards 30% / EPA 10% / points 60%",
-   "off": false,
    "status": "watching",
    "note": "Rating ingredients yards 30% / EPA 10% / points 60% → yards 10% / EPA 20% / points 70%: average of margin and total error 10.300 → 10.293; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "memory",
    "name": "Memory",
    "what": "how fast older games fade from the ratings",
    "value": "0.9",
-   "off": false,
    "status": "rejected",
    "note": "Memory 0.9 → 0.93: average of margin and total error 10.300 → 10.303; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 1 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "trust",
    "name": "Sample trust",
    "what": "how many games a team needs before its own numbers outweigh the league average",
    "value": "×1.00 of launch values",
-   "off": false,
    "status": "watching",
    "note": "Sample trust ×1.00 of launch values → ×1.25 of launch values: average of margin and total error 10.300 → 10.294; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 3 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "carryover",
    "name": "Season carryover",
    "what": "how much of last season a team carries into the new one",
    "value": "×1.00 of launch values",
-   "off": false,
    "status": "rejected",
    "note": "Season carryover ×1.00 of launch values → ×1.20 of launch values: average of margin and total error 10.300 → 10.304; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "home_edge",
    "name": "Home field",
    "what": "points added for playing at home (none at neutral sites)",
    "value": "1.2",
-   "off": false,
    "status": "rejected",
    "note": "Home field 1.2 → 1.4: margin error 10.272 → 10.275; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 1 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "backup_qb",
    "name": "Backup quarterback",
    "what": "points of margin a team loses when its usual starter is out",
    "value": "3.9",
-   "off": false,
    "status": "watching",
    "note": "Backup quarterback 3.9 → 2.25: margin error 10.272 → 10.239; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "wp_cal",
    "name": "Win-probability calibration",
    "what": "how a projected margin turns into a win probability",
    "value": "a -0.56, b 1.295, sd 13.15",
-   "off": false,
    "status": "watching",
-   "note": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a 0.45, b 1.066, sd 13.11: win-probability log loss 0.640 → 0.637; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
+   "note": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a 0.45, b 1.066, sd 13.11: win-probability log loss 0.6401 → 0.6369; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "blend",
    "name": "Blend with Vegas",
    "what": "how much of GridIron's own number goes into the blended line",
    "value": "15% GridIron",
-   "off": false,
    "status": "watching",
    "note": "Blend with Vegas 15% GridIron → 0% GridIron: blended-line error 9.949 → 9.933; 49.9% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "venue",
    "name": "Venue edge",
    "what": "extra home edge for venues that have measured tougher or softer than average",
    "value": "0",
-   "off": true,
    "status": "rejected",
    "note": "Venue edge 0 → 0.16: margin error 10.272 → 10.273; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 1 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "rest",
    "name": "Rest days",
    "what": "points per extra day of rest over the opponent",
    "value": "0",
-   "off": true,
    "status": "holds",
    "note": "Rest days: the best-fitting value is within one grid step of the current weight, so nothing to test.",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "weather_total",
    "name": "Weather on the total",
    "what": "points added to or taken off the game total for a roof, sustained wind and cold",
    "value": "roof +0.00, wind +0.000/mph, cold +0.00/10°F",
-   "off": true,
    "status": "rejected",
    "note": "Weather on the total roof +0.00, wind +0.000/mph, cold +0.00/10°F → roof +2.27, wind -0.332/mph, cold -0.97/10°F: total error 10.329 → 10.378; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 1 of 3 seasons with 48+ games",
    "last_change": null
   },
   {
+   "model": "pregame",
    "id": "referee",
    "name": "Referee crew",
    "what": "points added to the total for a referee whose recent games have run over or under the line",
    "value": "0",
-   "off": true,
    "status": "watching",
    "note": "Referee crew 0 → -0.36: total error 10.329 → 10.318; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
+   "last_change": null
+  },
+  {
+   "model": "live",
+   "id": "live_ep",
+   "name": "Possession value",
+   "what": "expected points of the drive in progress, by field position, down and distance",
+   "value": "1st & 10 at own 25: +1.03 pts, midfield: +2.79, opponent 20: +4.77",
+   "status": "holds",
+   "note": "Possession value: the best-fitting value is within the minimum meaningful change of the current one, so nothing to test.",
+   "last_change": null
+  },
+  {
+   "model": "live",
+   "id": "live_margin",
+   "name": "Score, possession and pregame fade",
+   "what": "how much the possession counts and how fast GridIron's pregame margin fades as the clock runs",
+   "value": "possession 0.633, pregame 1.136, clock -0.651",
+   "status": "rejected",
+   "note": "Score, possession and pregame fade possession 0.633, pregame 1.136, clock -0.651 → possession 0.629, pregame 1.054, clock +0.141: win-probability log loss 0.4590 → 0.4593; 0.0% confidence after correcting for 5 ideas tested (need 95%); better in 1 of 3 seasons with 48+ games",
+   "last_change": null
+  },
+  {
+   "model": "live",
+   "id": "live_spread",
+   "name": "Live uncertainty",
+   "what": "how wide the range of final margins is at each point of the game",
+   "value": "spread 13.50, floor 2.30",
+   "status": "holds",
+   "note": "Live uncertainty: the best-fitting value is within the minimum meaningful change of the current one, so nothing to test.",
+   "last_change": null
+  },
+  {
+   "model": "live",
+   "id": "live_tails",
+   "name": "Tail calibration",
+   "what": "a correction for over- or under-confidence near 0% and 100%",
+   "value": "shift +0.002, stretch 0.826",
+   "status": "rejected",
+   "note": "Tail calibration shift +0.002, stretch 0.826 → shift +0.040, stretch 0.830: win-probability log loss 0.4590 → 0.4592; 0.0% confidence after correcting for 5 ideas tested (need 95%); better in 0 of 3 seasons with 48+ games",
+   "last_change": null
+  },
+  {
+   "model": "live",
+   "id": "live_total",
+   "name": "Live total",
+   "what": "how the projected final total combines the score so far, GridIron's pregame total and the clock",
+   "value": "pregame 0.803, clock 9.39, possession 0.684",
+   "status": "rejected",
+   "note": "Live total pregame 0.803, clock 9.39, possession 0.684 → pregame 0.859, clock 6.77, possession 0.693: final-total error 7.234 → 7.236; 0.0% confidence after correcting for 5 ideas tested (need 95%); better in 0 of 3 seasons with 48+ games",
    "last_change": null
   }
  ],
@@ -175,6 +554,7 @@
   {
    "review": "R2025-18",
    "date": "2026-09-14",
+   "model": "pregame",
    "category": "ratings_mix",
    "name": "Rating ingredients",
    "variant": "full",
@@ -189,7 +569,7 @@
    ],
    "cons": [
     {
-     "text": "Slightly worse win-probability log loss (0.640 → 0.641)",
+     "text": "Slightly worse win-probability log loss (0.6401 → 0.6413)",
      "pts": 0.5
     },
     {
@@ -263,21 +643,12 @@
     }
    ],
    "metric": "margin_total",
-   "from_params": {
-    "wB": 0.3,
-    "wE": 0.1,
-    "wS": 0.6
-   },
-   "to_params": {
-    "wB": 0.1,
-    "wE": 0.2,
-    "wS": 0.7
-   },
    "steps": 2.0
   },
   {
    "review": "R2025-18",
    "date": "2026-09-14",
+   "model": "pregame",
    "category": "ratings_mix",
    "name": "Rating ingredients",
    "variant": "step",
@@ -354,21 +725,12 @@
     }
    ],
    "metric": "margin_total",
-   "from_params": {
-    "wB": 0.3,
-    "wE": 0.1,
-    "wS": 0.6
-   },
-   "to_params": {
-    "wB": 0.2,
-    "wE": 0.15,
-    "wS": 0.65
-   },
    "steps": 1.0
   },
   {
    "review": "R2025-18",
    "date": "2026-09-14",
+   "model": "pregame",
    "category": "trust",
    "name": "Sample trust",
    "variant": "full",
@@ -449,27 +811,12 @@
     }
    ],
    "metric": "margin_total",
-   "from_params": {
-    "kY": 8,
-    "kP": 6,
-    "kT": 40,
-    "kO": 4,
-    "kE": 320,
-    "kS": 10
-   },
-   "to_params": {
-    "kY": 10.0,
-    "kP": 7.5,
-    "kT": 50.0,
-    "kO": 5.0,
-    "kE": 400.0,
-    "kS": 12.5
-   },
    "steps": 1.0
   },
   {
    "review": "R2025-18",
    "date": "2026-09-14",
+   "model": "pregame",
    "category": "backup_qb",
    "name": "Backup quarterback",
    "variant": "full",
@@ -482,7 +829,7 @@
      "pts": 1.15
     },
     {
-     "text": "Also improves win-probability log loss (0.640 → 0.637)",
+     "text": "Also improves win-probability log loss (0.6401 → 0.6366)",
      "pts": 0.5
     }
    ],
@@ -550,17 +897,12 @@
     }
    ],
    "metric": "margin",
-   "from_params": {
-    "qb": 3.9
-   },
-   "to_params": {
-    "qb": 2.25
-   },
    "steps": 1.65
   },
   {
    "review": "R2025-18",
    "date": "2026-09-14",
+   "model": "pregame",
    "category": "backup_qb",
    "name": "Backup quarterback",
    "variant": "step",
@@ -573,7 +915,7 @@
      "pts": 1.84
     },
     {
-     "text": "Also improves win-probability log loss (0.640 → 0.637)",
+     "text": "Also improves win-probability log loss (0.6401 → 0.6374)",
      "pts": 0.5
     }
    ],
@@ -641,26 +983,21 @@
     }
    ],
    "metric": "margin",
-   "from_params": {
-    "qb": 3.9
-   },
-   "to_params": {
-    "qb": 2.9
-   },
    "steps": 1.0
   },
   {
    "review": "R2025-18",
    "date": "2026-09-14",
+   "model": "pregame",
    "category": "wp_cal",
    "name": "Win-probability calibration",
    "variant": "full",
    "status": "watching",
    "title": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a 0.45, b 1.066, sd 13.11",
-   "summary": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a 0.45, b 1.066, sd 13.11: win-probability log loss 0.640 → 0.637; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
+   "summary": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a 0.45, b 1.066, sd 13.11: win-probability log loss 0.6401 → 0.6369; 0.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
    "pros": [
     {
-     "text": "Lower win-probability log loss on 815 games it never saw: 0.640 → 0.637",
+     "text": "Lower win-probability log loss on 815 games it never saw: 0.6401 → 0.6369",
      "pts": 1.17
     }
    ],
@@ -688,7 +1025,7 @@
     {
      "id": "better",
      "ok": true,
-     "text": "win-probability log loss 0.640 → 0.637"
+     "text": "win-probability log loss 0.6401 → 0.6369"
     },
     {
      "id": "significant",
@@ -732,30 +1069,21 @@
     }
    ],
    "metric": "logloss",
-   "from_params": {
-    "wp_a": -0.5607864974415988,
-    "wp_b": 1.2945221678285592,
-    "wp_sd": 13.150882601642925
-   },
-   "to_params": {
-    "wp_a": 0.4472,
-    "wp_b": 1.066,
-    "wp_sd": 13.1081
-   },
    "steps": 3.36
   },
   {
    "review": "R2025-18",
    "date": "2026-09-14",
+   "model": "pregame",
    "category": "wp_cal",
    "name": "Win-probability calibration",
    "variant": "step",
    "status": "watching",
    "title": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a -0.26, b 1.226, sd 13.14",
-   "summary": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a -0.26, b 1.226, sd 13.14: win-probability log loss 0.640 → 0.638; 79.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
+   "summary": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a -0.26, b 1.226, sd 13.14: win-probability log loss 0.6401 → 0.6379; 79.0% confidence after correcting for 14 ideas tested (need 95%); better in 2 of 3 seasons with 48+ games",
    "pros": [
     {
-     "text": "Lower win-probability log loss on 815 games it never saw: 0.640 → 0.638",
+     "text": "Lower win-probability log loss on 815 games it never saw: 0.6401 → 0.6379",
      "pts": 2.09
     }
    ],
@@ -783,7 +1111,7 @@
     {
      "id": "better",
      "ok": true,
-     "text": "win-probability log loss 0.640 → 0.638"
+     "text": "win-probability log loss 0.6401 → 0.6379"
     },
     {
      "id": "significant",
@@ -827,21 +1155,12 @@
     }
    ],
    "metric": "logloss",
-   "from_params": {
-    "wp_a": -0.5607864974415988,
-    "wp_b": 1.2945221678285592,
-    "wp_sd": 13.150882601642925
-   },
-   "to_params": {
-    "wp_a": -0.2608,
-    "wp_b": 1.2265,
-    "wp_sd": 13.1381
-   },
    "steps": 1.0
   },
   {
    "review": "R2025-18",
    "date": "2026-09-14",
+   "model": "pregame",
    "category": "blend",
    "name": "Blend with Vegas",
    "variant": "full",
@@ -926,17 +1245,12 @@
     }
    ],
    "metric": "blend",
-   "from_params": {
-    "blend": 0.15
-   },
-   "to_params": {
-    "blend": 0.0
-   },
    "steps": 3.0
   },
   {
    "review": "R2025-18",
    "date": "2026-09-14",
+   "model": "pregame",
    "category": "referee",
    "name": "Referee crew",
    "variant": "full",
@@ -1021,12 +1335,6 @@
     }
    ],
    "metric": "total",
-   "from_params": {
-    "ref": 0.0
-   },
-   "to_params": {
-    "ref": -0.36
-   },
    "steps": 2.4
   }
  ],
@@ -1037,6 +1345,14 @@
    "date": "2026-09-14",
    "how": "origin",
    "note": "The weights GridIron launched with: ratings tuned on 2019-22 (hp2.json), backup-QB value and win-probability calibration fitted on 2019-22, blend chosen in backtesting. Factors that failed their held-out tests start at zero weight."
+  }
+ ],
+ "live_history": [
+  {
+   "v": 1,
+   "date": "2026-09-14",
+   "how": "origin",
+   "note": "The live model GridIron launched with: fitted on 2019-22 play-by-play (livewp.py), tail calibration kept after a 2022 validation check."
   }
  ],
  "rules": {

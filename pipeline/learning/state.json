@@ -1,9 +1,22 @@
 {
- "pending": {},
- "changes": {},
- "last_cutoff": [
-  2025,
-  18
- ],
- "last_games": 1871
+ "models": {
+  "pregame": {
+   "pending": {},
+   "changes": {},
+   "last_cutoff": [
+    2025,
+    18
+   ],
+   "last_games": 1871
+  },
+  "live": {
+   "pending": {},
+   "changes": {},
+   "last_cutoff": [
+    2025,
+    18
+   ],
+   "last_games": 1871
+  }
+ }
 }

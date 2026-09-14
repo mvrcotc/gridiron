@@ -32,6 +32,7 @@ import gamemodel as gm, engine2
 
 LDIR=os.path.join(HERE,'learning'); EDIR=os.path.join(LDIR,'evidence'); os.makedirs(EDIR,exist_ok=True)
 P_LOG,P_STATE,P_PROPS,P_SUM,P_NEW=[os.path.join(LDIR,f) for f in ('log.json','state.json','proposals.json','summary.json','new_proposals')]
+P_DEC=os.path.join(LDIR,'decisions.json')   # permanent: every applied, proposed or rolled-back change with its full evidence summary
 SPEC=gm.load_spec(); CATS={c['id']:c for c in SPEC['categories']}
 MODELS=('pregame','live'); MNAME={'pregame':'Pregame odds model','live':'Live in-game model'}
 
@@ -279,7 +280,7 @@ def rollback_check(fr,C,cutoff,review_id):
     if V['how'] not in ('auto','approved'): return None
     prev=max((x for x in C['versions'] if x['v']<V['v']),key=lambda x:x['v'])
     idx=np.where(fr.wk>gm.wk(*V['cutoff']))[0]
-    if len(idx)<SPEC['rollback']['min_games']: return dict(version=V['v'],games=int(len(idx)),status='too early')
+    if len(idx)<max(1,SPEC['rollback']['min_games']): return dict(version=V['v'],games=int(len(idx)),status='too early')
     pv=predict(fr,V['params'],idx); pp=predict(fr,prev['params'],idx)
     lv,_=losses(fr,'margin_total',pv,idx); lp,_=losses(fr,'margin_total',pp,idx)
     p,_=boot(lv-lp,fr.wk[idx],seed_of(review_id,'rollback'),SPEC['bootstrap'])
@@ -369,11 +370,12 @@ def load_state():
     if 'models' not in s: s={'models':{'pregame':s}} if s else {'models':{}}
     return s
 
-def run_model(model,book,cutoff,rid,state,PROPS,update_history):
+def run_model(model,book,cutoff,rid,state,PROPS,update_history,DEC):
     A=adapter(model,book,cutoff,update_history); ms=state['models'].setdefault(model,{})
     if A is None:
         print('  %s: play-by-play through %d week %d is not in the history database yet -- its review waits'%(MNAME[model],cutoff[0],cutoff[1])); return None
-    C,spec=A['C'],A['spec']; t0=datetime.datetime.now(); applied=[]; proposed=[]; did_auto=False
+    C,spec=A['C'],A['spec']; t0=datetime.datetime.now(); applied=[]; proposed=[]
+    did_auto=any(v['how'] in ('auto','rollback') and list(v['cutoff'])==list(cutoff) for v in C['versions'])   # one automatic change per model per week, even when a week is re-run
     info=dict(games=A['games'],champion=C['current'])
     rb=A['rollback'](rid); info['rollback']=rb
     if rb and rb['status']=='rolled back':
@@ -381,6 +383,7 @@ def run_model(model,book,cutoff,rid,state,PROPS,update_history):
         v=add_version(C,copy.deepcopy(prev['params']),'rollback','Version %d did worse than version %d on the %d games since it went live (%s vs %s); restored.'%(
             rb['version'],rb['previous'],rb['games'],nf(rb['new']),nf(rb['old'])),cutoff,'%s:%s:rollback'%(rid,model))
         applied.append(dict(model=model,category='rollback',version=v)); did_auto=True
+        DEC.setdefault('%s:%s:rollback'%(rid,model),dict(review=rid,cutoff=list(cutoff),model=model,category='rollback',status='rolled back',version=v,**rb))
         ms.setdefault('changes',{}).setdefault('rollback',[]).append(dict(seq=seq(cutoff),season=cutoff[0],how='rollback',version=v))
     cands=A['evaluate'](rid)
     for c in cands: c['model']=model
@@ -396,21 +399,26 @@ def run_model(model,book,cutoff,rid,state,PROPS,update_history):
         else:
             c['status']='pending'; newpend[key]=old or dict(review=rid,cutoff=cutoff,games=A['games'])
             c['checks'].append(dict(id='confirmed',ok=False,text='first time it passed; must pass again in a later review with new games'))
-    ms['pending']=newpend; changes=ms.setdefault('changes',{})
-    for c in sorted(ready,key=lambda c:-c['net']):
+    ms['pending']=newpend; changes=ms.setdefault('changes',{}); changed_now=set(); small_ready={c['category'] for c in ready if c['size']=='small'}
+    for c in sorted(ready,key=lambda c:(c['size']!='small',-c['net'])):     # small moves first, strongest first
         cat=A['cats'][c['category']]; hist=changes.setdefault(c['category'],[])
         last=max([x['seq'] for x in hist]+[-99]); season_steps=sum(x.get('steps',0) for x in hist if x.get('how')=='auto' and x.get('season')==cutoff[0])
         c['checks'].append(dict(id='confirmed',ok=True,text='passed in two reviews with new games in between')); did='%s:%s:%s'%(rid,model,c['category'])
+        if c['category'] in changed_now:
+            c['status']='pending'; c['checks'].append(dict(id='one_at_a_time',ok=False,text='this weight already changed in this review; re-tested next week from its new value')); continue
         if c['size']=='small' and season_steps+c['steps']<=1+1e-9 and A['drift'](cat,c['to_params'])<=2+1e-9:
             if seq(cutoff)-last<spec['cooldown_weeks']:
                 c['status']='pending'; c['checks'].append(dict(id='cooldown',ok=False,text='%s changed %d week(s) ago; waits %d'%(cat['name'],seq(cutoff)-last,spec['cooldown_weeks']))); continue
             if did_auto:
                 c['status']='pending'; c['checks'].append(dict(id='one_at_a_time',ok=False,text='another change to this model applied in this review; re-tested next week against it')); continue
             P=copy.deepcopy(gm.current(C)['params']); P.update(copy.deepcopy(c['to_params']))
-            v=add_version(C,P,'auto',c['summary'],cutoff,did); c['status']='applied'; c['version']=v; did_auto=True
+            v=add_version(C,P,'auto',c['summary'],cutoff,did); c['status']='applied'; c['version']=v; did_auto=True; changed_now.add(c['category'])
             hist.append(dict(seq=seq(cutoff),season=cutoff[0],steps=c['steps'],how='auto',version=v))
             applied.append(dict(model=model,category=c['category'],version=v)); A['save_ev'](evidence_path(did),c['_evidence'])
+            DEC.setdefault(did,dict(review=rid,cutoff=list(cutoff),**{k:x for k,x in c.items() if not k.startswith('_')}))
         else:
+            if c['category'] in small_ready:
+                c['status']='pending'; c['checks'].append(dict(id='one_at_a_time',ok=False,text='a one-step move for this weight is queued first; the bigger move is re-tested after it')); continue
             dec=ms.get('declined',{}).get(c['category'])
             if dec and seq(cutoff)<dec: c['status']='declined earlier'; continue
             c['status']='proposed'; c['proposal']=did
@@ -419,6 +427,7 @@ def run_model(model,book,cutoff,rid,state,PROPS,update_history):
             PROPS.append(dict(id=did,model=model,category=c['category'],name=c['name'],title=c['title'],status='open',created=today(),cutoff=cutoff,reason=reason,
                               from_params=c['from_params'],to_params=c['to_params'],summary=c['summary'],pros=c['pros'],cons=c['cons'],net=c['net'],m=len(tested)))
             proposed.append(did); A['save_ev'](evidence_path(did),c['_evidence'])
+            DEC.setdefault(did,dict(review=rid,cutoff=list(cutoff),**{k:x for k,x in c.items() if not k.startswith('_')}))
     latest={'%s|%s'%(c['category'],c['variant']):c['_evidence'] for c in tested if c['status'] in ('pending','applied','proposed')}
     if model=='pregame': jsave(os.path.join(EDIR,'latest.json'),dict(review=rid,cutoff=cutoff,candidates=latest))
     else:
@@ -431,7 +440,7 @@ def run_model(model,book,cutoff,rid,state,PROPS,update_history):
     return dict(info=info,results=[{k:v for k,v in c.items() if not k.startswith('_')} for c in cands],applied=applied,proposed=proposed)
 
 def review(force=False,update_history=False):
-    book=gm.Book(); cutoff=latest_cutoff(book); state=load_state(); LOG=jload(P_LOG,[]); PROPS=jload(P_PROPS,[])
+    book=gm.Book(); cutoff=latest_cutoff(book); state=load_state(); LOG=jload(P_LOG,[]); PROPS=jload(P_PROPS,[]); DEC=jload(P_DEC,{})
     if cutoff is None: print('no completed week yet -- nothing to learn from'); return
     rid='R%d-%02d'%tuple(cutoff)
     due=[m for m in MODELS if force or state['models'].get(m,{}).get('last_cutoff')!=list(cutoff)]
@@ -440,7 +449,7 @@ def review(force=False,update_history=False):
     rec=next((x for x in LOG if x['id']==rid and 'models' in x),None) or dict(id=rid,cutoff=cutoff,models={},results=[],applied=[],proposed=[])
     rec['date']=today(); new=[]
     for model in due:
-        out=run_model(model,book,cutoff,rid,state,PROPS,update_history)
+        out=run_model(model,book,cutoff,rid,state,PROPS,update_history,DEC)
         if out is None: continue
         rec['models'][model]=out['info']
         rec['results']=[r for r in rec['results'] if r.get('model','pregame')!=model]+out['results']
@@ -455,7 +464,7 @@ def review(force=False,update_history=False):
     if not rec['models']: print('nothing reviewed'); return
     rec['tested']=sum(x.get('tested',0) for x in rec['models'].values()); rec['games']=(rec['models'].get('pregame') or {}).get('games')
     LOG=[x for x in LOG if x['id']!=rid]+[rec]; LOG=LOG[-26:]
-    jsave(P_LOG,LOG); jsave(P_STATE,state); jsave(P_PROPS,PROPS); write_summary(LOG,PROPS,state)
+    jsave(P_LOG,LOG); jsave(P_STATE,state); jsave(P_PROPS,PROPS); jsave(P_DEC,DEC); write_summary(LOG,PROPS,state)
     os.makedirs(P_NEW,exist_ok=True)
     for f in os.listdir(P_NEW): os.remove(os.path.join(P_NEW,f))
     for x in PROPS:

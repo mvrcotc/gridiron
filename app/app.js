@@ -1462,7 +1462,7 @@ function decisionBox(d,cls){
   var pr=(d.pros||[]).map(function(x){ return '<li>'+esc(x.text)+' <i>+'+num(x.pts).toFixed(2)+'</i></li>'; }).join('');
   var co=(d.cons||[]).map(function(x){ return '<li>'+esc(x.text)+' <i>\u2212'+num(x.pts).toFixed(2)+'</i></li>'; }).join('');
   return '<div class="ldec l-'+cls+'"><div class="ldh"><span class="fv lv-'+cls+'">'+esc(cls==='prop'?'Awaiting approval':st[0])+'</span>'+
-    '<b>'+esc(d.title||d.name||'')+'</b></div>'+(ck?'<ul class="lchk">'+ck+'</ul>':'')+
+    '<b>'+esc(d.title||d.name||'')+'</b>'+(d.model==='live'?'<span class="lmod">live model</span>':'')+'</div>'+(ck?'<ul class="lchk">'+ck+'</ul>':'')+
     '<div class="lpc"><div><span class="lpl">Pros</span><ul>'+(pr||'<li>none</li>')+'</ul></div>'+
     '<div><span class="lpl">Cons</span><ul>'+(co||'<li>none</li>')+'</ul></div></div>'+
     '<div class="lnet">pros minus cons '+(num(d.net)>=0?'+':'\u2212')+Math.abs(num(d.net)).toFixed(2)+
@@ -1478,9 +1478,14 @@ function learnCard(){
     'Small moves apply on their own and are undone if they then do worse; big moves, or switching a factor on or off, wait for the owner\u2019s approval.</p>';
   if(LR) h+='<div class="lrev"><span><b>Last review</b> '+esc(LR.date)+'</span><span>games through '+num(LR.cutoff[0])+' week '+num(LR.cutoff[1])+'</span>'+
     '<span>'+num(LR.tested)+' ideas tested</span><span>'+(LR.applied.length?LR.applied.length+' change applied':'no change')+'</span>'+
-    (LR.proposed.length?'<span>'+LR.proposed.length+' awaiting approval</span>':'')+'<span>weights version '+num(L.version)+'</span></div>';
+    (LR.proposed.length?'<span>'+LR.proposed.length+' awaiting approval</span>':'')+'<span>pregame weights version '+num(L.version)+'</span><span>live weights version '+num(L.live_version)+'</span></div>';
   h+='<div class="ftab ltab">';
+  var lastModel=null, MN={'pregame':'Pregame odds model','live':'Live in-game model'};
   L.weights.forEach(function(w){
+    if(w.model&&w.model!==lastModel){
+      lastModel=w.model;
+      h+='<div class="lgrp">'+esc((L.models||MN)[w.model]||MN[w.model]||w.model)+'<small>weights version '+num(w.model==='live'?L.live_version:L.version)+'</small></div>';
+    }
     var st=LSTAT[w.status]||[w.status,'hold'];
     h+='<div class="frow lrow"><span class="fk">'+esc(w.name)+'<small>'+esc(w.what)+'</small></span>'+
       '<span class="fv lv-'+st[1]+'">'+esc(st[0])+'</span>'+

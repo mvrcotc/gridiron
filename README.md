@@ -72,6 +72,41 @@ totals were tested on held-out seasons, did not help, and are not used.
   writes content-versioned files (`data.<v>.json`, `app.<code>.js`, `context.<code>.js`). `version.json` names
   the current ones and the page swaps in new data without reloading. Two previous builds stay served.
 
+## Learning loop
+
+The weights of both models live in versioned registries -- `pipeline/champion.json` (pregame odds) and
+`pipeline/champion_live.json` (live in-game) -- and nothing else sets them. Predictions, the track record and the
+page all read the version in force through `pipeline/gamemodel.py` and `pipeline/livemodel.py`.
+
+```bash
+python3 pipeline/learn.py review [--force] [--update-history]   # weekly, in the daily lane once a week is final
+python3 pipeline/learn.py approve <proposal-id>                  # or: Actions -> GridIron refresh -> Run workflow
+python3 pipeline/learn.py reject <proposal-id>
+```
+
+Each week, for every weight group in `pipeline/learning/spec.json` and `spec_live.json`:
+
+1. **Re-tune** walk-forward: for every week of the last seasons, the value that fits best using only earlier games.
+2. **Compare** game by game (play by play for the live model) against the weights actually in force, on games
+   neither side saw. Confidence comes from resampling whole weeks, Holm-corrected for every idea tested that review.
+3. **Check**: at least 500 games, genuinely better, 95% confidence after correction, better in at least 3 seasons
+   with at most 1 worse, and no other measure worse beyond tolerance.
+4. **Weigh** pros and cons with an explicit score (size and consistency of the gain vs how far the weight moves,
+   added complexity, distance from the closing line, one-season flukes, instability). Cons must not win.
+5. **Confirm** in a later review with at least 12 new games.
+6. **Act**: a small move (one step, not switching a factor on or off, at most one step per category per season and
+   two from launch) applies automatically -- one per model per review, 4-week cooldown -- and is rolled back if it
+   then does worse on new games. Anything bigger becomes a proposal: a GitHub issue with the pros and cons, applied
+   only when the owner approves and its evidence still holds on the latest games.
+
+`pipeline/learning/` holds the rules, the review log, open proposals, the page summary and the per-game evidence
+behind every pending, applied or proposed change. The audit (LG1-LG5) checks the registries, that every change
+followed the rules, the review's arithmetic, and recomputes that evidence from raw final scores.
+
+First reviews (games through 2025): nothing met the bar. Closest: backup-QB weight 3.9 -> 2.9 (58% confidence
+after correcting for 14 ideas), win-probability calibration (79%). Expect few changes: NFL results are noisy, and
+the loop is built to ignore noise.
+
 ## History database
 
 ```bash
@@ -95,16 +130,18 @@ home win probability = Phi(mean / sd)          EP_home = expected points of the 
 
 A Platt tail calibration is applied only because it improved both Brier score and log loss on a validation
 season (fit 2019-21, checked on 2022) before the test seasons were looked at. The projected total uses
-the same inputs. Fitted on 2019-22 plays, tested on 2023-25 (140,155 plays):
+the same inputs. Launch weights fitted on 2019-22 plays; tested on 2023-25 (140,155 plays), every play predicted
+by the live weights in force from the pregame numbers GridIron actually showed (`pipeline/livewp.py`):
 
 | | Brier | Log loss |
 |---|---|---|
-| GridIron live | 0.1518 | 0.4560 |
+| GridIron live | 0.1530 | 0.4590 |
 | nflfastR, no line | 0.1606 | 0.4758 |
 | nflfastR, with the Vegas line | **0.1467** | **0.4431** |
 
 It beats a model without the market and trails one that uses the line. Final margin error from mid-game
-plays: 6.84 vs 6.78 for the market's line faded the same way.
+plays: 6.88 vs 6.78 for the market's line faded the same way. (An earlier 0.1518 used pregame numbers built
+with a season-hindsight backup-QB flag.)
 
 ## The audit -- run it before every publish
 
@@ -136,11 +173,10 @@ Fitted once and reused, so a refresh cannot tune the model to flatter the curren
 
 | File | What it holds |
 |---|---|
+| `champion.json` | every pregame weight, versioned: ratings, home edge, backup QB, win-probability calibration, blend, and the zero-weight venue, rest, weather and referee factors. Launched from `hp2.json`, `qbfit.json`, `wpfit.json` (2019–22); changed only by the learning loop |
+| `champion_live.json` | the live model's weights, versioned: possession-value table, margin and total coefficients, uncertainty, tail calibration |
 | `ptsfit.json` | points from a box score (2025, R² 0.81): TD 5.1, 100 yds 2.3, turnover −1.2 |
-| `hp2.json` | rating shrinkage, decay, ensemble weights and the flat home edge, tuned on 2019–22 |
-| `wpfit.json` | win-probability recalibration, fitted on 2019–22 |
-| `qbfit.json` | a backup quarterback is worth 3.9 points of margin |
-| `livefit.json` | the live model: expected-points table, margin and total coefficients, tail calibration, held-out report |
+| `livefit.json` | the live model's held-out report, written by `livewp.py` |
 | `fit1.json`, `fit_k.json`, `fit_opp.json`, `fit_cal.json` | player model: game script, regression constants, pass-defence adjustments, simulator calibration |
 | `wxfit.json`, `wxcentre.json` | weather coefficients (sustained wind) and the average conditions they are centred on |
 | `absorb.json` | teammates recover 75% of a missing starter's targets and 54% of his carries |
@@ -149,13 +185,17 @@ Fitted once and reused, so a refresh cannot tune the model to flatter the curren
 
 ## Track record
 
-Held out, 2023–25, 816 games the model never trained on: margin error **10.16** vs the closing line's
-**9.74**; **49.7%** against the spread. All seasons 2019–25: 10.15 vs 9.83, 51.1%. Break-even is 52.4%.
-It does not beat the market. Its value is explaining why a line sits where it does, and player detail.
+Held out, 2023–25, 816 games the model never trained on: margin error **10.27** vs the closing line's
+**9.74**; **49.1%** against the spread. All seasons 2019–25: 10.27 vs 9.83, 49.8%. Break-even is 52.4%.
+Every game is predicted by the weights in force before its week, and a backup quarterback is flagged only from
+starts so far that season -- what the live site can know at kickoff. (The first published record, 10.16 and
+49.7%, flagged backups with season hindsight.) It does not beat the market. Its value is explaining why a line
+sits where it does, and player detail.
 
 ## Not yet done
 
-- The player projection model is still fitted on 2025 alone; the history database is there to widen it.
+- Player projections still read only 2025 weekly stats (`stw25.csv`): 2026 games do not feed them, rookies and
+  new players get no projection, and their constants are not yet in the learning loop.
 
 ## Data gotchas
 

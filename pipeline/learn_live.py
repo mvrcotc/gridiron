@@ -129,7 +129,7 @@ def rollback_check(P,C,cutoff,rid,boot,seed_of,spec):
     if V['how'] not in ('auto','approved'): return None
     prev=max((x for x in C['versions'] if x['v']<V['v']),key=lambda x:x['v'])
     i=P.before(gm.wk(*V['cutoff'])+1); S=P.view(i,P.n); games=int(len(np.unique(S.gid)))
-    if games<spec['rollback']['min_games']: return dict(version=V['v'],games=games,status='too early')
+    if games<max(1,spec['rollback']['min_games']): return dict(version=V['v'],games=games,status='too early')
     lv,ok=losses('logloss',S,lm.predict(S,V['params'])); lp,_=losses('logloss',S,lm.predict(S,prev['params']))
     p,_=boot((lv-lp)[ok],S.wk[ok],seed_of(rid,'live','rollback'),spec['bootstrap'])
     out=dict(version=V['v'],previous=prev['v'],games=games,new=round(float(lv[ok].mean()),5),old=round(float(lp[ok].mean()),5),p=round(p,5))
