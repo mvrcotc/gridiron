@@ -1,0 +1,37 @@
+{
+ "about": "Rules of the live in-game model's weekly review. Same process as the pregame model: walk-forward re-fits scored play by play against the weights in force, on games neither side saw.",
+ "first_season": 2019,
+ "eval_last_seasons": 4,
+ "alpha": 0.05,
+ "bootstrap": 2000,
+ "min_eval_games": 500,
+ "min_block_games": 48,
+ "min_better_blocks": 3,
+ "max_worse_blocks": 1,
+ "confirm_min_new_games": 12,
+ "cooldown_weeks": 4,
+ "collateral": {"logloss": 0.002, "brier": 0.001, "final_margin": 0.02, "final_total": 0.02},
+ "rollback": {"min_games": 48, "alpha": 0.05},
+ "score": {
+  "z_cap": 4.0, "extra_block": 0.5, "secondary_better": 0.5, "simpler": 0.5, "move_per_step": 0.5, "adds_factor": 1.0,
+  "worse_block": 0.5, "secondary_worse": 0.5, "further_from_market": 0.5, "concentrated": 0.5, "near_threshold": 0.5, "unstable": 0.5
+ },
+ "categories": [
+  {"id": "live_ep", "name": "Possession value", "what": "expected points of the drive in progress, by field position, down and distance",
+   "kind": "ep", "metric": "logloss", "step": 0.25, "min_change": 0.05},
+  {"id": "live_margin", "name": "Score, possession and pregame fade", "what": "how much the possession counts and how fast GridIron's pregame margin fades as the clock runs",
+   "kind": "margin", "params": ["a_ep", "b_prior", "c_frac"], "metric": "logloss",
+   "bounds": {"a_ep": [0.0, 1.5], "b_prior": [0.0, 2.0], "c_frac": [-4.0, 4.0]},
+   "step": {"a_ep": 0.1, "b_prior": 0.1, "c_frac": 0.5}, "min_change": {"a_ep": 0.03, "b_prior": 0.03, "c_frac": 0.15}},
+  {"id": "live_spread", "name": "Live uncertainty", "what": "how wide the range of final margins is at each point of the game",
+   "kind": "spread", "params": ["sigma", "eps"], "metric": "logloss",
+   "bounds": {"sigma": [6.0, 20.0], "eps": [0.25, 8.0]}, "step": {"sigma": 1.0, "eps": 0.5}, "min_change": {"sigma": 0.25, "eps": 0.15}},
+  {"id": "live_tails", "name": "Tail calibration", "what": "a correction for over- or under-confidence near 0% and 100%",
+   "kind": "platt", "params": ["alpha", "beta"], "metric": "logloss",
+   "bounds": {"alpha": [-0.5, 0.5], "beta": [0.5, 1.5]}, "step": {"alpha": 0.05, "beta": 0.1}, "min_change": {"alpha": 0.01, "beta": 0.03}},
+  {"id": "live_total", "name": "Live total", "what": "how the projected final total combines the score so far, GridIron's pregame total and the clock",
+   "kind": "total", "params": ["t_prior", "t_frac", "t_ep"], "metric": "final_total",
+   "bounds": {"t_prior": [0.0, 1.5], "t_frac": [-10.0, 30.0], "t_ep": [0.0, 2.0]},
+   "step": {"t_prior": 0.1, "t_frac": 1.5, "t_ep": 0.2}, "min_change": {"t_prior": 0.03, "t_frac": 0.5, "t_ep": 0.06}}
+ ]
+}

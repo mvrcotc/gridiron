@@ -84,9 +84,12 @@ GI['pred']=PRED
 LS=os.path.join(HERE,'learning','summary.json')
 GI['learn']=json.load(open(LS,encoding='utf-8')) if os.path.exists(LS) else {}
 GI['learn']['params']=P; GI['learn']['version']=V['v']
+import livemodel as lm
+LV=gm.current(lm.load_champion())
+GI['live']=dict({k:LV['params'][k] for k in ('ep','margin','total','platt')},version=LV['v'])
 if os.path.exists('livefit.json'):
-    LF=json.load(open('livefit.json'))
-    GI['live']={k:LF[k] for k in ('ep','margin','total','platt','fit','test','n_train_plays','n_test_plays','report','built') if k in LF}
+    LF=json.load(open('livefit.json')); GI['live'].update({k:LF[k] for k in ('fit','test','n_test_plays','report','built','note') if k in LF})
+GI['learn']['live_params']=LV['params']; GI['learn']['live_version']=LV['v']
 if os.path.exists('track.json'): GI['track']=json.load(open('track.json'))
 json.dump(PRED,open('pred.json','w')); json.dump(GI,open(os.path.join(DATA,'gi2.json'),'w'),separators=(',',':'))
 print('predictions: %d games with weights version %d; backup-QB flags: %s'%(len(PRED),V['v'],[x['a']+'@'+x['h'] for x in GI['games'] if x['a_qbbackup'] or x['h_qbbackup']] or 'none'))

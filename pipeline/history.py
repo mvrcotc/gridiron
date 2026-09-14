@@ -7,7 +7,7 @@
   loads        what was loaded, when, and how many rows
 
 Incremental: a season already loaded is skipped unless it is the current or previous season, which still change.
-   python3 pipeline/history.py [--from 1999] [--rebuild]"""
+   python3 pipeline/history.py [--from 1999] [--rebuild] [--tables plays,team_week,player_week]"""
 import os, sys, io, time, sqlite3, datetime, urllib.request
 import pandas as pd
 HERE=os.path.dirname(os.path.abspath(__file__)); DATA=os.environ.get('GRIDIRON_DATA') or os.path.join(os.path.dirname(HERE),'data')
@@ -16,6 +16,7 @@ REL='https://github.com/nflverse/nflverse-data/releases/download'
 today=datetime.date.today(); CUR=today.year if today.month>=3 else today.year-1
 FIRST=int(sys.argv[sys.argv.index('--from')+1]) if '--from' in sys.argv else 1999
 REBUILD='--rebuild' in sys.argv
+TABLES=set(sys.argv[sys.argv.index('--tables')+1].split(',')) if '--tables' in sys.argv else {'team_week','player_week','plays'}
 PLAY_COLS=['play_id','game_id','old_game_id','season','season_type','week','game_date','home_team','away_team','posteam','defteam','posteam_type',
  'side_of_field','yardline_100','qtr','quarter_seconds_remaining','half_seconds_remaining','game_seconds_remaining','game_half','drive','down','ydstogo',
  'goal_to_go','play_type','yards_gained','shotgun','no_huddle','qb_dropback','qb_scramble','pass_attempt','rush_attempt','complete_pass','incomplete_pass',
@@ -64,7 +65,7 @@ for season in range(FIRST,CUR+1):
         ('team_week','stats_team/stats_team_week_%d.csv'%season,lambda b: pd.read_csv(io.BytesIO(b),low_memory=False)),
         ('player_week','stats_player/stats_player_week_%d.csv'%season,lambda b: pd.read_csv(io.BytesIO(b),low_memory=False)),
         ('plays','pbp/play_by_play_%d.csv.gz'%season,lambda b: pd.read_csv(io.BytesIO(b),compression='gzip',low_memory=False,usecols=lambda c: c in PLAY_COLS))):
-        if loaded(tbl,season) and not fresh: continue
+        if tbl not in TABLES or (loaded(tbl,season) and not fresh): continue
         try: raw=get('%s/%s'%(REL,path))
         except Exception as e:
             print('%-11s %d  unavailable (%s)'%(tbl,season,str(e)[:60]),flush=True); continue

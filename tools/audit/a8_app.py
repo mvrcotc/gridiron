@@ -257,9 +257,10 @@ def run(A):
     # ---------------- live win probability, projected final and live line, recomputed here from the fitted model ----------------
     bad=[]; LFp=os.path.join(PIPE,'livefit.json')
     if not os.path.exists(LFp): A.check('U9','Live win probability and projected score match the fitted live model',['pipeline/livefit.json is missing']); return
-    LF=json.load(open(LFp))
+    LF=json.load(open(LFp)); LC=json.load(open(os.path.join(PIPE,'champion_live.json'))); LCUR=next(v for v in LC['versions'] if v['v']==LC['current'])['params']
     for k in ('ep','margin','total','platt'):
-        if (D.get('live') or {}).get(k)!=LF.get(k): bad.append('published live model %s differs from pipeline/livefit.json'%k)
+        if (D.get('live') or {}).get(k)!=LCUR.get(k): bad.append('published live model %s differs from the live champion in force'%k)
+    LF=dict(LF,**{k:LCUR[k] for k in ('ep','margin','total','platt')})
     if not (LF.get('fit','')[:4].isdigit() and LF.get('test','')[:4].isdigit() and int(LF['test'][:4])>int(LF['fit'][-4:])): bad.append('live model test seasons %r are not after its fit seasons %r'%(LF.get('test'),LF.get('fit')))
     def band(v,edges):
         for i in range(len(edges)-1):
