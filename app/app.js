@@ -1450,9 +1450,12 @@ function trackExtras(){
     'GridIron distribution this week. '+esc(D.props.note)+'</div>';
   return out;
 }
-var LSTAT={'holds':['At its best value','hold'],'watching':['Watching','watch'],'rejected':['Rejected','rej'],
+var LSTAT={'holds':['At its best value','hold'],'watching':['Watching','watch'],'rejected':['Kept','hold'],
   'pending':['Passed once \u2014 confirming','pend'],'confirmed':['Confirmed','pend'],'applied':['Changed','chg'],
   'proposed':['Awaiting approval','prop'],'declined earlier':['Declined','rej'],'not reviewed yet':['Not reviewed yet','hold']};
+var LWHY={'holds':'no better value found','watching':'a change looks better but is not proven','rejected':'the change tested did worse',
+  'pending':'a change passed once; it must pass again next week','confirmed':'a change passed twice','applied':'changed by the learning loop',
+  'proposed':'a big change is waiting for the owner','declined earlier':'the owner declined a change'};
 function decisionBox(d,cls){
   var st=LSTAT[d.status]||[d.status||'Open',cls];
   var ck=(d.checks||[]).map(function(c){ return '<li class="'+(c.ok?'ok':'no')+'">'+(c.ok?'\u2713 ':'\u2717 ')+esc(c.text)+'</li>'; }).join('');
@@ -1481,7 +1484,8 @@ function learnCard(){
     var st=LSTAT[w.status]||[w.status,'hold'];
     h+='<div class="frow lrow"><span class="fk">'+esc(w.name)+'<small>'+esc(w.what)+'</small></span>'+
       '<span class="fv lv-'+st[1]+'">'+esc(st[0])+'</span>'+
-      '<span class="fs"><b class="lval">'+esc(w.value)+'</b>'+(w.last_change?' \u00b7 changed '+esc(w.last_change.date)+' ('+esc(w.last_change.how)+')':'')+'</span></div>';
+      '<span class="fs"><b class="lval">'+esc(w.value)+'</b>'+(w.last_change?' \u00b7 changed '+esc(w.last_change.date)+' ('+esc(w.last_change.how)+')':'')+
+      (LWHY[w.status]?'<small class="lwhy">'+esc(LWHY[w.status])+'</small>':'')+'</span></div>';
   });
   h+='</div>';
   (L.proposals||[]).forEach(function(p){ h+=decisionBox(p,'prop'); });
