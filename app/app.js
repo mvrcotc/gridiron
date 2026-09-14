@@ -436,6 +436,7 @@ function predBlock(g){
     '<span class="wd">no measurable effect on scoring \u2014 given zero weight</span><span class="wv">0.0</span></div>';
   return '<div class="gc-pred">'+
     '<div class="pr-hd"><span class="pr-t">GridIron\u2019s <em class="s">own call</em></span></div>'+
+    liveStrip(g)+
     '<div class="pr-grid">'+
       '<div class="pr-col"><span class="pr-lab">Spread</span><div class="pr-rows">'+predRows(g,p,'sp')+'</div>'+
         '<div class="pr-d">'+esc(leanSp(g,p))+'</div></div>'+
@@ -1743,6 +1744,39 @@ function getJSON(u){
 }
 function scoreTag(g){ return g.state==='in' ? 'LIVE' : (/OT/.test(g.detail||'') ? 'FINAL/OT' : 'FINAL'); }
 function liveClock(g){ return g.state!=='in' ? '' : (g.detail || ((g.period?'Q'+g.period+' ':'')+(g.clock||''))); }
+function erf(x){
+  var sg=x<0?-1:1; x=Math.abs(x); var t=1/(1+0.3275911*x);
+  return sg*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x));
+}
+function bandOf(v,edges){ for(var i=0;i<edges.length-1;i++){ if(v>=edges[i]&&v<edges[i+1]) return i; } return edges.length-2; }
+function clockSecs(c){ var m=/^(\d+):(\d{2})/.exec(String(c||'')); return m?(+m[1])*60+(+m[2]):0; }
+/* the live model, fitted on 2019-22 play-by-play and tested on 2023-25: GridIron's pregame margin fades with the
+   clock while the score and the value of the current possession take over */
+function liveProjection(g){
+  var L=D.live, p=PRD(g.id);
+  if(!L||!L.margin||!p||g.state!=='in'||!g.sc) return null;
+  var per=num(g.period,1), S=per>=5?0:Math.max(0,Math.min(3600,(4-per)*900+clockSecs(g.clock))), frac=S/3600;
+  var Dm=num(g.sc.h)-num(g.sc.a), M0=num(p.ph)-num(p.pa), T0=num(p.ph)+num(p.pa), ep=0;
+  if(g.dn>=1&&g.dn<=4&&g.possHome&&g.yte!=null){
+    var yl=num(g.yte), dd=num(g.dist,0)||10;
+    ep=g.possHome*num(L.ep.table[bandOf(yl,L.ep.yard_bands)][g.dn-1][bandOf(dd,L.ep.dist_bands)]);
+  }
+  var M=L.margin, mean=Dm+M.a_ep*ep+M.b_prior*M0*frac+M.c_frac*frac, sd=Math.sqrt(M.sigma*M.sigma*frac+M.eps*M.eps);
+  var wp=0.5*(1+erf(mean/(sd*Math.SQRT2)));
+  if(L.platt){ var c=Math.min(1-1e-6,Math.max(1e-6,wp)), z=Math.log(c/(1-c)); wp=1/(1+Math.exp(-(L.platt.alpha+L.platt.beta*z))); }
+  var T=L.total, tot=num(g.sc.h)+num(g.sc.a)+T.t_prior*T0*frac+T.t_frac*frac+T.t_ep*Math.abs(ep);
+  return {wp:wp, mean:mean, total:tot, ph:(tot+mean)/2, pa:(tot-mean)/2, ep:ep, frac:frac};
+}
+function liveStrip(g){
+  var lp=liveProjection(g); if(!lp) return '';
+  var pre=num((PRD(g.id)||{}).wp,50);
+  return '<div class="pr-live"><span class="lvtag">LIVE</span> <span class="lvk">'+esc(liveClock(g))+'</span> '+
+    '<span class="lvi"><em>Win probability</em> <b>'+esc(g.a)+' '+Math.round(100*(1-lp.wp))+'%</b> \u00b7 <b>'+esc(g.h)+' '+Math.round(100*lp.wp)+'%</b> '+
+      '<small>pregame '+esc(g.h)+' '+Math.round(pre)+'%</small></span> '+
+    '<span class="lvi"><em>Projected final</em> <b>'+esc(g.a)+' '+lp.pa.toFixed(1)+' \u2013 '+esc(g.h)+' '+lp.ph.toFixed(1)+'</b></span> '+
+    '<span class="lvi"><em>Live spread / total</em> <b>'+spLab(g,Math.round(-lp.mean*2)/2)+'</b> \u00b7 <b>'+fx(Math.round(lp.total*2)/2)+'</b></span>'+
+  '</div>';
+}
 function liveLine(g,oid){ var b=LIVE.box[g.id]; return (b&&b.stats[oid])||null; }
 function applyScoreboard(sb){
   if(!sb||!sb.events) return false;
@@ -1761,6 +1795,20 @@ function applyScoreboard(sb){
     nu.poss=(si&&si.possession)?(abbr[si.possession]||null):null;
     nu.down=si?(si.shortDownDistanceText||si.downDistanceText||null):null;
     nu.redzone=!!(si&&si.isRedZone);
+    var hid=String(((T.home||{}).team||{}).id||'');
+    nu.dn=(si&&si.down>=1&&si.down<=4)?si.down:0;
+    nu.dist=(si&&si.distance!=null)?si.distance:null;
+    nu.possHome=(si&&si.possession)?(String(si.possession)===hid?1:-1):0;
+    /* yards to the end zone: ESPN's own count if sent, else the "KC 35" text read against the team with the ball,
+       else yardLine, which ESPN measures from the home goal line (a home offense has 100-yardLine to go) */
+    nu.yte=null;
+    if(si&&si.yardsToEndzone!=null&&isFinite(Number(si.yardsToEndzone))) nu.yte=Number(si.yardsToEndzone);
+    else if(si&&nu.possHome){
+      var pt=/^([A-Za-z]{2,4})?\s*(\d{1,2})$/.exec(String(si.possessionText||'').trim());
+      if(pt&&+pt[2]===50) nu.yte=50;
+      else if(pt&&pt[1]&&nu.poss) nu.yte=(pt[1].toUpperCase()===String(nu.poss).toUpperCase())?100-(+pt[2]):+pt[2];
+      else if(si.yardLine!=null&&isFinite(Number(si.yardLine))) nu.yte=nu.possHome>0?100-Number(si.yardLine):Number(si.yardLine);
+    }
     Object.keys(nu).forEach(function(k){ if(JSON.stringify(g[k])!==JSON.stringify(nu[k])){ g[k]=nu[k]; changed=true; } });
   });
   return changed;

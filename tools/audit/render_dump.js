@@ -37,7 +37,7 @@ setTimeout(async()=>{
   out.stamp=T(d.getElementById('stamp'));
   for(const card of all(d,'#games .gcard')){
     const g=D.games[+card.dataset.gi];
-    out.cards.push({id:g.id,meta:T(card.querySelector('.gc-meta')),score:T(card.querySelector('.gc-score')),conf:T(card.querySelector('.pr-conf')),
+    out.cards.push({id:g.id,meta:T(card.querySelector('.gc-meta')),score:T(card.querySelector('.gc-score')),live:T(card.querySelector('.pr-live')),conf:T(card.querySelector('.pr-conf')),
       pred:all(card,'.pr-col').map(c=>({lab:T(c.querySelector('.pr-lab')),rows:all(c,'.pr-r').map(r=>[T(r.querySelector('span')),T(r.querySelector('b'))]),
         lean:T(c.querySelector('.pr-d')),wpl:all(c,'.wpl span').map(T)})),
       wf:all(card,'.wf').map(r=>({cls:r.className,k:T(r.querySelector('.wk')),d:T(r.querySelector('.wd')),v:T(r.querySelector('.wv'))})),

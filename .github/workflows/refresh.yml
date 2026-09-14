@@ -28,6 +28,7 @@ jobs:
     timeout-minutes: 25
     outputs:
       lane: ${{ steps.lane.outputs.lane }}
+      started: ${{ steps.lane.outputs.started }}
     steps:
       - uses: actions/checkout@v4
 
@@ -38,6 +39,7 @@ jobs:
           elif [ "${{ github.event.schedule }}" = "3 9 * * *" ]; then lane=daily
           else lane=live; fi
           echo "lane=$lane" >> "$GITHUB_OUTPUT"
+          echo "started=$(date +%s)" >> "$GITHUB_OUTPUT"
           echo "bucket=$(date -u +%Y-%m-%d)-$(( 10#$(date -u +%H) / 6 ))" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-python@v5
@@ -87,3 +89,38 @@ jobs:
     steps:
       - id: deploy
         uses: actions/deploy-pages@v4
+
+  # GitHub runs scheduled workflows late and often skips them. While a game is near, under way or just finished, each run
+  # queues the next one itself, about 10 minutes after the previous one started. It never starts a second chain.
+  next:
+    needs: [refresh, deploy]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Queue the next refresh during game windows
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STARTED: ${{ needs.refresh.outputs.started }}
+        run: |
+          hot=$(curl -fsS --max-time 30 https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard | python3 -c '
+          import sys, json, datetime
+          d=json.load(sys.stdin); now=datetime.datetime.now(datetime.timezone.utc); hot=False
+          for e in d.get("events", []):
+              state=((e.get("competitions") or [{}])[0].get("status") or {}).get("type", {}).get("state")
+              k=datetime.datetime.fromisoformat(e["date"].replace("Z", "+00:00"))
+              if state=="in" or (state=="pre" and (k-now).total_seconds() < 8*3600) or (state=="post" and (now-k).total_seconds() < 5*3600): hot=True
+          print("yes" if hot else "no")') || hot=unknown
+          echo "game window: $hot"
+          [ "$hot" = "yes" ] || exit 0
+          started=${STARTED:-$(date +%s)}
+          wait=$(( 600 - ( $(date +%s) - started ) ))
+          if [ "$wait" -gt 0 ]; then echo "waiting ${wait}s"; sleep "$wait"; fi
+          busy=$(gh run list -R "$GITHUB_REPOSITORY" --workflow refresh.yml --limit 20 --json status,databaseId \
+                 --jq '[.[] | select(.status != "completed" and .databaseId != ${{ github.run_id }})] | length')
+          if [ "$busy" != "0" ]; then echo "another refresh is already queued or running"; exit 0; fi
+          gh workflow run refresh.yml -R "$GITHUB_REPOSITORY" -f lane=live
+          echo "next refresh queued"
+

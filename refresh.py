@@ -97,7 +97,8 @@ def stage_weather():
     STAD={m.group(1):(float(m.group(2)),float(m.group(3))) for m in re.finditer(r"([A-Z]{2,3}):\{v:'[^']*',la:(-?[\d.]+),lo:(-?[\d.]+)",src)}
     NEU={m.group(1):(float(m.group(2)),float(m.group(3))) for m in re.finditer(r"'([^']+)':\{la:(-?[\d.]+),lo:(-?[\d.]+)",src)}
     def wmo(c):
-        c=int(c or 0)
+        try: c=int(float(c or 0))
+        except (TypeError,ValueError): return 'cloud','Cloudy'
         for codes,fam,label in (((0,1),'sun','Clear'),((2,),'cloud','Partly cloudy'),((3,),'cloud','Overcast'),((45,48),'cloud','Fog'),
                                 (tuple(range(51,58)),'rain','Drizzle'),(tuple(range(61,68))+(80,81,82),'rain','Rain'),
                                 (tuple(range(71,78))+(85,86),'snow','Snow'),((95,96,99),'storm','Thunderstorm')):

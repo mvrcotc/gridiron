@@ -62,6 +62,9 @@ for g in GI['games']:
         notes=['week %d: team ratings are mostly carried over from last season'%UNTIL[1]] if UNTIL[1]<=3 else [],
         h=side['h'],a=side['a'])
 GI['pred']=PRED
+if os.path.exists('livefit.json'):
+    LF=json.load(open('livefit.json'))
+    GI['live']={k:LF[k] for k in ('ep','margin','total','platt','fit','test','n_train_plays','n_test_plays','report','built') if k in LF}
 if os.path.exists('track.json'): GI['track']=json.load(open('track.json'))
 json.dump(PRED,open('pred.json','w')); json.dump(GI,open(os.path.join(DATA,'gi2.json'),'w'),separators=(',',':'))
 print('predictions: %d games; backup-QB flags: %s'%(len(PRED),[x['a']+'@'+x['h'] for x in GI['games'] if x['a_qbbackup'] or x['h_qbbackup']] or 'none'))

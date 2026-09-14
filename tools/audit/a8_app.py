@@ -164,17 +164,30 @@ def run(A):
     if not fin or not pre or not D.get('espn'):
         A.check('U8','A game in progress shows its live score, clock and box-score lines exactly',
                 ['cannot build the fixture: need a finished game with a saved box score, a scheduled game and the ESPN id map']); return
-    tg,pg=fin[0],pre[0]
+    tg,pg=fin[0],pre[0]; tg2=fin[1] if len(fin)>1 else None
     sb=json.load(open(os.path.join(RAWE,'sb2.json')))
     for e in sb['events']:
+        if tg2 and e['id']==tg2['id']:
+            # second live game: home offense at its own 20, field position given only as yardLine (measured from the home goal line)
+            c=e['competitions'][0]; hid=[x['team']['id'] for x in c['competitors'] if x['homeAway']=='home'][0]
+            c['status']={'clock':195.0,'displayClock':'3:15','period':2,'type':{'id':'2','name':'STATUS_IN_PROGRESS','state':'in','completed':False,
+                         'description':'In Progress','detail':'3:15 - 2nd Quarter','shortDetail':'3:15 - 2nd'}}
+            for x in c['competitors']: x['score']='3' if x['homeAway']=='away' else '10'
+            c['situation']={'possession':hid,'shortDownDistanceText':'1st & 10','isRedZone':False,'down':1,'distance':10,'yardLine':20}
+            continue
         if e['id']!=tg['id']: continue
         c=e['competitions'][0]
         c['status']={'clock':522.0,'displayClock':'8:42','period':3,'type':{'id':'2','name':'STATUS_IN_PROGRESS','state':'in','completed':False,
                      'description':'In Progress','detail':'8:42 - 3rd Quarter','shortDetail':'8:42 - 3rd'}}
         for x in c['competitors']: x['score']='17' if x['homeAway']=='away' else '7'
-        c['situation']={'possession':[x['team']['id'] for x in c['competitors'] if x['homeAway']=='away'][0],'shortDownDistanceText':'2nd & 7','isRedZone':False}
+        # away offense at the home team's 35, given as ESPN's "HOME 35" text
+        habb=[x['team']['abbreviation'] for x in c['competitors'] if x['homeAway']=='home'][0]
+        c['situation']={'possession':[x['team']['id'] for x in c['competitors'] if x['homeAway']=='away'][0],'shortDownDistanceText':'2nd & 7','isRedZone':False,
+                        'down':2,'distance':7,'yardLine':35,'possessionText':'%s 35'%habb}
     box=json.load(open(os.path.join(RAWE,'f_%s.json'%tg['id'])))
-    fx='/tmp/gi_live_fixture.json'; json.dump({'scoreboard':sb,'summaries':{tg['id']:box}},open(fx,'w'))
+    summ={tg['id']:box}
+    if tg2: summ[tg2['id']]=json.load(open(os.path.join(RAWE,'f_%s.json'%tg2['id'])))
+    fx='/tmp/gi_live_fixture.json'; json.dump({'scoreboard':sb,'summaries':summ},open(fx,'w'))
     out2='/tmp/gi_audit_render_live.json'
     if os.path.exists(out2): os.remove(out2)
     r=subprocess.run(['node',os.path.join(os.path.dirname(__file__),'render_dump.js'),out2],capture_output=True,text=True,timeout=180,
@@ -226,6 +239,53 @@ def run(A):
     side=[x for x in RL['sidebar'] if D['games'][x['gi']]['id']==tg['id']]
     if not side or '8:42 - 3rd' not in side[0]['text'] or '17-7' not in side[0]['text']: bad.append('sidebar live entry reads %r'%(side[0]['text'] if side else None))
     pc=[c for c in RL['cards'] if c['id']==pg['id']]
-    if pc and ((pc[0]['score'] and 'LIVE' in pc[0]['score']) or '8:42' in (pc[0]['meta'] or '')): bad.append('a scheduled game picked up live styling')
     if 'scores' not in (RL.get('stamp') or ''): bad.append('freshness stamp does not report live scores: %r'%RL.get('stamp'))
+    if pc and ((pc[0]['score'] and 'LIVE' in pc[0]['score']) or '8:42' in (pc[0]['meta'] or '') or pc[0].get('live')): bad.append('a scheduled game picked up live styling')
     A.check('U8','A game in progress shows its live score, clock and box-score lines, computed exactly from ESPN\'s payload',bad)
+
+    # ---------------- live win probability, projected final and live line, recomputed here from the fitted model ----------------
+    bad=[]; LFp=os.path.join(PIPE,'livefit.json')
+    if not os.path.exists(LFp): A.check('U9','Live win probability and projected score match the fitted live model',['pipeline/livefit.json is missing']); return
+    LF=json.load(open(LFp))
+    for k in ('ep','margin','total','platt'):
+        if (D.get('live') or {}).get(k)!=LF.get(k): bad.append('published live model %s differs from pipeline/livefit.json'%k)
+    if not (LF.get('fit','')[:4].isdigit() and LF.get('test','')[:4].isdigit() and int(LF['test'][:4])>int(LF['fit'][-4:])): bad.append('live model test seasons %r are not after its fit seasons %r'%(LF.get('test'),LF.get('fit')))
+    def band(v,edges):
+        for i in range(len(edges)-1):
+            if edges[i]<=v<edges[i+1]: return i
+        return len(edges)-2
+    def expect(g,hs,as_,per,secs,dn,dist,yl100,poss_home):
+        p=D['pred'][g['id']]; frac=((4-per)*900+secs)/3600.0
+        ep=poss_home*LF['ep']['table'][band(yl100,LF['ep']['yard_bands'])][dn-1][band(dist or 10,LF['ep']['dist_bands'])]
+        M=LF['margin']; mean=(hs-as_)+M['a_ep']*ep+M['b_prior']*(p['ph']-p['pa'])*frac+M['c_frac']*frac
+        sd=math.sqrt(M['sigma']**2*frac+M['eps']**2); wp=0.5*(1+math.erf(mean/(sd*math.sqrt(2))))
+        if LF.get('platt'):
+            q=min(1-1e-6,max(1e-6,wp)); wp=1/(1+math.exp(-(LF['platt']['alpha']+LF['platt']['beta']*math.log(q/(1-q)))))
+        T=LF['total']; tot=hs+as_+T['t_prior']*(p['ph']+p['pa'])*frac+T['t_frac']*frac+T['t_ep']*abs(ep)
+        return wp,mean,tot
+    MINUS=chr(0x2212)
+    def check_strip(g,label,hs,as_,per,secs,dn,dist,yl100,poss_home):
+        card=[c for c in RL['cards'] if c['id']==g['id']]; t=(card[0].get('live') if card else None) or ''
+        if not t: bad.append('%s (%s) shows no live projection'%(g['a']+'@'+g['h'],label)); return
+        wp,mean,tot=expect(g,hs,as_,per,secs,dn,dist,yl100,poss_home)
+        wrong=expect(g,hs,as_,per,secs,dn,dist,100-yl100,poss_home)
+        if abs(wrong[0]-wp)<0.005: bad.append('%s: field position does not move the live number, so the conversion is untested'%label)
+        DOT,DASH=chr(0xb7),chr(0x2013)
+        m=re.search(r'Win probability\s*(\S+) (\d+)%\s*'+DOT+r'\s*(\S+) (\d+)%',t); f=re.search(r'Projected final\s*(\S+) (-?[\d.]+)\s*'+DASH+r'\s*(\S+) (-?[\d.]+)',t)
+        l=re.search(r'Live spread / total\s*(.+?)\s*'+DOT+r'\s*([\d.]+)$',t)
+        if not (m and f and l): bad.append('%s live strip unreadable: %r'%(label,t)); return
+        if (m.group(1),m.group(3))!=(g['a'],g['h']) or abs(int(m.group(2))-100*(1-wp))>0.51 or abs(int(m.group(4))-100*wp)>0.51:
+            bad.append('%s live win probability %r, model gives %s %.1f%% / %s %.1f%%'%(label,m.group(0),g['a'],100*(1-wp),g['h'],100*wp))
+        if abs(float(f.group(2))-(tot-mean)/2)>0.051 or abs(float(f.group(4))-(tot+mean)/2)>0.051:
+            bad.append('%s projected final %r, model gives %s %.2f - %s %.2f'%(label,f.group(0),g['a'],(tot-mean)/2,g['h'],(tot+mean)/2))
+        v=math.floor(-mean*2+0.5)/2; fxs=lambda x: ('%.1f'%x)[:-2] if ('%.1f'%x).endswith('.0') else '%.1f'%x
+        want='PK' if abs(v)<0.05 else ('%s %s%s'%(g['h'],MINUS,fxs(-v)) if v<0 else '%s %s%s'%(g['a'],MINUS,fxs(v)))
+        if l.group(1)!=want or abs(float(l.group(2))-math.floor(tot*2+0.5)/2)>0.01:
+            bad.append('%s live line %r, model gives %s / %s'%(label,l.group(0),want,math.floor(tot*2+0.5)/2))
+    check_strip(tg,'away ball at the home 35 (possession text)',7,17,3,522,2,7,35,-1)
+    if tg2: check_strip(tg2,'home ball at its own 20 (yardLine only)',10,3,2,195,1,10,80,1)
+    for c in RL['cards']:
+        if c.get('live') and c['id'] not in (tg['id'],tg2 and tg2['id']): bad.append('%s shows a live projection but is not in progress'%c['id'])
+    A.check('U9','Live win probability, projected final and live line match the fitted live model, from both ESPN field-position forms',bad)
+    return
+

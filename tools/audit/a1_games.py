@@ -29,23 +29,34 @@ def run(A):
             if g.get('sc')!=sc: bad.append('%s final score: app %s, ESPN %s'%(n,g.get('sc'),sc))
     A.check('G1','Teams, names, colours, kickoff, venue, network, indoor, neutral and final scores match ESPN',bad,len(D['games']))
 
-    bad=[]
+    bad=[]; odd=[]
     for g in D['games']:
-        pc=(S[g['id']].get('pickcenter') or [{}])[0]; n=g['a']+'@'+g['h']
+        pc=(S[g['id']].get('pickcenter') or [{}])[0] or {}; n=g['a']+'@'+g['h']
         for k,src in (('det','details'),('spread','spread'),('ou','overUnder')):
-            if pc.get(src) is None: continue
-            if (g.get(k)!=pc[src]) if k=='det' else abs(num(g.get(k),99)-num(pc[src]))>0.01:
-                bad.append('%s %s: app %r, DraftKings %r'%(n,k,g.get(k),pc[src]))
+            ev=pc.get(src)
+            if ev is None or (k=='det' and not (isinstance(ev,str) and ev.strip())): continue
+            if k!='det' and num(ev,None) is None: odd.append('%s %s from DraftKings is not a number: %r'%(n,src,ev)); continue
+            if (g.get(k)!=ev.strip()) if k=='det' else abs(num(g.get(k),99)-num(ev))>0.01:
+                bad.append('%s %s: app %r, DraftKings %r'%(n,k,g.get(k),ev))
     A.check('G2','Spread, total and line text match the DraftKings pick centre',bad,len(D['games']))
+    if odd: A.warn('G2b','DraftKings sent a non-numeric line; the last good line was kept',odd,len(odd))
 
-    bad=[]
+    bad=[]; odd=[]
     for g in D['games']:
         if g.get('state')=='post': continue
         w=S[g['id']].get('gameInfo',{}).get('weather') or {}; n=g['a']+'@'+g['h']
-        for k,src in (('temp','temperature'),('gust','gust'),('precip','precipitation'),('cond','conditionId')):
-            if w.get(src) is None and g.get(k) is None: continue
-            if num(g.get(k),-99)!=num(w.get(src),-98): bad.append('%s %s: app %r, ESPN %r'%(n,k,g.get(k),w.get(src)))
-    A.check('G3','Forecast temperature, gust, precipitation and condition match ESPN',bad)
+        for k,src in (('temp','temperature'),('gust','gust'),('precip','precipitation')):
+            ev=w.get(src); en=num(ev,None) if ev is not None else None
+            if ev is None and g.get(k) is None: continue
+            if ev is not None and en is None: odd.append('%s %s from ESPN is not a number: %r'%(n,k,ev)); continue
+            if num(g.get(k),-99)!=en: bad.append('%s %s: app %r, ESPN %r'%(n,k,g.get(k),ev))
+        ev=w.get('conditionId')
+        if ev is not None:
+            en=num(ev,None)
+            if en is None and (g.get('cond') is not None or g.get('condtext')!=str(ev).strip()[:40]): bad.append('%s condition: app %r/%r, ESPN text %r'%(n,g.get('cond'),g.get('condtext'),ev))
+            if en is not None and g.get('cond')!=int(en): bad.append('%s condition: app %r, ESPN %r'%(n,g.get('cond'),ev))
+    A.check('G3','Forecast temperature, gust, precipitation and condition match ESPN (numbers or text, as sent)',bad)
+    if odd: A.warn('G3b','ESPN sent a non-numeric weather value; it was skipped rather than shown',odd,len(odd))
 
     NV={r['espn'].split('.')[0]:r for r in rows(os.path.join(DATA,'games_all.csv')) if r.get('espn')}
     bad=[]; diff=[]
@@ -72,7 +83,7 @@ def run(A):
     for g in D['games']:
         pr=S[g['id']].get('predictor') or {}
         hp=(pr.get('homeTeam') or {}).get('gameProjection')
-        if g.get('wp') is not None and hp is not None and abs(num(g['wp'])-num(hp))>0.05:
+        if g.get('state')!='post' and g.get('wp') is not None and num(hp,None) is not None and abs(num(g['wp'])-num(hp))>0.05:
             bad.append('%s@%s ESPN win prob app %s, ESPN %s'%(g['a'],g['h'],g['wp'],hp))
         if g.get('state')=='post':
             f=os.path.join(RAW,'espn','f_%s.json'%g['id'])
