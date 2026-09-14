@@ -15,7 +15,7 @@ def plays_ready(cutoff,update=False):
     """the history database has plays through the cutoff week; optionally load the newest play-by-play first"""
     have=lm.plays_through()
     if (have is None or have<gm.wk(*cutoff)) and update:
-        r=subprocess.run([sys.executable,os.path.join(HERE,'history.py'),'--from','2019','--tables','plays'],capture_output=True,text=True)
+        r=subprocess.run([sys.executable,os.path.join(HERE,'history.py'),'--from','2019','--tables','plays,player_week'],capture_output=True,text=True)
         print('  history database update: %s'%((r.stdout or r.stderr).strip().split('\n')[-1][:140]),flush=True)
         have=lm.plays_through()
     return have is not None and have>=gm.wk(*cutoff)

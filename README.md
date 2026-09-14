@@ -74,9 +74,10 @@ totals were tested on held-out seasons, did not help, and are not used.
 
 ## Learning loop
 
-The weights of both models live in versioned registries -- `pipeline/champion.json` (pregame odds) and
-`pipeline/champion_live.json` (live in-game) -- and nothing else sets them. Predictions, the track record and the
-page all read the version in force through `pipeline/gamemodel.py` and `pipeline/livemodel.py`.
+The weights of all three models live in versioned registries -- `pipeline/champion.json` (pregame odds),
+`pipeline/champion_live.json` (live in-game) and `pipeline/champion_players.json` (player projections) -- and
+nothing else sets them. Predictions, projections, the track record and the page all read the version in force
+through `pipeline/gamemodel.py`, `pipeline/livemodel.py` and `pipeline/playermodel.py`.
 
 ```bash
 python3 pipeline/learn.py review [--force] [--update-history]   # weekly, in the daily lane once a week is final
@@ -106,6 +107,23 @@ followed the rules, the review's arithmetic, and recomputes that evidence from r
 First reviews (games through 2025): nothing met the bar. Closest: backup-QB weight 3.9 -> 2.9 (58% confidence
 after correcting for 14 ideas), win-probability calibration (79%). Expect few changes: NFL results are noisy, and
 the loop is built to ignore noise.
+
+## Player projections
+
+`pipeline/playermodel.py` holds the panel, the projection formula (vectorised), expected PPR points and the
+simulator; `project.py` runs it for the slate and `learn_players.py` reviews its weights. Each player's history is
+this season's games before the week at full weight plus last season's at `prev_weight` (launched at ×0.1, the best
+of 0–1 on 2021–22). Walk-forward, on player-weeks with a target or carry:
+
+| History used | 2021–22 error (pts) | 2023–25 error (pts) | Players projectable |
+|---|---|---|---|
+| Last season only (the model before this change) | 5.10 | 5.00 | 81–84% |
+| This season only | 4.85 | 4.60 | 90–91% |
+| This season + last season ×0.1 / ×0.25 | **4.81** / 4.81 | — / 4.61 | **98%** |
+
+The loop re-tests `prev_weight`, three sample-trust groups (volume, efficiency, passing), the opponent pass-defence
+strength and the game-script strength every week (`pipeline/learning/spec_players.json`, registry
+`pipeline/champion_players.json`), on expected PPR points per player-week.
 
 ## History database
 
@@ -194,8 +212,9 @@ sits where it does, and player detail.
 
 ## Not yet done
 
-- Player projections still read only 2025 weekly stats (`stw25.csv`): 2026 games do not feed them, rookies and
-  new players get no projection, and their constants are not yet in the learning loop.
+- The player model's simulator spread (`vol`, `yshape`) and injury absorption rates are in its registry but not
+  yet re-tested by the loop; positional baselines, the touchdown curve, game-script line and defence adjustments
+  (`fit1.json`, `fit_opp.json`) are still 2025 fits.
 
 ## Data gotchas
 

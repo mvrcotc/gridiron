@@ -17,6 +17,56 @@
     18
    ],
    "last_games": 1871
+  },
+  "players": {
+   "pending": {
+    "pl_volume_trust|big|--": {
+     "review": "R2025-18",
+     "cutoff": [
+      2025,
+      18
+     ],
+     "games": 27165
+    },
+    "pl_volume_trust|small|--": {
+     "review": "R2025-18",
+     "cutoff": [
+      2025,
+      18
+     ],
+     "games": 27165
+    },
+    "pl_efficiency_trust|big|-----": {
+     "review": "R2025-18",
+     "cutoff": [
+      2025,
+      18
+     ],
+     "games": 27165
+    },
+    "pl_efficiency_trust|small|-----": {
+     "review": "R2025-18",
+     "cutoff": [
+      2025,
+      18
+     ],
+     "games": 27165
+    },
+    "pl_script|big|-": {
+     "review": "R2025-18",
+     "cutoff": [
+      2025,
+      18
+     ],
+     "games": 27165
+    }
+   },
+   "changes": {},
+   "last_cutoff": [
+    2025,
+    18
+   ],
+   "last_games": 27165
   }
  }
 }

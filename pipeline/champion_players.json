@@ -1,0 +1,34 @@
+{
+ "model": "players",
+ "current": 1,
+ "versions": [
+  {
+   "v": 1,
+   "date": "2026-09-14",
+   "cutoff": [
+    2022,
+    99
+   ],
+   "how": "origin",
+   "note": "Launch weights for multi-season player projections: this season's games before the week at full weight plus last season's at x0.1 (the best of 0 to 1 on 2021-22, before the evaluation seasons were looked at). Sample-trust constants, simulator spread and injury absorption are the values the 2025-only model used (fit_k.json, fit_cal.json, absorb.json); those were tuned on 2025 weeks, so the review's comparisons on 2025 favour keeping them.",
+   "params": {
+    "prev_weight": 0.1,
+    "k_ts": 15,
+    "k_cshare": 20,
+    "k_cr": 60,
+    "k_ypt": 120,
+    "k_adot": 40,
+    "k_ypc": 40,
+    "k_rutd": 40,
+    "k_pcmp": 60,
+    "k_pass": 120,
+    "opp_scale": 1.0,
+    "script_scale": 1.0,
+    "vol": 2.3,
+    "yshape": 0.45,
+    "absorb_tgt": 0.746,
+    "absorb_car": 0.538
+   }
+  }
+ ]
+}

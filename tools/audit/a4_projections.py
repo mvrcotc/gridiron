@@ -41,7 +41,7 @@ def run(A):
     bad=[]
     near=r"[\w\s\.\(\)'\",:]{0,40}"
     pat=re.compile(r"\bcr\b"+near+r"\*"+near+r"\bypt\b|\bypt\b"+near+r"\*"+near+r"\bcr\b")
-    for path in [os.path.join(PIPE,f) for f in ('predict.py','project.py','props.py')]+[os.path.join(APP,'app.js')]:
+    for path in [os.path.join(PIPE,f) for f in ('predict.py','project.py','props.py','playermodel.py')]+[os.path.join(APP,'app.js')]:
         for i,line in enumerate(open(path,encoding='utf-8'),1):
             if pat.search(line): bad.append('%s:%d  %s'%(os.path.basename(path),i,line.strip()[:110]))
     A.check('P4','No code computes receiving yards as targets x catch rate x yards-per-target',bad)
@@ -105,7 +105,8 @@ def run(A):
     A.check('P9','Weather multipliers recompute from sustained wind (not gusts) for every game',bad,len(D['games']))
 
     # ---- injury pass: recovered volume never exceeds the measured absorption rate ----
-    AB=json.load(open(os.path.join(PIPE,'absorb.json'))); bad=[]; info=[]
+    CPL=json.load(open(os.path.join(PIPE,'champion_players.json'))); PP=next(v for v in CPL['versions'] if v['v']==CPL['current'])['params']
+    AB={'tgt':PP['absorb_tgt'],'car':PP['absorb_car']}; bad=[]; info=[]
     for team,v in (D.get('redist') or {}).items():
         ft=sum(num(o.get('tgt')) for o in v['out']); fc=sum(num(o.get('car')) for o in v['out'])
         gt=sum(num(p['inj'].get('t')) for g,p in PJ.items() if p.get('inj') and PL[g]['t']==team)

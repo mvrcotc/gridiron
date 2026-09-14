@@ -1,0 +1,14 @@
+{
+ "review": "R2025-18",
+ "cutoff": [
+  2025,
+  18
+ ],
+ "candidates": [
+  "pl_efficiency_trust|full",
+  "pl_efficiency_trust|step",
+  "pl_script|full",
+  "pl_volume_trust|full",
+  "pl_volume_trust|step"
+ ]
+}

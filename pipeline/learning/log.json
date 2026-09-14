@@ -12,7 +12,7 @@
     "rollback": null,
     "tested": 14,
     "champion_after": 1,
-    "seconds": 1.6
+    "seconds": 1.5
    },
    "live": {
     "games": 1871,
@@ -21,6 +21,14 @@
     "tested": 5,
     "champion_after": 1,
     "seconds": 4.6
+   },
+   "players": {
+    "games": 27165,
+    "champion": 1,
+    "rollback": null,
+    "tested": 9,
+    "champion_after": 1,
+    "seconds": 2.6
    }
   },
   "results": [
@@ -2438,12 +2446,1000 @@
     "status": "rejected",
     "size": "small",
     "summary": "Live total pregame 0.803, clock 9.39, possession 0.684 → pregame 0.835, clock 7.89, possession 0.689: final-total error 7.234 → 7.234; 0.0% confidence after correcting for 5 ideas tested (need 95%); better in 1 of 3 seasons with 48+ games"
+   },
+   {
+    "model": "players",
+    "category": "pl_history",
+    "name": "Last season's games",
+    "what": "how much a player's previous season counts next to this season's games",
+    "metric": "pts",
+    "from_params": {
+     "prev_weight": 0.1
+    },
+    "variant": "full",
+    "title": "Last season's games ×0.1 → ×0.15",
+    "to_params": {
+     "prev_weight": 0.15
+    },
+    "steps": 0.5,
+    "onoff": false,
+    "turns": null,
+    "n": 13603,
+    "base": 4.5427,
+    "cand": 4.5427,
+    "delta": 0.0,
+    "se": 0.00495,
+    "p": 0.53773,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.493,
+      "cand": 4.5025
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6345,
+      "cand": 4.6253
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.502,
+      "cand": 4.5015
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.5426742023926785,
+      4.542662240786732
+     ],
+     "rec": [
+      1.3360801024543316,
+      1.3347918515680675
+     ],
+     "yds": [
+      22.043512960168016,
+      22.009612601670568
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "13603 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "expected PPR points error 4.543 → 4.543"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 9 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 2 of 3 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 0.5 steps",
+      "pts": 0.25
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -1.25,
+    "status": "rejected",
+    "size": "small",
+    "summary": "Last season's games ×0.1 → ×0.15: expected PPR points error 4.543 → 4.543; 0.0% confidence after correcting for 9 ideas tested (need 95%); better in 2 of 3 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_volume_trust",
+    "name": "Volume trust",
+    "what": "how many team plays before a player's own target and carry share outweighs his position's average",
+    "metric": "pts",
+    "from_params": {
+     "k_ts": 15,
+     "k_cshare": 20
+    },
+    "variant": "full",
+    "title": "Volume trust ×1.00 of launch values → ×0.51 of launch values",
+    "to_params": {
+     "k_ts": 7.68,
+     "k_cshare": 10.24
+    },
+    "steps": 3.0,
+    "onoff": false,
+    "turns": null,
+    "n": 13603,
+    "base": 4.5427,
+    "cand": 4.5128,
+    "delta": 0.0299,
+    "se": 0.00452,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.493,
+      "cand": 4.4641
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6345,
+      "cand": 4.6014
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.502,
+      "cand": 4.4742
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.5426742023926785,
+      4.512771862093432
+     ],
+     "rec": [
+      1.3360801024543316,
+      1.33448896351353
+     ],
+     "yds": [
+      22.043512960168016,
+      21.85944470214246
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 0.0045,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "13603 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.543 → 4.513"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.6% confidence after correcting for 9 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 3 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": false,
+      "text": "first time it passed; must pass again in a later review with new games"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 13603 player-weeks it never saw: 4.543 → 4.513",
+      "pts": 4.0
+     },
+     {
+      "text": "Also improves scrimmage yards error (22.044 → 21.859)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 3.0 steps",
+      "pts": 1.5
+     }
+    ],
+    "net": 3.0,
+    "status": "pending",
+    "size": "big",
+    "summary": "Volume trust ×1.00 of launch values → ×0.51 of launch values: expected PPR points error 4.543 → 4.513; 99.6% confidence after correcting for 9 ideas tested (need 95%); better in 3 of 3 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_volume_trust",
+    "name": "Volume trust",
+    "what": "how many team plays before a player's own target and carry share outweighs his position's average",
+    "metric": "pts",
+    "from_params": {
+     "k_ts": 15,
+     "k_cshare": 20
+    },
+    "variant": "step",
+    "title": "Volume trust ×1.00 of launch values → ×0.80 of launch values",
+    "to_params": {
+     "k_ts": 12.0,
+     "k_cshare": 16.0
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 13603,
+    "base": 4.5427,
+    "cand": 4.5297,
+    "delta": 0.0129,
+    "se": 0.0018,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.493,
+      "cand": 4.4806
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6345,
+      "cand": 4.6201
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.502,
+      "cand": 4.4899
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.5426742023926785,
+      4.529741695562466
+     ],
+     "rec": [
+      1.3360801024543316,
+      1.3351669893324132
+     ],
+     "yds": [
+      22.043512960168016,
+      21.965818160638854
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 0.0045,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "13603 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.543 → 4.530"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.6% confidence after correcting for 9 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 3 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": false,
+      "text": "first time it passed; must pass again in a later review with new games"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 13603 player-weeks it never saw: 4.543 → 4.530",
+      "pts": 4.0
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     }
+    ],
+    "net": 3.5,
+    "status": "pending",
+    "size": "small",
+    "summary": "Volume trust ×1.00 of launch values → ×0.80 of launch values: expected PPR points error 4.543 → 4.530; 99.6% confidence after correcting for 9 ideas tested (need 95%); better in 3 of 3 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_efficiency_trust",
+    "name": "Efficiency trust",
+    "what": "how many targets and carries before a player's own catch rate, yards and touchdown rates are trusted",
+    "metric": "pts",
+    "from_params": {
+     "k_cr": 60,
+     "k_ypt": 120,
+     "k_adot": 40,
+     "k_ypc": 40,
+     "k_rutd": 40
+    },
+    "variant": "full",
+    "title": "Efficiency trust ×1.00 of launch values → ×0.51 of launch values",
+    "to_params": {
+     "k_cr": 30.72,
+     "k_ypt": 61.44,
+     "k_adot": 20.48,
+     "k_ypc": 20.48,
+     "k_rutd": 20.48
+    },
+    "steps": 3.0,
+    "onoff": false,
+    "turns": null,
+    "n": 13603,
+    "base": 4.5427,
+    "cand": 4.5367,
+    "delta": 0.0059,
+    "se": 0.00142,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.493,
+      "cand": 4.4873
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6345,
+      "cand": 4.6249
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.502,
+      "cand": 4.4994
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.5426742023926785,
+      4.5367464447314045
+     ],
+     "rec": [
+      1.3360801024543316,
+      1.3349138099042441
+     ],
+     "yds": [
+      22.043512960168016,
+      22.004452102784672
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 0.0045,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "13603 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.543 → 4.537"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.6% confidence after correcting for 9 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 3 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": false,
+      "text": "first time it passed; must pass again in a later review with new games"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 13603 player-weeks it never saw: 4.543 → 4.537",
+      "pts": 4.0
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 3.0 steps",
+      "pts": 1.5
+     }
+    ],
+    "net": 2.5,
+    "status": "pending",
+    "size": "big",
+    "summary": "Efficiency trust ×1.00 of launch values → ×0.51 of launch values: expected PPR points error 4.543 → 4.537; 99.6% confidence after correcting for 9 ideas tested (need 95%); better in 3 of 3 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_efficiency_trust",
+    "name": "Efficiency trust",
+    "what": "how many targets and carries before a player's own catch rate, yards and touchdown rates are trusted",
+    "metric": "pts",
+    "from_params": {
+     "k_cr": 60,
+     "k_ypt": 120,
+     "k_adot": 40,
+     "k_ypc": 40,
+     "k_rutd": 40
+    },
+    "variant": "step",
+    "title": "Efficiency trust ×1.00 of launch values → ×0.80 of launch values",
+    "to_params": {
+     "k_cr": 48.0,
+     "k_ypt": 96.0,
+     "k_adot": 32.0,
+     "k_ypc": 32.0,
+     "k_rutd": 32.0
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 13603,
+    "base": 4.5427,
+    "cand": 4.5406,
+    "delta": 0.0021,
+    "se": 0.00045,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.493,
+      "cand": 4.491
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6345,
+      "cand": 4.6311
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.502,
+      "cand": 4.5011
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.5426742023926785,
+      4.5405723975201076
+     ],
+     "rec": [
+      1.3360801024543316,
+      1.3355808863735452
+     ],
+     "yds": [
+      22.043512960168016,
+      22.02858034626519
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 0.0045,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "13603 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.543 → 4.541"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.6% confidence after correcting for 9 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 3 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": false,
+      "text": "first time it passed; must pass again in a later review with new games"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 13603 player-weeks it never saw: 4.543 → 4.541",
+      "pts": 4.0
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     }
+    ],
+    "net": 3.5,
+    "status": "pending",
+    "size": "small",
+    "summary": "Efficiency trust ×1.00 of launch values → ×0.80 of launch values: expected PPR points error 4.543 → 4.541; 99.6% confidence after correcting for 9 ideas tested (need 95%); better in 3 of 3 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_passing_trust",
+    "name": "Passing trust",
+    "what": "how many attempts before a quarterback's own completion, yardage, touchdown and interception rates are trusted",
+    "metric": "pts",
+    "from_params": {
+     "k_pcmp": 60,
+     "k_pass": 120
+    },
+    "variant": "full",
+    "title": "Passing trust ×1.00 of launch values → ×1.95 of launch values",
+    "to_params": {
+     "k_pcmp": 117.1875,
+     "k_pass": 234.375
+    },
+    "steps": 3.0,
+    "onoff": false,
+    "turns": null,
+    "n": 13603,
+    "base": 4.5427,
+    "cand": 4.5427,
+    "delta": 0.0,
+    "se": 0.0,
+    "p": 1.0,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.493,
+      "cand": 4.493
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6345,
+      "cand": 4.6345
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.502,
+      "cand": 4.502
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.5426742023926785,
+      4.5426742023926785
+     ],
+     "rec": [
+      1.3360801024543316,
+      1.3360801024543316
+     ],
+     "yds": [
+      22.043512960168016,
+      22.043512960168016
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "13603 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "expected PPR points error 4.543 → 4.543"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 9 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 0 of 3 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 3.0 steps",
+      "pts": 1.5
+     },
+     {
+      "text": "Worse in 3 seasons",
+      "pts": 1.5
+     }
+    ],
+    "net": -3.0,
+    "status": "rejected",
+    "size": "big",
+    "summary": "Passing trust ×1.00 of launch values → ×1.95 of launch values: expected PPR points error 4.543 → 4.543; 0.0% confidence after correcting for 9 ideas tested (need 95%); better in 0 of 3 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_passing_trust",
+    "name": "Passing trust",
+    "what": "how many attempts before a quarterback's own completion, yardage, touchdown and interception rates are trusted",
+    "metric": "pts",
+    "from_params": {
+     "k_pcmp": 60,
+     "k_pass": 120
+    },
+    "variant": "step",
+    "title": "Passing trust ×1.00 of launch values → ×1.25 of launch values",
+    "to_params": {
+     "k_pcmp": 75.0,
+     "k_pass": 150.0
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 13603,
+    "base": 4.5427,
+    "cand": 4.5427,
+    "delta": 0.0,
+    "se": 0.0,
+    "p": 1.0,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.493,
+      "cand": 4.493
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6345,
+      "cand": 4.6345
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.502,
+      "cand": 4.502
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.5426742023926785,
+      4.5426742023926785
+     ],
+     "rec": [
+      1.3360801024543316,
+      1.3360801024543316
+     ],
+     "yds": [
+      22.043512960168016,
+      22.043512960168016
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "13603 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "expected PPR points error 4.543 → 4.543"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 9 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 0 of 3 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 3 seasons",
+      "pts": 1.5
+     }
+    ],
+    "net": -2.0,
+    "status": "rejected",
+    "size": "small",
+    "summary": "Passing trust ×1.00 of launch values → ×1.25 of launch values: expected PPR points error 4.543 → 4.543; 0.0% confidence after correcting for 9 ideas tested (need 95%); better in 0 of 3 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_opponent",
+    "name": "Opponent pass defence",
+    "what": "how strongly the opposing pass defence moves a receiver's yards per target",
+    "metric": "pts",
+    "from_params": {
+     "opp_scale": 1.0
+    },
+    "variant": "full",
+    "title": "Opponent pass defence ×1 → ×0.75",
+    "to_params": {
+     "opp_scale": 0.75
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 13603,
+    "base": 4.5427,
+    "cand": 4.543,
+    "delta": -0.0004,
+    "se": 0.00162,
+    "p": 0.57521,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.493,
+      "cand": 4.4883
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6345,
+      "cand": 4.6303
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.502,
+      "cand": 4.5119
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.5426742023926785,
+      4.543033339460972
+     ],
+     "rec": [
+      1.3360801024543316,
+      1.3360801024543316
+     ],
+     "yds": [
+      22.043512960168016,
+      22.019588901044017
+     ]
+    },
+    "tuned_spread": 2.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "13603 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "expected PPR points error 4.543 → 4.543"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 9 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 2 of 3 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     }
+    ],
+    "net": -1.0,
+    "status": "rejected",
+    "size": "small",
+    "summary": "Opponent pass defence ×1 → ×0.75: expected PPR points error 4.543 → 4.543; 0.0% confidence after correcting for 9 ideas tested (need 95%); better in 2 of 3 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_script",
+    "name": "Game script",
+    "what": "how strongly the point spread shifts a team between passing and running",
+    "metric": "pts",
+    "from_params": {
+     "script_scale": 1.0
+    },
+    "variant": "full",
+    "title": "Game script ×1 → ×0",
+    "to_params": {
+     "script_scale": 0.0
+    },
+    "steps": 2.0,
+    "onoff": true,
+    "turns": "off",
+    "n": 13603,
+    "base": 4.5427,
+    "cand": 4.5392,
+    "delta": 0.0035,
+    "se": 0.00142,
+    "p": 0.0075,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.493,
+      "cand": 4.487
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6345,
+      "cand": 4.6332
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.502,
+      "cand": 4.4989
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.5426742023926785,
+      4.539175634401568
+     ],
+     "rec": [
+      1.3360801024543316,
+      1.3352972273093349
+     ],
+     "yds": [
+      22.043512960168016,
+      22.054662670090387
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 0.0375,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "13603 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.543 → 4.539"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "96.2% confidence after correcting for 9 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 3 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": false,
+      "text": "first time it passed; must pass again in a later review with new games"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 13603 player-weeks it never saw: 4.543 → 4.539",
+      "pts": 2.46
+     },
+     {
+      "text": "Simpler: removes a factor",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 2.0 steps",
+      "pts": 1.0
+     },
+     {
+      "text": "Evidence only just clears the bar",
+      "pts": 0.5
+     }
+    ],
+    "net": 1.46,
+    "status": "pending",
+    "size": "big",
+    "summary": "Game script ×1 → ×0: expected PPR points error 4.543 → 4.539; 96.2% confidence after correcting for 9 ideas tested (need 95%); better in 3 of 3 seasons with 500+ player-weeks"
    }
   ],
   "applied": [],
   "proposed": [],
   "date": "2026-09-14",
-  "tested": 19,
+  "tested": 28,
   "games": 1871
  }
 ]

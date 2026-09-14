@@ -90,6 +90,8 @@ GI['live']=dict({k:LV['params'][k] for k in ('ep','margin','total','platt')},ver
 if os.path.exists('livefit.json'):
     LF=json.load(open('livefit.json')); GI['live'].update({k:LF[k] for k in ('fit','test','n_test_plays','report','built','note') if k in LF})
 GI['learn']['live_params']=LV['params']; GI['learn']['live_version']=LV['v']
+import playermodel as pm
+PV=gm.current(pm.load_champion()); GI['learn']['players_params']=PV['params']; GI['learn']['players_version']=PV['v']
 if os.path.exists('track.json'): GI['track']=json.load(open('track.json'))
 json.dump(PRED,open('pred.json','w')); json.dump(GI,open(os.path.join(DATA,'gi2.json'),'w'),separators=(',',':'))
 print('predictions: %d games with weights version %d; backup-QB flags: %s'%(len(PRED),V['v'],[x['a']+'@'+x['h'] for x in GI['games'] if x['a_qbbackup'] or x['h_qbbackup']] or 'none'))

@@ -34,13 +34,19 @@ LDIR=os.path.join(HERE,'learning'); EDIR=os.path.join(LDIR,'evidence'); os.maked
 P_LOG,P_STATE,P_PROPS,P_SUM,P_NEW=[os.path.join(LDIR,f) for f in ('log.json','state.json','proposals.json','summary.json','new_proposals')]
 P_DEC=os.path.join(LDIR,'decisions.json')   # permanent: every applied, proposed or rolled-back change with its full evidence summary
 SPEC=gm.load_spec(); CATS={c['id']:c for c in SPEC['categories']}
-MODELS=('pregame','live'); MNAME={'pregame':'Pregame odds model','live':'Live in-game model'}
+MODELS=('pregame','live','players'); MNAME={'pregame':'Pregame odds model','live':'Live in-game model','players':'Player projections'}
 
 def jload(p,fb):
     try: return json.load(open(p,encoding='utf-8'))
     except FileNotFoundError: return fb
+def _plain(o):
+    """numpy scalars and arrays written as plain JSON numbers and lists"""
+    if isinstance(o,np.generic): return o.item()
+    if isinstance(o,np.ndarray): return o.tolist()
+    raise TypeError('not JSON serializable: %s'%type(o).__name__)
 def jsave(p,o):
-    json.dump(o,open(p+'.part','w',encoding='utf-8'),indent=1,ensure_ascii=False); os.replace(p+'.part',p)
+    with open(p+'.part','w',encoding='utf-8') as f: json.dump(o,f,indent=1,ensure_ascii=False,default=_plain)
+    os.replace(p+'.part',p)
 def seq(cut): return int(cut[0])*18+min(int(cut[1]),18)
 def today(): return datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
 def nf(x): return '%.4f'%x if abs(x)<1 else '%.3f'%x
@@ -222,7 +228,8 @@ def secondary(fr,idx,pb,pc):
 
 # ------------------------------------------------------------------ the pregame model's candidates
 MLAB={'margin':'margin error','total':'total error','margin_total':'average of margin and total error','logloss':'win-probability log loss',
-      'blend':'blended-line error','brier':'win-probability Brier score','final_margin':'final-margin error','final_total':'final-total error'}
+      'blend':'blended-line error','brier':'win-probability Brier score','final_margin':'final-margin error','final_total':'final-total error',
+      'pts':'expected PPR points error','rec':'receptions error','yds':'scrimmage yards error'}
 
 def evaluate(fr,C,cutoff,review_id,only=None):
     O=origin_params(C); Cur=gm.current(C); P=Cur['params']
@@ -293,15 +300,15 @@ def judge(c,m,spec):
     S=spec; SC=S['score']; sec=c['sec']; tol=S['collateral']
     big=[b for b in c['blocks'] if b['n']>=S['min_block_games']]; better=sum(1 for b in big if b['cand']<b['base']); worse=len(big)-better
     col=[k for k in tol if k!=c['metric'] and k in sec and sec[k][1]-sec[k][0]>tol[k]]
-    checks=[('enough',c['n']>=S['min_eval_games'],'%d games it never saw (need %d)'%(c['n'],S['min_eval_games'])),
+    checks=[('enough',c['n']>=S['min_eval_games'],'%d %s it never saw (need %d)'%(c['n'],S.get('unit','games'),S['min_eval_games'])),
             ('better',c['delta']>0,'%s %s → %s'%(MLAB[c['metric']],nf(c['base']),nf(c['cand']))),
             ('significant',c['p_adj']<S['alpha'],'%.1f%% confidence after correcting for %d idea%s tested (need %.0f%%)'%(100*(1-c['p_adj']),m,'s' if m!=1 else '',100*(1-S['alpha']))),
-            ('consistent',better>=S['min_better_blocks'] and worse<=S['max_worse_blocks'],'better in %d of %d seasons with %d+ games'%(better,len(big),S['min_block_games'])),
+            ('consistent',better>=S['min_better_blocks'] and worse<=S['max_worse_blocks'],'better in %d of %d seasons with %d+ %s'%(better,len(big),S['min_block_games'],S.get('unit','games'))),
             ('no_damage',not col,'no other measure worse beyond tolerance' if not col else 'worse on '+', '.join(MLAB.get(k,k) for k in col))]
     c['checks']=[dict(id=a,ok=bool(b),text=t) for a,b,t in checks]
     pros=[]; cons=[]
     z=c['delta']/c['se'] if c['se']>0 else 0.0
-    if c['delta']>0: pros.append(('Lower %s on %d games it never saw: %s → %s'%(MLAB[c['metric']],c['n'],nf(c['base']),nf(c['cand'])),min(z,SC['z_cap'])))
+    if c['delta']>0: pros.append(('Lower %s on %d %s it never saw: %s → %s'%(MLAB[c['metric']],c['n'],S.get('unit','games'),nf(c['base']),nf(c['cand'])),min(z,SC['z_cap'])))
     if better>S['min_better_blocks']: pros.append(('Better in %d seasons, more than the %d required'%(better,S['min_better_blocks']),SC['extra_block']*(better-S['min_better_blocks'])))
     for k in tol:
         if k==c['metric'] or k not in sec: continue
@@ -354,6 +361,15 @@ def adapter(model,book,cutoff,update_history=False):
                     rollback=lambda rid: rollback_check(fr,C,cutoff,rid),
                     save_ev=lambda path,ev: jsave(path+'.json',ev),
                     drift=lambda cat,to: steps(cat,vec(cat,origin_params(C),origin_params(C)),vec(cat,dict(gm.current(C)['params'],**to),origin_params(C))))
+    if model=='players':
+        import learn_players as LPm, playermodel as pm
+        if not LPm.data_ready(cutoff,update=update_history): return None
+        spec=LPm.load_spec(); C=pm.load_champion(); R=LPm.Rows(spec['first_season'],cutoff); O=origin_params(C)
+        return dict(C=C,path=pm.CHAMP,spec=spec,games=R.n,cats={c['id']:c for c in spec['categories']},
+                    evaluate=lambda rid,only=None: LPm.evaluate(R,C,cutoff,rid,spec,boot,seed_of,only=only),
+                    rollback=lambda rid: LPm.rollback_check(R,C,cutoff,rid,boot,seed_of,spec),
+                    save_ev=lambda path,ev: LPm.save_evidence(path+'.npz',ev),
+                    drift=lambda cat,to: LPm.steps(cat,LPm.vec(cat,O,O),LPm.vec(cat,dict(gm.current(C)['params'],**to),O)))
     import learn_live as LL, livemodel as lm
     if not LL.plays_ready(cutoff,update=update_history): return None
     spec=LL.load_spec(); C=lm.load_champion(); P=lm.Plays(first=spec['first_season'],cutoff=cutoff,book=book)
@@ -373,7 +389,7 @@ def load_state():
 def run_model(model,book,cutoff,rid,state,PROPS,update_history,DEC):
     A=adapter(model,book,cutoff,update_history); ms=state['models'].setdefault(model,{})
     if A is None:
-        print('  %s: play-by-play through %d week %d is not in the history database yet -- its review waits'%(MNAME[model],cutoff[0],cutoff[1])); return None
+        print('  %s: history data through %d week %d is not in the database yet -- its review waits'%(MNAME[model],cutoff[0],cutoff[1])); return None
     C,spec=A['C'],A['spec']; t0=datetime.datetime.now(); applied=[]; proposed=[]
     did_auto=any(v['how'] in ('auto','rollback') and list(v['cutoff'])==list(cutoff) for v in C['versions'])   # one automatic change per model per week, even when a week is re-run
     info=dict(games=A['games'],champion=C['current'])
@@ -432,9 +448,9 @@ def run_model(model,book,cutoff,rid,state,PROPS,update_history,DEC):
     if model=='pregame': jsave(os.path.join(EDIR,'latest.json'),dict(review=rid,cutoff=cutoff,candidates=latest))
     else:
         for f in os.listdir(EDIR):
-            if f.startswith('latest_live'): os.remove(os.path.join(EDIR,f))
-        for key,ev in latest.items(): A['save_ev'](os.path.join(EDIR,'latest_live_'+key.replace('|','_')),ev)
-        jsave(os.path.join(EDIR,'latest_live.json'),dict(review=rid,cutoff=cutoff,candidates=sorted(latest)))
+            if f.startswith('latest_%s'%model): os.remove(os.path.join(EDIR,f))
+        for key,ev in latest.items(): A['save_ev'](os.path.join(EDIR,'latest_%s_'%model+key.replace('|','_')),ev)
+        jsave(os.path.join(EDIR,'latest_%s.json'%model),dict(review=rid,cutoff=cutoff,candidates=sorted(latest)))
     ms['last_cutoff']=list(cutoff); ms['last_games']=A['games']; jsave(A['path'],C)
     info.update(tested=len(tested),champion_after=C['current'],seconds=round((datetime.datetime.now()-t0).total_seconds(),1))
     return dict(info=info,results=[{k:v for k,v in c.items() if not k.startswith('_')} for c in cands],applied=applied,proposed=proposed)
@@ -457,7 +473,7 @@ def review(force=False,update_history=False):
         rec['proposed']=[p for p in rec['proposed'] if not p.startswith('%s:%s:'%(rid,model))]+out['proposed']; new+=out['proposed']
         counts=defaultdict(int)
         for r in out['results']: counts[r['status']]+=1
-        print('review %s %s: %d games through %d week %d, %d ideas tested in %.0fs -- %s'%(rid,model,out['info']['games'],cutoff[0],cutoff[1],out['info']['tested'],out['info']['seconds'],dict(counts)))
+        print('review %s %s: %d %s through %d week %d, %d ideas tested in %.0fs -- %s'%(rid,model,out['info']['games'],'player-weeks' if model=='players' else 'games',cutoff[0],cutoff[1],out['info']['tested'],out['info']['seconds'],dict(counts)))
         if out['info'].get('rollback'): print('  rollback check: %s'%out['info']['rollback'])
         for r in out['results']:
             if r['status']!='holds': print('  %-11s %-18s %s | net %+.2f'%(r['status'],r['category']+'/'+r['variant'],r['summary'][:140],r['net']))
@@ -502,8 +518,9 @@ def decide(pid,approve,update_history=False):
     print('approved %s -> %s weights version %d: %s'%(pid,model,v,c['summary']))
 
 def write_summary(LOG,PROPS,state):
-    import livemodel as lm, learn_live as LL
+    import livemodel as lm, learn_live as LL, playermodel as pm, learn_players as LPm
     Cp=gm.load_champion(); Cl=lm.load_champion(); specl=LL.load_spec(); O=origin_params(Cp)
+    Cpl=pm.load_champion(); specp=LPm.load_spec(); Ppl=gm.current(Cpl)['params']; Opl=origin_params(Cpl)
     Pp=gm.current(Cp)['params']; Pl=gm.current(Cl)['params']; last=LOG[-1] if LOG else None
     def statuses(model):
         res={}
@@ -513,14 +530,16 @@ def write_summary(LOG,PROPS,state):
             if r.get('model','pregame')==model and r['status'] in ('applied','proposed','pending','confirmed'): res[r['category']]=r
         return res
     weights=[]
-    for model,C,spec,P in (('pregame',Cp,SPEC,Pp),('live',Cl,specl,Pl)):
+    for model,C,spec,P in (('pregame',Cp,SPEC,Pp),('live',Cl,specl,Pl),('players',Cpl,specp,Ppl)):
         res=statuses(model)
         for cat in spec['categories']:
             if model=='pregame':
                 value=fmt_ratio(cat,P,O) if cat['kind']=='engine_ratio' else fmt(cat,P)
                 changed=lambda a,b,cat=cat:any(a[p]!=b[p] for p in cat['params'])
-            else:
+            elif model=='live':
                 value=LL.fmt(cat,P); changed=lambda a,b,cat=cat:LL.get_vec(cat,a).tolist()!=LL.get_vec(cat,b).tolist()
+            else:
+                value=LPm.fmt(cat,P,Opl); changed=lambda a,b,cat=cat:LPm.get_vec(cat,a).tolist()!=LPm.get_vec(cat,b).tolist()
             ch=[v for v in C['versions'] if v['v']>1 and changed(v['params'],gm.version(C,v['v']-1)['params'])]
             r=res.get(cat['id'])
             weights.append(dict(model=model,id=cat['id'],name=cat['name'],what=cat['what'],value=value,status=(r or {}).get('status','not reviewed yet'),
@@ -534,12 +553,14 @@ def write_summary(LOG,PROPS,state):
     S=dict(updated=today(),models=MNAME,
            champion=dict(v=Cp['current'],date=gm.current(Cp)['date'],how=gm.current(Cp)['how'],versions=len(Cp['versions'])),
            live_champion=dict(v=Cl['current'],date=gm.current(Cl)['date'],how=gm.current(Cl)['how'],versions=len(Cl['versions'])),
-           params=Pp,live_params=Pl,
+           players_champion=dict(v=Cpl['current'],date=gm.current(Cpl)['date'],how=gm.current(Cpl)['how'],versions=len(Cpl['versions'])),
+           params=Pp,live_params=Pl,players_params=Ppl,
            last_review=None if not last else dict(id=last['id'],date=last['date'],cutoff=last['cutoff'],games=last.get('games'),tested=last.get('tested',0),
                applied=last['applied'],proposed=last['proposed'],models=last.get('models',{})),
            weights=weights,decisions=notable[:14],proposals=[p for p in PROPS if p['status']=='open'],
            history=[dict(v=v['v'],date=v['date'],how=v['how'],note=v['note']) for v in Cp['versions']],
            live_history=[dict(v=v['v'],date=v['date'],how=v['how'],note=v['note']) for v in Cl['versions']],
+           players_history=[dict(v=v['v'],date=v['date'],how=v['how'],note=v['note']) for v in Cpl['versions']],
            rules=dict(alpha=SPEC['alpha'],min_games=SPEC['min_eval_games'],better_blocks=SPEC['min_better_blocks'],cooldown=SPEC['cooldown_weeks'],seasons=SPEC['eval_last_seasons']))
     jsave(P_SUM,S)
 

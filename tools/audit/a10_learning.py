@@ -15,7 +15,7 @@ def jl(p,fb): return json.load(open(p,encoding='utf-8')) if os.path.exists(p) el
 TOP={'ep':'ep','margin':'margin','spread':'margin','platt':'platt','total':'total'}
 def cat_values(model,c,P):
     """the numbers a weight group controls, for comparing versions"""
-    if model=='pregame': return [P[p] for p in c['params']]
+    if model in ('pregame','players'): return [P[p] for p in c['params']]
     if c['kind']=='ep': return P['ep']['table']
     if c['kind']=='platt': return P.get('platt')
     return [P[TOP[c['kind']]][p] for p in c['params']]
@@ -27,9 +27,10 @@ def boot_p(d,cl,seed,B):
 def run(A):
     A.section('learning loop'); D=A.D; L=os.path.join(PIPE,'learning')
     REG=[('pregame',jl(os.path.join(PIPE,'champion.json'),None),jl(os.path.join(L,'spec.json'),None)),
-         ('live',jl(os.path.join(PIPE,'champion_live.json'),None),jl(os.path.join(L,'spec_live.json'),None))]
+         ('live',jl(os.path.join(PIPE,'champion_live.json'),None),jl(os.path.join(L,'spec_live.json'),None)),
+         ('players',jl(os.path.join(PIPE,'champion_players.json'),None),jl(os.path.join(L,'spec_players.json'),None))]
     if any(C is None or S is None for _,C,S in REG):
-        A.check('LG1','The weights registries and learning rules exist',['champion.json, champion_live.json, spec.json or spec_live.json is missing']); return
+        A.check('LG1','The weights registries and learning rules exist',['a champion_*.json registry or learning/spec_*.json rules file is missing']); return
     LOG=jl(os.path.join(L,'log.json'),[]); PROPS=jl(os.path.join(L,'proposals.json'),[])
 
     bad=[]; nv=0
@@ -51,6 +52,16 @@ def run(A):
                     else:
                         for p,(lo,hi) in (c.get('bounds') or {}).items():
                             if not lo-1e-9<=P[p]<=hi+1e-9: bad.append('%s %s=%s outside [%s, %s]'%(tag,p,P[p],lo,hi))
+            elif model=='players':
+                miss=[p for c in SPEC['categories'] for p in c['params'] if p not in P]
+                if miss: bad.append('%s lacks %s'%(tag,miss)); continue
+                for c in SPEC['categories']:
+                    if c['kind']=='ratio':
+                        lo,hi=c['ratio_bounds']
+                        if any(not lo-1e-6<=P[p]/O[p]<=hi+1e-6 for p in c['params']): bad.append('%s %s outside %s-%s of launch values'%(tag,c['id'],lo,hi))
+                    else:
+                        for p,(lo,hi) in c['bounds'].items():
+                            if not lo-1e-9<=P[p]<=hi+1e-9: bad.append('%s %s=%s outside [%s, %s]'%(tag,p,P[p],lo,hi))
             else:
                 if any(k not in P for k in ('ep','margin','total','platt')): bad.append('%s lacks a part of the live model'%tag); continue
                 if np.array(P['ep']['table']).shape!=(10,4,4): bad.append('%s possession-value table is not 10x4x4'%tag)
@@ -59,7 +70,7 @@ def run(A):
                     for p,(lo,hi) in c['bounds'].items():
                         x=P[TOP[c['kind']]][p]
                         if not lo-1e-9<=x<=hi+1e-9: bad.append('%s %s=%s outside [%s, %s]'%(tag,p,x,lo,hi))
-    A.check('LG1','Both weights registries (pregame and live) are complete, numbered in order, and every weight sits inside its allowed range',bad,nv)
+    A.check('LG1','Every weights registry (pregame, live, players) is complete, numbered in order, and every weight sits inside its allowed range',bad,nv)
 
     bad=[]; nchg=0
     tested=dict(jl(os.path.join(L,'decisions.json'),{}))     # permanent decision records; the review log only keeps recent weeks
@@ -116,7 +127,7 @@ def run(A):
             if abs(round(sum(x['pts'] for x in r['pros'])-sum(x['pts'] for x in r['cons']),2)-r['net'])>0.021: bad.append('%s pros minus cons is not the net score %s'%(n,r['net']))
             if abs((r['base']-r['cand'])-r['delta'])>0.0011: bad.append('%s delta %s != %s - %s'%(n,r['delta'],r['base'],r['cand']))
             if sum(b['n'] for b in r['blocks'])!=r['n']: bad.append('%s season blocks do not add up to %d games'%(n,r['n']))
-            if model=='pregame' and abs(sum(b['base']*b['n'] for b in r['blocks'])/max(r['n'],1)-r['base'])>0.002: bad.append('%s season blocks do not average to the pooled result'%n)
+            if model!='live' and abs(sum(b['base']*b['n'] for b in r['blocks'])/max(r['n'],1)-r['base'])>0.002: bad.append('%s season blocks do not average to the pooled result'%n)
             if any(b['season']<=origin[model] or b['season']>rev['cutoff'][0] for b in r['blocks']): bad.append('%s was judged on seasons the launch weights were fitted on, or after the cutoff'%n)
             hard=all(ck.get(k) for k in ('enough','better','significant','consistent','no_damage')); st=r['status']
             if not hard and st not in ('watching','rejected'): bad.append('%s failed a check but is %s'%(n,st))
@@ -169,15 +180,39 @@ def run(A):
             if wk.min()//100<=origin['live'] or wk.max()>rev['cutoff'][0]*100+rev['cutoff'][1]: bad.append('live %s evidence includes plays outside the evaluation window'%key)
             p=boot_p(d,wk[ok],zlib.crc32(('%s|live|%s|%s'%(rev['id'],cat,variant)).encode()),REG[1][2]['bootstrap'])
             if abs(p-r['p'])>0.005: bad.append('live %s: recorded p %.4f, recompute %.4f'%(key,r['p'],p))
-    A.check('LG4','Evidence behind every pending, applied or proposed change in the latest review recomputes from raw final scores',bad,cnt)
+    EP=jl(os.path.join(L,'evidence','latest_players.json'),{}); DBP=os.path.join(DATA,'history','history.sqlite')
+    if EP and EP.get('review')==rev['id'] and EP.get('candidates'):
+        if not os.path.exists(DBP): A.warn('LG4b','Player evidence not recomputed: the history database is not in this run',sorted(EP['candidates']),len(EP['candidates']))
+        else:
+            import sqlite3
+            con=sqlite3.connect(DBP); act={}
+            for r in con.execute("SELECT player_id,season,week,receptions,receiving_yards,receiving_tds,rushing_yards,rushing_tds,passing_yards,passing_tds,passing_interceptions "
+                                 "FROM player_week WHERE season_type='REG' AND season>?",(origin['players'],)):
+                v=[num(x) for x in r[3:]]
+                act[(r[0],r[1]*100+r[2])]=(v[0]+0.1*v[1]+6*v[2]+0.1*v[3]+6*v[4]+0.04*v[5]+4*v[6]-2*v[7],v[0],v[1]+v[3])
+            con.close()
+            for key in EP['candidates']:
+                cat,variant=key.split('|'); r=res('players',cat,variant); f=os.path.join(L,'evidence','latest_players_%s_%s.npz'%(cat,variant))
+                if not r or not os.path.exists(f): bad.append('player evidence for %s is missing its review result or file'%key); continue
+                cnt+=1; Z=np.load(f); keys=list(zip(Z['pid'].tolist(),Z['wk'].tolist()))
+                if any(k not in act for k in keys): bad.append('player %s evidence has player-weeks not in the raw stats'%key); continue
+                j={'pts':0,'rec':1,'yds':2}[r['metric']]; truth=np.array([act[k][j] for k in keys])
+                lb=np.abs(Z['base_'+r['metric']].astype(float)-truth); lc=np.abs(Z['cand_'+r['metric']].astype(float)-truth); d=lb-lc
+                if abs(lb.mean()-r['base'])>2e-3 or abs(lc.mean()-r['cand'])>2e-3: bad.append('player %s: recorded %s -> %s, raw stats give %.4f -> %.4f'%(key,r['base'],r['cand'],lb.mean(),lc.mean()))
+                wk=Z['wk']
+                if wk.min()//100<=origin['players'] or wk.max()>rev['cutoff'][0]*100+rev['cutoff'][1]: bad.append('player %s evidence includes weeks outside the evaluation window'%key)
+                p=boot_p(d,wk,zlib.crc32(('%s|players|%s|%s'%(rev['id'],cat,variant)).encode()),REG[2][2]['bootstrap'])
+                if abs(p-r['p'])>0.005: bad.append('player %s: recorded p %.4f, recompute %.4f'%(key,r['p'],p))
+    A.check('LG4','Evidence behind every pending, applied or proposed change in the latest review recomputes from raw final scores and stats',bad,cnt)
 
     bad=[]; Lp=D.get('learn') or {}
     cur=lambda C:next(v for v in C['versions'] if v['v']==C['current'])['params']
     if Lp.get('params')!=cur(REG[0][1]): bad.append('the published data carries different pregame weights from the current champion')
     if Lp.get('version')!=REG[0][1]['current']: bad.append('published pregame weights version %s, champion %s'%(Lp.get('version'),REG[0][1]['current']))
     if Lp.get('live_params')!=cur(REG[1][1]): bad.append('the published data carries different live weights from the current live champion')
+    if Lp.get('players_params')!=cur(REG[2][1]): bad.append('the published data carries different player weights from the current player champion')
     if (D.get('live') or {}).get('margin')!=cur(REG[1][1])['margin']: bad.append('the page runs live constants that differ from the live champion')
     if (Lp.get('last_review') or {}).get('id')!=rev['id']: bad.append('page reports review %s, latest is %s'%((Lp.get('last_review') or {}).get('id'),rev['id']))
-    if sorted(w['id'] for w in Lp.get('weights',[]))!=sorted(c['id'] for _,_,S in REG for c in S['categories']): bad.append('page weight list does not cover every weight group of both models')
+    if sorted(w['id'] for w in Lp.get('weights',[]))!=sorted(c['id'] for _,_,S in REG for c in S['categories']): bad.append('page weight list does not cover every weight group of all three models')
     if sorted(p['id'] for p in Lp.get('proposals',[]))!=sorted(p['id'] for p in PROPS if p['status']=='open'): bad.append('page proposals differ from the open proposals on record')
-    A.check('LG5','The published data carries the current weights of both models, the latest review and every open proposal',bad)
+    A.check('LG5','The published data carries the current weights of all three models, the latest review and every open proposal',bad)
