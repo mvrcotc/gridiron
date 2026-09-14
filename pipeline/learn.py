@@ -461,7 +461,7 @@ def review(force=False,update_history=False):
     rid='R%d-%02d'%tuple(cutoff)
     due=[m for m in MODELS if force or state['models'].get(m,{}).get('last_cutoff')!=list(cutoff)]
     if not due:
-        print('week %d-%02d already reviewed for both models -- nothing new to learn from'%tuple(cutoff)); write_summary(LOG,PROPS,state); return
+        print('week %d-%02d already reviewed for every model -- nothing new to learn from'%tuple(cutoff)); write_summary(LOG,PROPS,state); return
     rec=next((x for x in LOG if x['id']==rid and 'models' in x),None) or dict(id=rid,cutoff=cutoff,models={},results=[],applied=[],proposed=[])
     rec['date']=today(); new=[]
     for model in due:
