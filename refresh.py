@@ -49,6 +49,7 @@ def SOURCES(S):
              ('depth_charts/depth_charts_%d.csv'%S,'raw/dc.csv'),
              ('snap_counts/snap_counts_%d.csv'%(S-1),'snaps%02d.csv'%((S-1)%100)),
              ('snap_counts/snap_counts_%d.csv'%S,'snaps%02d.csv'%(S%100)),
+             ('injuries/injuries_%d.csv'%S,'injuries%02d.csv'%(S%100)),
              ('stats_player/stats_player_week_%d.csv'%S,'stw%02d.csv'%(S%100)),
              ('stats_player/stats_player_week_%d.csv'%(S-1),'stw%02d.csv'%((S-1)%100)),
              ('officials/officials.csv','officials.csv'),
@@ -69,6 +70,7 @@ def stage_sources():
             if hdr.count(',')<3: raise ValueError('not a CSV header: %r'%hdr[:50])
             say('%-22s %9.1f KB'%(name,os.path.getsize(dest)/1024))
         except Exception as e:
+            if name.startswith('injuries'): say('%-22s not published yet; practice status unknown (%s)'%(name,str(e)[:50])); continue
             fails.append('%s (%s)'%(name,str(e)[:70]))
     if fails: raise SystemExit('sources failed: '+'; '.join(fails))
 

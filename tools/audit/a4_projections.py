@@ -132,7 +132,35 @@ def run(A):
          for g in live if abs(num(PJ[g]['x'].get('adj'))-num(D['cal']['def'].get(opp.get(nfl(PL[g]['t'])),0)))>0.006]
     A.check('P14','Every projection uses its real opponent\'s pass-defence adjustment (ESPN/nflverse codes resolved)',bad,len(live))
 
-    q=[PL[g]['n'] for g,v in IJ.items() if v.get('s')=='Q' and g in live]
-    if q: A.warn('P12','Questionable players are projected as if certain to play (no play-probability discount)',q,len(q))
+    # questionable players: play probability and usage recomputed from qfit.json, this week's report and snap shares
+    bad=[]; qf=os.path.join(PIPE,'qfit.json'); QF=json.load(open(qf)) if os.path.exists(qf) else None
+    H=(D.get('cal') or {}).get('history') or {}; sea,wk=H.get('season'),H.get('week')
+    qs=[g for g,v in IJ.items() if v.get('s')=='Q' and g in live]
+    if qs and not (QF and sea and wk): bad.append('questionable players on the slate but no qfit.json or projection week')
+    elif qs:
+        pfr={r['gsis_id']:r['pfr_id'] for r in rows(os.path.join(DATA,'players_all.csv')) if r.get('gsis_id') and r.get('pfr_id')}; sn={}
+        for y in (sea-1,sea):
+            f=os.path.join(DATA,'snaps%02d.csv'%(y%100))
+            if os.path.exists(f):
+                for r in rows(f):
+                    if r['game_type']=='REG' and num(r['offense_snaps'])>0: sn[(y,int(num(r['week'])),r['pfr_player_id'])]=num(r['offense_pct'])
+        rep={}; f=os.path.join(DATA,'injuries%02d.csv'%(sea%100))
+        if os.path.exists(f):
+            for r in rows(f):
+                if r['game_type']=='REG' and int(num(r['week']))==wk: rep[r['gsis_id']]=(r.get('practice_status') or '').lower()
+        T=QF['T']; U=QF['U']; m=QF['m']
+        for g in qs:
+            n=PL[g]['n']; qp=PJ[g].get('qp')
+            if not qp: bad.append('%s is questionable but projected as certain to play'%n); continue
+            s=rep.get(g,''); pr='DNP' if 'did not' in s else 'LP' if 'limited' in s else 'FP' if 'full' in s else 'none'
+            k=pfr.get(g); sh=[sn[(sea,w,k)] for w in range(max(1,wk-4),wk) if (sea,w,k) in sn] or [sn[(sea-1,w,k)] for w in range(15,19) if (sea-1,w,k) in sn]
+            reg=bool(sh) and sum(sh)/len(sh)>=0.5
+            a,nn=T['all']; c0=a/nn; a,nn=T.get(pr,[0,0]); c1=(a+m*c0)/(nn+m); a,nn=T.get('%s|%d'%(pr,int(reg)),[0,0]); p=(a+m*c1)/(nn+m)
+            u=U.get(pr,U['all']) if reg else 1.0
+            if (qp.get('pr'),bool(qp.get('reg')))!=(pr,reg): bad.append('%s practice/role %s/%s, the reports say %s/%s'%(n,qp.get('pr'),qp.get('reg'),pr,reg))
+            if abs(num(qp.get('p'))-p)>0.0015 or abs(num(qp.get('u'))-u)>0.0015: bad.append('%s plays %s x usage %s, recomputed %.3f x %.3f'%(n,qp.get('p'),qp.get('u'),p,u))
+            if num(qp.get('z'))<(1-p)-0.02: bad.append('%s scores zero in %.0f%% of simulations but sits %.0f%% of the time'%(n,100*num(qp.get('z')),100*(1-p)))
+            if abs(num(PJ[g]['mean'])-p*num(qp.get('a')))>0.25: bad.append('%s mean %.1f, expected %.3f x %.1f if he plays'%(n,num(PJ[g]['mean']),p,num(qp.get('a'))))
+    A.check('P12','Questionable players carry the measured chance they play and lighter use when they do (recomputed from the report, snap shares and qfit.json)',bad,len(qs))
     A.warn('P13','Weather and injury adjustments change model inputs using separately fitted rates; their effect on accuracy has not itself been backtested',
            ['the PIT calibration (48/52 around the median) was measured on 2025 projections without them'])

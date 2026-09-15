@@ -61,12 +61,24 @@ function outFor(ret){
   var wk=Math.round(days/7);
   return 'about '+wk+' week'+(wk===1?'':'s')+' away';
 }
+/* questionable: the measured chance he plays (pipeline/qmodel.py) and what the projection does with it */
+function qpNote(id){
+  var q=(PJ(id)||{}).qp, R=(D.injrule||{}).q;
+  if(!q) return 'Questionable. Check the inactive list 90 minutes before kickoff.';
+  var PR={DNP:'did not practise',LP:'was limited in practice',FP:'practised fully',none:'has no practice report yet'};
+  return 'Questionable. Players who '+PR[q.pr]+' and were '+(q.reg?'regulars':'part-time')+' played '+Math.round(100*q.p)+'% of the time'+
+    (R?' in '+R.reports+' reports since '+R.seasons[0]:'')+(q.u<1?', and saw about '+Math.round(100*(1-q.u))+'% fewer snaps when they did':'')+
+    '. His projection counts both: '+Math.round(100*q.z)+'% of simulated games score zero; if he plays, his median is '+fx(q.amed)+' pts. '+
+    'Check the inactive list 90 minutes before kickoff.';
+}
 function injChip(id){
   var i=IJ(id); if(!i) return '';
   var t=[i.sl||i.s];
   if(i.bp) t.push(i.bp+(i.side?' ('+i.side+')':''));
   if(i.ret){ var o=outFor(i.ret); t.push('expected back '+i.ret+(o?' \u2014 '+o:'')); }
-  return ' <span class="tag '+esc(i.s)+'" style="font-size:8px" title="'+esc(t.join(' \u00b7 '))+'">'+esc(i.s)+'</span>';
+  var q=i.s==='Q'?(PJ(id)||{}).qp:null;
+  if(q) t.push('plays about '+Math.round(100*q.p)+'% of the time in his spot');
+  return ' <span class="tag '+esc(i.s)+'" style="font-size:8px" title="'+esc(t.join(' \u00b7 '))+'">'+esc(i.s)+(q?' '+Math.round(100*q.p)+'%':'')+'</span>';
 }
 
 /* ---- headshots ----------------------------------------------------------
@@ -1391,6 +1403,7 @@ function openPlayer(id,color,team){
   if(ij){
     h+='<div class="grp"><h4>Injury</h4>'+
       kv('Status','<span style="font-size:13px;font-family:Archivo">'+esc(ij.sl||ij.s)+'</span>')+
+      (ij.s==='Q'&&(PJ(id)||{}).qp?kv('Chance he plays','<span style="font-size:13px;font-family:Archivo">'+Math.round(100*PJ(id).qp.p)+'%</span>'):'')+
       (ij.bp?kv('Body part',esc(ij.bp)+(ij.side&&ij.side!=='Not Specified'?' <small>'+esc(ij.side)+'</small>':'')):'')+
       (ij.loc?kv('Region',esc(ij.loc)):'')+
       (ij.ret?kv('Expected back','<span style="font-size:13px;font-family:Archivo">'+esc(ij.ret)+'</span>'):'')+
@@ -1399,7 +1412,7 @@ function openPlayer(id,color,team){
         'Drop him from weekly plans and treat the next man up as the starter.'
         :ij.s==='O'?'Ruled out \u2014 the man behind him on the depth chart moves up.'
         :ij.s==='D'?'Doubtful. Treat as unlikely to play and plan for the backup.'
-        :'Questionable is a genuine coin flip. Check the inactive list 90 minutes before kickoff.')+
+        :qpNote(id))+
       '</div></div>';
   }
   if(u){

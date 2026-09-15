@@ -7,7 +7,7 @@ import os, sys, json, hashlib
 from collections import Counter
 import numpy as np
 HERE=os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0,HERE)
-import gamemodel as gm, playermodel as pm
+import gamemodel as gm, playermodel as pm, qmodel as qm
 DATA=pm.DATA
 E2N={'LAR':'LA','WSH':'WAS'}; nf=lambda t:E2N.get(t,t)
 CP=pm.load_champion(); PV=gm.current(CP); P=PV['params']; BOOK=gm.Book()
@@ -68,6 +68,18 @@ for team in sorted({b['team'] for b in base.values()}):
         base[p]['who']=[PL[o]['n'] for o in outs]
     REDIST[team]={'outs':outs,'live':live}
 
+# questionable players: the measured chance he plays and how much less he plays when he does (qmodel.py, qfit.json)
+QF=qm.load_fit(); QP={}
+if QF:
+    XW=qm.crosswalk(os.path.join(DATA,'players_all.csv')); SNAP={}
+    for y in (SEASON-1,SEASON):
+        if os.path.exists(os.path.join(DATA,'snaps%02d.csv'%(y%100))): qm.read_snaps(os.path.join(DATA,'snaps%02d.csv'%(y%100)),XW,y,SNAP)
+    PRAC=qm.practice(os.path.join(DATA,'injuries%02d.csv'%(SEASON%100)),WEEK)
+    for pid in base:
+        if (IJ.get(pid) or {}).get('s')!='Q': continue
+        pr=PRAC.get(pid,'none'); sh=qm.recent_share(SNAP,SEASON,WEEK,pid); reg=qm.regular(sh)
+        QP[pid]=dict(p=round(qm.play_prob(QF,pr,reg),3),u=round(qm.usage(QF,pr,reg),3),pr=pr,reg=reg,share=None if sh is None else round(sh,3))
+
 def sim(pid,pj): return pm.simulate(pj,N,P,np.random.default_rng(int(hashlib.md5(pid.encode()).hexdigest()[:8],16)))
 q=lambda a,dec=1:[round(float(x),dec) for x in np.percentile(a,QS)]
 PROJ={}
@@ -78,14 +90,22 @@ for pid,b in sorted(base.items()):
           'ypc':round(x['ypc'],2),'adj':round(P['opp_scale']*pm.DEF.get(nf(GCTX[b['team']]['opp']),0.0),2),'n':round(x['n'],0)}
     if (IJ.get(pid) or {}).get('s') in OUT:
         PROJ[pid]={'med':0.0,'flr':0.0,'ceil':0.0,'mean':0.0,'q':[0.0]*16,'x':xrec,'out':IJ[pid]['s'],'med_if':med1}; continue
-    s2=sim(pid,fin); r={'med':round(float(np.median(s2['pts'])),1),'flr':round(float(np.percentile(s2['pts'],25)),1),
-        'ceil':round(float(np.percentile(s2['pts'],85)),1),'mean':round(float(s2['pts'].mean()),1),'q':q(s2['pts']),'x':xrec}
-    if fin['tgt']>=1.5: r.update(qry=q(s2['ry'],0),qrec=q(s2['rec'],0),xry=round(fin['tgt']*fin['ypt'],1),xrec=round(fin['tgt']*fin['cr'],1))
-    if fin['car']>=2: r.update(qru=q(s2['ru'],0),xru=round(fin['car']*fin['ypc'],1))
-    if fin['pa']>=10: r.update(qpy=q(s2['py'],0),xpy=round(fin['py'],1))
+    s2=sim(pid,fin); sd=s2; qp=QP.get(pid)
+    if qp:     # lighter use if he plays, then the measured chance he does not play at all; counts stay whole numbers
+        fq=dict(fin)
+        for k in ('tgt','car','pa','py','ptd','pint'): fq[k]*=qp['u']
+        sq=sim(pid,fq); plays=np.random.default_rng(int(hashlib.md5((pid+':plays').encode()).hexdigest()[:8],16)).random(N)<qp['p']
+        sd={k:v*plays for k,v in sq.items()}
+        qp.update(a=round(float(sq['pts'].mean()),1),amed=round(float(np.median(sq['pts'])),1),z=round(float(np.mean(sd['pts']==0)),3))
+    r={'med':round(float(np.median(sd['pts'])),1),'flr':round(float(np.percentile(sd['pts'],25)),1),
+        'ceil':round(float(np.percentile(sd['pts'],85)),1),'mean':round(float(sd['pts'].mean()),1),'q':q(sd['pts']),'x':xrec}
+    if qp: r['qp']=qp
+    if fin['tgt']>=1.5: r.update(qry=q(sd['ry'],0),qrec=q(sd['rec'],0),xry=round(fin['tgt']*fin['ypt'],1),xrec=round(fin['tgt']*fin['cr'],1))
+    if fin['car']>=2: r.update(qru=q(sd['ru'],0),xru=round(fin['car']*fin['ypc'],1))
+    if fin['pa']>=10: r.update(qpy=q(sd['py'],0),xpy=round(fin['py'],1))
     m0,m1,m2=float(s0['pts'].mean()),float(s1['pts'].mean()),float(s2['pts'].mean())
     if m0>0 and abs(m1/m0-1)>=0.004: r['wx']={'m':round(m1/m0,3),'b':med0,'a':med1}
-    if b['dt']>0.02 or b['dc']>0.02: r['inj']={'m':round(m2/m1,3) if m1>0 else 1.0,'b':med1,'a':r['med'],'t':round(b['dt'],2),'c':round(b['dc'],2),'who':b['who']}
+    if b['dt']>0.02 or b['dc']>0.02: r['inj']={'m':round(m2/m1,3) if m1>0 else 1.0,'b':med1,'a':round(float(np.median(s2['pts'])),1),'t':round(b['dt'],2),'c':round(b['dc'],2),'who':b['who']}
     PROJ[pid]=r
 OUTREC={}
 for team,v in REDIST.items():
@@ -102,6 +122,9 @@ D['cal']={'pit':CAL['pit'],'dev':round(CAL.get('dev',0),3),'qs':QS,'k':{'ts':P['
           'def':{t:round(P['opp_scale']*v,2) for t,v in pm.DEF.items()},
           'base':{p:{k:round(v,4) for k,v in bb.items()} for p,bb in pm.BASE.items()},'n':CAL.get('n',2301),
           'history':{'season':SEASON,'week':WEEK,'prev_weight':P['prev_weight'],'version':PV['v']}}
+if QF: D['injrule']['q']=dict(seasons=QF['seasons'],reports=QF['reports'],played=QF['played'],test=QF.get('test'),
+    note='Questionable players are projected for the share of games players in the same spot have actually played since %d (%d reports), '
+         'and for lighter use when they do play; the rest of their simulations score zero.'%(QF['seasons'][0],QF['reports']))
 json.dump(D,open(os.path.join(DATA,'gi2.json'),'w'),separators=(',',':'))
 fp=hashlib.md5(json.dumps(PROJ,sort_keys=True).encode()).hexdigest()[:12]
 print('projected %d players for %d week %d (%d ruled out, %d skipped, %d with no games last season); history: this season + last season x%g (player weights version %d); injury fallout on %d teams; fingerprint %s'%(

@@ -146,6 +146,16 @@ The loop re-tests `prev_weight`, three sample-trust groups (volume, efficiency, 
 strength and the game-script strength every week (`pipeline/learning/spec_players.json`, registry
 `pipeline/champion_players.json`), on expected PPR points per player-week.
 
+**Questionable players** (`pipeline/qmodel.py`, fitted by `fit_questionable.py` into `qfit.json`). A player listed
+Questionable is projected for the share of games players in the same spot have actually played, and for lighter use
+when he does; the rest of his simulated games score zero, so count stats stay whole numbers. "Same spot" is his
+practice status on the final report (did not practise / limited / full, from the nflverse injury file) and whether he
+was a regular (50%+ of offensive snaps over his last four games). From 2,962 reports 2019-25, 63% played: 87% of
+regulars who practised fully, 34% of part-time players who did not practise. Held out (each season 2023-25 fitted only
+on earlier seasons, 1,090 questionable player-weeks): the model projected 7.94 PPR pts where they scored 4.83; with the
+discount, 5.04, squared error 47.5 -> 35.7 and mean miss 5.47 -> 4.36 pts, better in every season (p = 0.0002).
+Teammates of a questionable player do not yet get his possible lost volume.
+
 ## History database
 
 ```bash
@@ -202,7 +212,7 @@ Every check rebuilds a displayed number from raw sources with code written only 
 calling the pipeline. It covers game facts against ESPN and nflverse, every player and stat, context
 factors, projections, predictions, props, the track record, the rendered page itself (every number, label
 and direction a reader sees), a game in progress rendered from real ESPN payloads (U8), the live win
-probability recomputed from the fitted model for both field-position forms ESPN sends (U9), code
+probability recomputed from the fitted model for both field-position forms ESPN sends (U9), questionable players' play probability recomputed from the report and snap shares (P12), code
 regressions, live geodata and line drift, and the kickoff ledger (K1-K5: only calls recorded before kickoff are
 frozen, a frozen call never changes, closes and scores match nflverse, the record recomputes; U13: the page shows
 exactly that record).
@@ -229,6 +239,7 @@ Fitted once and reused, so a refresh cannot tune the model to flatter the curren
 | `livefit.json` | the live model's held-out report, written by `livewp.py` |
 | `fit1.json`, `fit_k.json`, `fit_opp.json`, `fit_cal.json` | player model: game script, regression constants, pass-defence adjustments, simulator calibration |
 | `wxfit.json`, `wxcentre.json` | weather coefficients (sustained wind) and the average conditions they are centred on |
+| `qfit.json` | questionable players: share who played by practice status and role, usage when they did, and the held-out test (`fit_questionable.py --test`) |
 | `absorb.json` | teammates recover 75% of a missing starter's targets and 54% of his carries |
 | `hfafit.json`, `reffit.json` | venue edge and referee crew studies shown on the Model page |
 | `track.json` | the backtest record, rebuilt by `backtest.py` |
