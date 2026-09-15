@@ -42,6 +42,7 @@ python3 refresh.py --stage props
 | `context` | pace, pass rate, new-QB flag, venue home edge, referee crew, two-source line badges |
 | `stats` | season and last-3 production; target share = his targets / his team's targets |
 | `results` | finished-game stat lines; points are nflverse's own `fantasy_points_ppr` |
+| `teams` | standings and season statistics for all 32 teams, this season and last (records, division/conference/home/away splits, points, ATS, O/U, streaks, yards, turnover margin); ESPN finals count before nflverse catches up |
 | `injuries` | injury report matched by ESPN athlete ID, name+team only when no ID exists |
 | `project` | player projections: model inputs -> weather -> injury fallout -> simulate |
 | `backtest` | (daily) track record from the exact live model, plus held-out tests of excluded ingredients |
@@ -58,6 +59,19 @@ finished distribution.
 `predict` uses only what `backtest` measured: team ratings, a flat home edge (zero at neutral sites), the
 backup-QB term, and recalibrated win probability. Per-venue home edges and conditions adjustments to game
 totals were tested on held-out seasons, did not help, and are not used.
+
+## The page
+
+- **Teams** (home): standings by division or as one sortable league table, for this season or last, with leader
+  tiles and each team's game this week. Ordering is win percentage, then division record, then point differential
+  -- simpler than the NFL's full tiebreakers, and the page says so.
+- **A game** (pick it in the sidebar): one page with everything about it, in the order the questions come up --
+  line, total and implied points; GridIron's own call and injury fallout; both teams' seasons side by side;
+  conditions; charts; every matchup with projections or results; and the field (formation or depth chart).
+  Section links stay at the top as you scroll.
+- **Model**: the track record and how GridIron learns.
+
+Search filters the games in the sidebar (by team or player) and the teams on the Teams page.
 
 ## Hosting and how fresh it is
 

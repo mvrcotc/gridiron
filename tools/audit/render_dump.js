@@ -35,23 +35,42 @@ setTimeout(async()=>{
   const D=W.GRIDIRON_DATA||JSON.parse(d.getElementById('gi-data').textContent), out={mode:MODE,cards:[],drawers:[],model:{},sidebar:[]};
   out.sidebar=all(d,'.navitem[data-go]').filter(n=>/^\d+$/.test(n.dataset.go)).map(n=>({gi:+n.dataset.go,text:T(n)}));
   out.stamp=T(d.getElementById('stamp'));
-  for(const card of all(d,'#games .gcard')){
-    const g=D.games[+card.dataset.gi];
-    out.cards.push({id:g.id,meta:T(card.querySelector('.gc-meta')),score:T(card.querySelector('.gc-score')),live:T(card.querySelector('.pr-live')),conf:T(card.querySelector('.pr-conf')),
-      pred:all(card,'.pr-col').map(c=>({lab:T(c.querySelector('.pr-lab')),rows:all(c,'.pr-r').map(r=>[T(r.querySelector('span')),T(r.querySelector('b'))]),
-        lean:T(c.querySelector('.pr-d')),wpl:all(c,'.wpl span').map(T)})),
-      wf:all(card,'.wf').map(r=>({cls:r.className,k:T(r.querySelector('.wk')),d:T(r.querySelector('.wd')),v:T(r.querySelector('.wv'))})),
-      inj:all(card,'.ijrow').map(r=>({t:T(r.querySelector('.ijt')),out:T(r.querySelector('.ijout')),to:all(r,'.ijg').map(T)})),
-      cells:all(card,'.fullgrid .cell').map(x=>({k:T(x.querySelector('.cl')),v:T(x.querySelector('.cvv')),meta:T(x.querySelector('.cr'))})),
-      rows:all(card,'.mrow2').map(r=>({oid:r.dataset.oid,med:T(r.querySelector('.pj .med')),act:T(r.querySelector('.act')),n2:T(r.querySelector('.n2'))})),
-      foot:T(card.querySelector('.pr-foot')),text:T(card)});
+  out.teams={};
+  for(const season of all(d,'#tseason button[data-season]').map(b=>b.dataset.season)){
+    d.querySelector('#tseason button[data-season="'+season+'"]').click(); await sleep(20);
+    const grab=()=>({leaders:all(d,'#tleaders .mtile').map(x=>[T(x.querySelector('dt')),T(x.querySelector('dd'))]),
+      rows:all(d,'#ttables tr[data-team]').map(tr=>({team:tr.dataset.team,rank:T(tr.querySelector('.tteam em')),
+        cells:Object.fromEntries(all(tr,'td[data-k]').map(td=>[td.dataset.k,T(td)]))})),note:T(d.getElementById('tnote'))});
+    const div=grab();
+    d.querySelector('#tview button[data-view="league"]').click(); await sleep(20);
+    const league=grab();
+    d.querySelector('#tview button[data-view="div"]').click(); await sleep(20);
+    out.teams[season]={div,league};
   }
-  const rows=all(d,'#games .mrow2'),pick=[];
-  for(const r of rows){const o=r.dataset.oid,p=(D.proj||{})[o]; if(!p||pick.some(x=>x.o===o)) continue;
-    if(D.props&&D.props.by&&D.props.by[o]&&pick.filter(x=>x.why==='prop').length<3) pick.push({o,why:'prop',r});
-    else if(p.inj&&!pick.some(x=>x.why==='inj')) pick.push({o,why:'inj',r});
-    else if(p.wx&&Math.abs(p.wx.m-1)>=0.02&&!pick.some(x=>x.why==='wx')) pick.push({o,why:'wx',r});}
-  for(const pk of pick){ pk.r.click(); await sleep(120); const dr=d.getElementById('drawer');
+  out.teamsText=T(d.getElementById('p-teams'));
+  const picks=[];
+  for(const nav of all(d,'.navitem[data-go]').filter(n=>/^\d+$/.test(n.dataset.go))){
+    const gi=+nav.dataset.go, g=D.games[gi]; nav.click(); await sleep(15);
+    const call=d.getElementById('gcall');
+    out.cards.push({id:g.id,gi,meta:T(d.getElementById('gsub')),metrics:all(d,'#gmetrics .mtile').map(x=>[T(x.querySelector('dt')),T(x.querySelector('dd'))]),
+      score:T(d.getElementById('gscore')),live:T(call.querySelector('.pr-live')),conf:T(call.querySelector('.pr-conf')),
+      pred:all(call,'.pr-col').map(c=>({lab:T(c.querySelector('.pr-lab')),rows:all(c,'.pr-r').map(r=>[T(r.querySelector('span')),T(r.querySelector('b'))]),
+        lean:T(c.querySelector('.pr-d')),wpl:all(c,'.wpl span').map(T)})),
+      wf:all(call,'.wf').map(r=>({cls:r.className,k:T(r.querySelector('.wk')),d:T(r.querySelector('.wd')),v:T(r.querySelector('.wv'))})),
+      inj:all(call,'.ijrow').map(r=>({t:T(r.querySelector('.ijt')),out:T(r.querySelector('.ijout')),to:all(r,'.ijg').map(T)})),
+      cells:all(d,'#gctx .cell').map(x=>({k:T(x.querySelector('.cl')),v:T(x.querySelector('.cvv')),meta:T(x.querySelector('.cr'))})),
+      rows:all(d,'#gmatchups .mrow2').map(r=>({oid:r.dataset.oid,med:T(r.querySelector('.pj .med')),act:T(r.querySelector('.act')),n2:T(r.querySelector('.n2'))})),
+      records:all(d,'#grecords tr[data-row]').map(tr=>[tr.dataset.row].concat(all(tr,'td').slice(1).map(T))),
+      jump:all(d,'#gjump button').map(T),field:!!d.querySelector('#fbox svg'),
+      foot:T(call.querySelector('.pr-foot')),text:T(d.getElementById('p-game'))});
+    for(const r of all(d,'#gmatchups .mrow2')){const o=r.dataset.oid,p=(D.proj||{})[o]; if(!p||picks.some(x=>x.o===o)) continue;
+      if(D.props&&D.props.by&&D.props.by[o]&&picks.filter(x=>x.why==='prop').length<3) picks.push({o,why:'prop',gi});
+      else if(p.inj&&!picks.some(x=>x.why==='inj')) picks.push({o,why:'inj',gi});
+      else if(p.wx&&Math.abs(p.wx.m-1)>=0.02&&!picks.some(x=>x.why==='wx')) picks.push({o,why:'wx',gi});}
+  }
+  for(const pk of picks){ d.querySelector('.navitem[data-go="'+pk.gi+'"]').click(); await sleep(15);
+    const r=d.querySelector('#gmatchups .mrow2[data-oid="'+pk.o+'"]'); if(!r) continue;
+    r.click(); await sleep(120); const dr=d.getElementById('drawer');
     out.drawers.push({oid:pk.o,why:pk.why,big:T(dr.querySelector('.pjtop .big')),line:(dr.querySelector('.pline')||{}).value,ov:T(dr.querySelector('.ov')),
       chain:all(dr,'.chain > div').map(x=>[T(x.querySelector('.lab')),T(x.querySelector('.val'))]),
       market:all(dr,'.mkrow').map(x=>[T(x.querySelector('.mkk')),T(x.querySelector('.mkl')),T(x.querySelector('.mkp'))])});

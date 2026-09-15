@@ -278,6 +278,11 @@ em.s{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-
 .sechd h3{margin:0;font-size:17px;font-weight:600;letter-spacing:-.028em}
 .sechd .sechint{font-size:11.5px;color:var(--fg-4)}
 .sechd .seg{margin-left:auto}
+.seg{display:inline-flex;background:var(--elev);border:1px solid var(--line-2);border-radius:var(--pill);padding:3px;gap:2px}
+.seg button{padding:5px 13px;border-radius:var(--pill);font-size:12.5px;font-weight:500;color:var(--fg-3);background:none;border:0;cursor:pointer;font-family:var(--sans)}
+.seg button:hover{color:var(--fg-2)}
+.seg button[aria-pressed="true"]{background:var(--inv);color:var(--inv-fg);font-weight:600}
+.seg button:focus-visible{outline:2px solid var(--info);outline-offset:2px}
 .seg.sm button{padding:5px 13px;font-size:12.5px}
 .ghost-btn{margin-top:14px}
 
@@ -754,6 +759,51 @@ input[type=search]{width:172px}
 .lpl{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-4)}
 .lnet{font-size:11.5px;color:var(--fg-3);margin-top:8px;font-family:var(--mono)}
 @media (max-width:700px){.ltab .lrow{grid-template-columns:1fr}.lpc{grid-template-columns:1fr}}
+.gjump{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px;position:sticky;top:0;z-index:6;padding:9px 0;background:var(--bg,#0b0b0d)}
+.gjump button{font-size:12px;color:var(--fg-3);font-family:var(--sans);padding:5px 11px;border-radius:var(--pill);border:1px solid var(--line-2);background:var(--card);cursor:pointer}
+.gjump button:hover{color:var(--fg);border-color:var(--line)}
+.gjump button:focus-visible,.twk:focus-visible,.linkbtn:focus-visible,.tt th button:focus-visible{outline:2px solid var(--info);outline-offset:2px}
+.gcall{margin-bottom:0}
+.gcall .gc-pred:last-child{border-bottom:none}
+#gsec-match .sechd .pills{margin-left:auto}
+.tconf{margin-top:22px}
+.tconfh{margin:0 0 10px;font-size:12px;letter-spacing:.14em;color:var(--fg-3);font-weight:600}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:14px}
+.tblk{background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-lg);overflow:hidden}
+.tblk h4{margin:0;padding:11px 16px 9px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--fg-3);border-bottom:1px solid var(--line-3)}
+.twrap{overflow-x:auto}
+.tt{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.tt th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-4);font-weight:500;text-align:right;padding:8px 10px;white-space:nowrap;border-bottom:1px solid var(--line-3)}
+.tt th button{all:unset;cursor:pointer}
+.tt th[aria-sort]{color:var(--fg-2)}
+.tt td{padding:8px 10px;text-align:right;font-family:var(--mono);color:var(--fg-2);white-space:nowrap;border-bottom:1px solid var(--line-3)}
+.tt th:first-child,.tt td:first-child{text-align:left;position:sticky;left:0;background:var(--card);z-index:1}
+.tt tbody tr:last-child td{border-bottom:none}
+.tt tbody tr:hover td{background:var(--elev)}
+.tt td.pos{color:var(--good)}
+.tt td.neg{color:var(--bad)}
+.tteam{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans)}
+.tteam i{width:8px;height:8px;border-radius:2px;flex:none}
+.tteam b{font-weight:600;color:var(--fg);letter-spacing:-.01em}
+.tteam span{color:var(--fg-4);font-size:12px}
+.tteam em{font-style:normal;color:var(--fg-4);font-size:10.5px;min-width:10px;text-align:right;font-family:var(--mono)}
+.l5{display:inline-flex;gap:2px}
+.l5 i{width:15px;height:17px;border-radius:3px;font-style:normal;font-size:9.5px;line-height:17px;text-align:center;background:var(--elev);color:var(--fg-3)}
+.l5 i.W{color:var(--good);background:rgba(74,222,128,.12)}
+.l5 i.L{color:var(--bad);background:rgba(248,113,113,.10)}
+.twk{font-family:var(--sans);font-size:12px;color:var(--fg-2);padding:3px 9px;border:1px solid var(--line-2);border-radius:var(--pill);background:transparent;cursor:pointer;white-space:nowrap}
+.twk:hover{border-color:var(--line);color:var(--fg)}
+.tbye{font-family:var(--sans);font-size:12px;color:var(--fg-4)}
+.tdot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:1px}
+.tleaders .mtile dd small{font-size:12px;color:var(--fg-3);font-weight:500;margin-left:4px}
+.tnote{font-size:11.5px;color:var(--fg-4);margin:12px 0 0;line-height:1.55}
+.rcmp{max-width:720px}
+.rcmp td:first-child{font-family:var(--sans);color:var(--fg-3)}
+.rcmp td.better{color:var(--fg);font-weight:600}
+#grecords .twrap{background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-lg);max-width:720px}
+.linkbtn{font:inherit;color:var(--fg-2);background:none;border:none;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.linkbtn:hover{color:var(--fg)}
+@media (max-width:700px){.tt td,.tt th{padding:7px 8px}.tteam span{display:none}.gjump{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.gjump button{flex:none}}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;
     transition-duration:.001ms!important}
@@ -791,29 +841,22 @@ input[type=search]{width:172px}
     </header>
     <div class="scroller" id="scroller">
 
-      <section class="page" id="p-all">
+      <section class="page" id="p-teams">
         <div class="phead">
-          <div><h2>This week, <em>game by game</em></h2>
-            <p>Sixteen games ranked however you like. Each carries the conditions it is played in;
-               open one for its matchups, projections and field.</p></div>
+          <div><h2>The league, <em>team by team</em></h2>
+            <p>Every team's record, scoring, and how it has fared against the spread and the total. Pick a game on
+               the left for everything about that game.</p></div>
           <div class="controls">
-            <div class="pills" id="posf" role="group" aria-label="Position filter">
-              <button data-p="all" aria-pressed="true">All</button>
-              <button data-p="WR" aria-pressed="false">WR</button>
-              <button data-p="TE" aria-pressed="false">TE</button>
-              <button data-p="RB" aria-pressed="false">RB</button>
+            <div class="pills" id="tseason" role="group" aria-label="Season"></div>
+            <div class="pills" id="tview" role="group" aria-label="Layout">
+              <button data-view="div" aria-pressed="true">By division</button>
+              <button data-view="league" aria-pressed="false">League table</button>
             </div>
-            <select id="sortsel" aria-label="Sort games">
-              <option value="time">Kickoff order</option>
-              <option value="done">Played first</option>
-              <option value="ctx">Most context-affected</option>
-              <option value="proj">Highest projection</option>
-              <option value="edge">Biggest edge available</option>
-              <option value="total">Highest total</option>
-            </select>
           </div>
         </div>
-        <div id="games"></div><div id="nores"></div>
+        <div class="gmetrics tleaders" id="tleaders"></div>
+        <div id="ttables"></div>
+        <p class="tnote" id="tnote"></p>
       </section>
 
       <section class="page" id="p-game">
@@ -825,8 +868,23 @@ input[type=search]{width:172px}
           <div class="gscore" id="gscore"></div>
         </div>
         <div class="gmetrics" id="gmetrics"></div>
+        <nav class="gjump" id="gjump" aria-label="Sections of this game">
+          <button data-jump="gsec-call">GridIron&rsquo;s call</button>
+          <button data-jump="gsec-season">Season so far</button>
+          <button data-jump="gsec-cond">Conditions</button>
+          <button data-jump="gsec-glance">At a glance</button>
+          <button data-jump="gsec-match">Matchups</button>
+          <button data-jump="gsec-field">Field</button>
+        </nav>
 
-        <div class="sec">
+        <div class="sec" id="gsec-call"><div class="gcard gcall" id="gcall"></div></div>
+
+        <div class="sec" id="gsec-season">
+          <div class="sechd"><h3>Season so far</h3><span class="sechint" id="grechint"></span></div>
+          <div id="grecords"></div>
+        </div>
+
+        <div class="sec" id="gsec-cond">
           <div class="sechd"><h3>Conditions</h3>
             <span class="sechint">Hover any factor for what it does</span></div>
           <div class="cgrid" id="gctx"></div>
@@ -834,21 +892,27 @@ input[type=search]{width:172px}
           <button class="ghost-btn btn btn-ghost" id="whybtn" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg><span>Why it matters</span></button>
         </div>
 
-        <div class="sec">
+        <div class="sec" id="gsec-glance">
           <div class="sechd"><h3>At a glance</h3>
             <span class="sechint">Hover any mark for the underlying numbers</span></div>
           <div class="vizrow" id="vizrow"></div>
         </div>
 
-        <div class="sec">
+        <div class="sec" id="gsec-match">
           <div class="sechd"><h3 id="sectitle">Matchups</h3>
-            <div class="seg sm" id="gtab" role="group" aria-label="Game view">
-              <button data-t="match" aria-pressed="true">Matchups</button>
-              <button data-t="field" aria-pressed="false">Field</button>
+            <div class="pills" id="posf" role="group" aria-label="Position filter">
+              <button data-p="all" aria-pressed="true">All</button>
+              <button data-p="WR" aria-pressed="false">WR</button>
+              <button data-p="TE" aria-pressed="false">TE</button>
+              <button data-p="RB" aria-pressed="false">RB</button>
             </div>
           </div>
           <div id="gmatchups"></div>
-          <div id="gfield" hidden>
+        </div>
+
+        <div class="sec" id="gsec-field">
+          <div class="sechd"><h3>Field</h3><span class="sechint">Formation or depth chart; click a player for detail</span></div>
+          <div id="gfield">
             <div class="pbar">
               <div class="seg sm" id="toggle" role="group" aria-label="Possession"></div>
               <div class="seg sm" id="layout" role="group" aria-label="Arrangement">

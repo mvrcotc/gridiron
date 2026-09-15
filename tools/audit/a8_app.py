@@ -16,7 +16,7 @@ def run(A):
     if r.returncode or not os.path.exists(out):
         A.check('U0','Page renders headlessly',['render failed: '+(r.stderr or r.stdout)[-300:]]); return
     R=json.load(open(out))
-    txt=' '.join(c['text'] for c in R['cards'])+' '+(R['model'].get('text') or '')+' '+json.dumps(R['drawers'])
+    txt=' '.join(c['text'] for c in R['cards'])+' '+(R['model'].get('text') or '')+' '+json.dumps(R['drawers'])+' '+(R.get('teamsText') or '')
     junk=sorted({m for m in re.findall(r'undefined|NaN|\[object|\bnull\b|Infinity',txt)})
     A.check('U0','Page renders with no script errors and no undefined / NaN / null text',R['errors']+junk)
 
@@ -39,9 +39,11 @@ def run(A):
         if tot['lean']!=want: bad.append('%s total lean "%s", data says "%s"'%(n,tot['lean'],want))
         if wpc['wpl']!=['%s %d%%'%(g['a'],100-p['wp']),'%s %d%%'%(g['h'],p['wp'])]: bad.append('%s win prob shows %s, data home %d%%'%(n,wpc['wpl'],p['wp']))
         im=(g['ou']/2+g['spread']/2, g['ou']/2-g['spread']/2) if g.get('ou') is not None and g.get('spread') is not None else None
-        if im and 'implied %.1f / %.1f'%im not in (c['meta'] or '').replace('implied','implied '): 
-            got=nums((c['meta'] or '').split('implied')[-1]) if 'implied' in (c['meta'] or '') else []
-            if len(got)<2 or abs(got[0]-im[0])>0.051 or abs(got[1]-im[1])>0.051: bad.append('%s implied totals show %s, expected %.2f / %.2f'%(n,got,im[0],im[1]))
+        MT={k:v for k,v in (c.get('metrics') or [])}
+        if im:
+            got=[nums(MT.get('Implied '+g['a'],'')),nums(MT.get('Implied '+g['h'],''))]
+            if not got[0] or not got[1] or abs(got[0][0]-im[0])>0.051 or abs(got[1][0]-im[1])>0.051:
+                bad.append('%s implied tiles show %s / %s, expected %.2f / %.2f'%(n,MT.get('Implied '+g['a']),MT.get('Implied '+g['h']),im[0],im[1]))
     A.check('U1','Prediction cells, lean text, win probability and implied totals match the data on every card',bad,len(R['cards']))
 
     bad=[]
@@ -168,16 +170,71 @@ def run(A):
         if len(LD.get('proposals',[]))>Lr.get('dec',0): bad.append('open proposals are not all shown')
     A.check('U10','Model page lists every weight group with its current value and status, and the latest review',bad,len(LD.get('weights',[])))
 
+    # ---------------- Teams page and each game's season panel ----------------
+    TD=D.get('teams') or {}; RT=R.get('teams') or {}; bad=[]
+    def wl(a): return '%d-%d'%(a[0],a[1])+('-%d'%a[2] if a[2] else '')
+    def sg(v): return '—' if v is None else ('+%d'%v if v>0 else ('−%d'%-v if v<0 else '0'))
+    def f1(v): x='%.1f'%v; return x[:-2] if x.endswith('.0') else x
+    def pc(v):
+        if v is None: return '—'
+        x='%.3f'%v; return x[1:] if x.startswith('0') else x
+    if not TD.get('by'): bad.append('no team standings in the data')
+    for season,B in (TD.get('by') or {}).items():
+        V=RT.get(season)
+        if not V: bad.append('Teams page has no %s season'%season); continue
+        for view in ('div','league'):
+            shown={r['team']:r for r in V[view]['rows']}
+            if sorted(shown)!=sorted(B['rows']): bad.append('%s %s layout shows %d teams, data has %d'%(season,view,len(shown),len(B['rows']))); continue
+            for code,x in B['rows'].items():
+                cl=shown[code]['cells']; n='%s %s %s'%(season,view,x['ab'])
+                want={'rec':wl([x['w'],x['l'],x['t']]),'pct':pc(x['pct']),'div':wl(x['div']),'conf':wl(x['conf']),'pf':str(x['pf']),'pa':str(x['pa']),
+                      'diff':sg(x['diff']) if x['gp'] else '—','streak':x['streak'] or '—','last5':x['last5'] or '—'}
+                if view=='league':
+                    want.update(home=wl(x['home']),away=wl(x['away']),pfg=f1(x['pfg']) if x['gp'] else '—',pag=f1(x['pag']) if x['gp'] else '—',
+                                ats=wl(x['ats']),ou=wl(x['ou']),ypg='—' if x['ypg'] is None else f1(x['ypg']),
+                                ypga='—' if x['ypga'] is None else f1(x['ypga']),to=sg(x['to']))
+                for k,v in want.items():
+                    if cl.get(k)!=v: bad.append('%s %s shows %r, data %r'%(n,k,cl.get(k),v))
+                if view=='div' and shown[code]['rank']!=str(x['rank']): bad.append('%s division place shows %s, data %s'%(n,shown[code]['rank'],x['rank']))
+                slate=[g for g in D['games'] if x['ab'] in (g['a'],g['h'])]; wk=cl.get('wk') or ''
+                if slate and (slate[0]['h'] if slate[0]['a']==x['ab'] else slate[0]['a']) not in wk: bad.append('%s this-week cell %r misses the opponent'%(n,wk))
+                if not slate and wk!='Bye': bad.append('%s this-week cell %r though the team is not on the slate'%(n,wk))
+        played=[k for k,x in B['rows'].items() if x['gp']]
+        if played:
+            top=sorted(played,key=lambda k:(-B['rows'][k]['pct'],-B['rows'][k]['diff'],k))[0]
+            LD2={a:b for a,b in V['div']['leaders']}
+            if not (LD2.get('Best record') or '').startswith(B['rows'][top]['ab']+' '): bad.append('%s best-record tile %r, data %s'%(season,LD2.get('Best record'),B['rows'][top]['ab']))
+    A.check('U11','Teams page: every team\'s record, splits, points, streak, last five, ATS, O/U, yards, turnovers and this week\'s game match the standings, in both layouts and both seasons',bad,32*len(TD.get('by') or {}))
+
+    bad=[]; E2N={'LAR':'LA','WSH':'WAS'}
+    for c in R['cards']:
+        g=G[c['id']]; n=g['a']+'@'+g['h']
+        if not TD.get('by'): break
+        a_,h_=E2N.get(g['a'],g['a']),E2N.get(g['h'],g['h']); cur=TD['by'][str(TD['current'])]; prev=TD['by'].get(str(TD['current']-1))
+        S=cur if (cur['rows'][a_]['gp'] or cur['rows'][h_]['gp']) else prev
+        rec={r[0]:r[1:] for r in c.get('records',[])}
+        for label,fn in (('Record',lambda x:wl([x['w'],x['l'],x['t']])),('Point differential',lambda x:sg(x['diff']) if x['gp'] else '—'),
+                         ('Against the spread',lambda x:wl(x['ats'])),('Over / under',lambda x:wl(x['ou'])),('Turnover margin',lambda x:sg(x['to']))):
+            want=[fn(S['rows'][a_]),fn(S['rows'][h_])]
+            if rec.get(label)!=want: bad.append('%s %s shows %s, data %s'%(n,label,rec.get(label),want))
+        if len(c.get('jump') or [])<6 or not c.get('field'): bad.append('%s game page is missing its section links or its field'%n)
+    A.check('U12','Every game page carries its season-so-far panel matching the standings, its section links and its field',bad,len(R['cards']))
+
     # ---------------- a game in progress, rendered from a fixture built out of real ESPN payloads ----------------
     RAWE=os.path.join(ROOT,'data','raw','espn')
     fin=[g for g in D['games'] if g.get('state')=='post' and os.path.exists(os.path.join(RAWE,'f_%s.json'%g['id']))]
-    pre=[g for g in D['games'] if g.get('state')=='pre']
+    pre=[g for g in D['games'] if g.get('state')=='pre']; make_pre=None
+    if not pre and len(fin)>=3: pre=[fin[2]]; make_pre=fin[2]['id']      # every game has kicked off: stage a finished one as scheduled
     if not fin or not pre or not D.get('espn'):
         A.check('U8','A game in progress shows its live score, clock and box-score lines exactly',
                 ['cannot build the fixture: need a finished game with a saved box score, a scheduled game and the ESPN id map']); return
     tg,pg=fin[0],pre[0]; tg2=fin[1] if len(fin)>1 else None
     sb=json.load(open(os.path.join(RAWE,'sb2.json')))
     for e in sb['events']:
+        if make_pre and e['id']==make_pre:
+            e['competitions'][0]['status']={'clock':0.0,'displayClock':'0:00','period':0,'type':{'id':'1','name':'STATUS_SCHEDULED','state':'pre','completed':False,
+                'description':'Scheduled','detail':'Sun, Sep 20th at 1:00 PM EDT','shortDetail':'9/20 - 1:00 PM EDT'}}
+            continue
         if tg2 and e['id']==tg2['id']:
             # second live game: home offense at its own 20, field position given only as yardLine (measured from the home goal line)
             c=e['competitions'][0]; hid=[x['team']['id'] for x in c['competitors'] if x['homeAway']=='home'][0]
@@ -296,8 +353,9 @@ def run(A):
             bad.append('%s live line %r, model gives %s / %s'%(label,l.group(0),want,math.floor(tot*2+0.5)/2))
     check_strip(tg,'away ball at the home 35 (possession text)',7,17,3,522,2,7,35,-1)
     if tg2: check_strip(tg2,'home ball at its own 20 (yardLine only)',10,3,2,195,1,10,80,1)
+    really_live={e['id'] for e in sb['events'] if (e['competitions'][0].get('status') or {}).get('type',{}).get('state')=='in'}
     for c in RL['cards']:
-        if c.get('live') and c['id'] not in (tg['id'],tg2 and tg2['id']): bad.append('%s shows a live projection but is not in progress'%c['id'])
+        if c.get('live') and c['id'] not in really_live: bad.append('%s shows a live projection but is not in progress'%c['id'])
     A.check('U9','Live win probability, projected final and live line match the fitted live model, from both ESPN field-position forms',bad)
     return
 
