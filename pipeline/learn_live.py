@@ -9,7 +9,8 @@ import gamemodel as gm, livemodel as lm
 
 SPEC_PATH=os.path.join(HERE,'learning','spec_live.json')
 def load_spec(): return json.load(open(SPEC_PATH,encoding='utf-8'))
-TOP={'ep':'ep','margin':'margin','spread':'margin','platt':'platt','total':'total'}
+TOP={'ep':'ep','margin':'margin','spread':'margin','platt':'platt','total':'total','market':'margin','market_total':'total'}
+MARKET=('market','market_total')   # switches: absent means off
 
 def plays_ready(cutoff,update=False):
     """the history database has plays through the cutoff week; optionally load the newest play-by-play first"""
@@ -26,7 +27,7 @@ def get_vec(cat,prm):
     if k=='ep': return np.array(prm['ep']['table'],float).reshape(-1)
     if k=='platt':
         pl=prm.get('platt'); return np.array([0.0,1.0]) if not pl else np.array([pl['alpha'],pl['beta']],float)
-    return np.array([prm[TOP[k]][p] for p in cat['params']],float)
+    return np.array([prm[TOP[k]].get(p,0.0) if k in MARKET else prm[TOP[k]][p] for p in cat['params']],float)
 def set_vec(cat,prm,v):
     Q=copy.deepcopy(prm); k=cat['kind']
     if k=='ep': Q['ep']['table']=np.round(np.asarray(v,float).reshape(len(lm.YB)-1,4,len(lm.DD)-1),3).tolist()
@@ -53,6 +54,9 @@ def fmt(cat,prm):
     if k=='spread': m=prm['margin']; return 'spread %.2f, floor %.2f'%(m['sigma'],m['eps'])
     if k=='platt':
         pl=prm.get('platt'); return 'off' if not pl else 'shift %+.3f, stretch %.3f'%(pl['alpha'],pl['beta'])
+    if k in MARKET:
+        w=prm[TOP[k]].get('w_market',0.0)
+        return ('off (GridIron\'s own %s)'%('margin' if k=='market' else 'total')) if not w else 'betting line %.0f%%, GridIron %.0f%%'%(100*w,100*(1-w))
     t=prm['total']; return 'pregame %.3f, clock %.2f, possession %.3f'%(t['t_prior'],t['t_frac'],t['t_ep'])
 
 def refit(cat,P,prm):
@@ -60,12 +64,13 @@ def refit(cat,P,prm):
     k=cat['kind']
     if k=='ep': return np.array(lm.fit_ep(P),float).reshape(-1)
     EPH=lm.ep_home(P,prm['ep']['table'])
-    if k=='margin': M=lm.fit_margin(P,None,EPH); return np.array([M[p] for p in cat['params']])
+    if k in MARKET: return np.array([lm.fit_market_weight(P,None,prm,EPH,TOP[k])])
+    if k=='margin': M=lm.fit_margin(P,None,EPH,w=prm['margin'].get('w_market',0.0)); return np.array([M[p] for p in cat['params']])
     if k=='spread':
         S=lm.fit_spread(P,None,P.RES-lm.mean_margin(P,prm['margin'],EPH),start=(prm['margin']['sigma'],prm['margin']['eps']))
         return np.array([S['sigma'],S['eps']])
     if k=='platt': pl=lm.fit_platt(P,None,lm.raw_wp(P,prm['margin'],EPH)); return np.array([pl['alpha'],pl['beta']])
-    T=lm.fit_total(P,None,EPH); return np.array([T[p] for p in cat['params']])
+    T=lm.fit_total(P,None,EPH,w=prm['total'].get('w_market',0.0)); return np.array([T[p] for p in cat['params']])
 
 def losses(metric,P,pr):
     ones=np.ones(P.n,bool)
@@ -84,9 +89,9 @@ def evaluate(P,C,cutoff,rid,spec,boot,seed_of,only=None):
     S_all=P.view(i0,P.n)
     for cat in spec['categories']:
         if only and cat['id']!=only: continue
-        curv=get_vec(cat,prm); off=cat['kind']=='platt' and not prm.get('platt'); best=clip(cat,refit(cat,P,prm))
+        curv=get_vec(cat,prm); off=(cat['kind']=='platt' and not prm.get('platt')) or (cat['kind'] in MARKET and not prm[TOP[cat['kind']]].get('w_market')); best=clip(cat,refit(cat,P,prm))
         res=dict(model='live',category=cat['id'],name=cat['name'],what=cat['what'],metric=cat['metric'])
-        if not off and not material(cat,curv,best):
+        if not material(cat,curv,best) and (not off or cat['kind'] in MARKET):   # a switch whose best value is still off holds too
             res.update(status='holds',summary='%s: the best-fitting value is within the minimum meaningful change of the current one, so nothing to test.'%cat['name'])
             out.append(res); continue
         variants=[('full',best)]

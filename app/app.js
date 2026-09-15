@@ -1916,13 +1916,18 @@ function erf(x){
 }
 function bandOf(v,edges){ for(var i=0;i<edges.length-1;i++){ if(v>=edges[i]&&v<edges[i+1]) return i; } return edges.length-2; }
 function clockSecs(c){ var m=/^(\d+):(\d{2})/.exec(String(c||'')); return m?(+m[1])*60+(+m[2]):0; }
-/* the live model, fitted on 2019-22 play-by-play and tested on 2023-25: GridIron's pregame margin fades with the
-   clock while the score and the value of the current possession take over */
+/* the live model, fitted on 2019-22 play-by-play and tested on 2023-25: the pregame margin fades with the clock while
+   the score and the value of the current possession take over. The pregame margin and total are GridIron's own, or
+   blends with the last betting line before kickoff once the learning loop has switched that on (w_market) */
 function liveProjection(g){
   var L=D.live, p=PRD(g.id);
   if(!L||!L.margin||!p||g.state!=='in'||!g.sc) return null;
   var per=num(g.period,1), S=per>=5?0:Math.max(0,Math.min(3600,(4-per)*900+clockSecs(g.clock))), frac=S/3600;
   var Dm=num(g.sc.h)-num(g.sc.a), M0=num(p.ph)-num(p.pa), T0=num(p.ph)+num(p.pa), ep=0;
+  var le=((D.ledger||{}).entries||{})[g.id], ln=(le&&le.last)||{};
+  var msp=ln.spread!=null?ln.spread:g.spread, mou=ln.ou!=null?ln.ou:g.ou, wm=num(L.margin.w_market,0), wt=num((L.total||{}).w_market,0);
+  if(wm&&msp!=null) M0=(1-wm)*M0+wm*(-num(msp));
+  if(wt&&mou!=null) T0=(1-wt)*T0+wt*num(mou);
   if(g.dn>=1&&g.dn<=4&&g.possHome&&g.yte!=null){
     var yl=num(g.yte), dd=num(g.dist,0)||10;
     ep=g.possHome*num(L.ep.table[bandOf(yl,L.ep.yard_bands)][g.dn-1][bandOf(dd,L.ep.dist_bands)]);

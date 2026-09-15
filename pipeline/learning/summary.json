@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-14",
+ "updated": "2026-09-15",
  "models": {
   "pregame": "Pregame odds model",
   "live": "Live in-game model",
@@ -580,6 +580,26 @@
    "value": "pregame 0.803, clock 9.39, possession 0.684",
    "status": "rejected",
    "note": "Live total pregame 0.803, clock 9.39, possession 0.684 → pregame 0.859, clock 6.77, possession 0.693: final-total error 7.234 → 7.236; 0.0% confidence after correcting for 5 ideas tested (need 95%); better in 0 of 3 seasons with 48+ games",
+   "last_change": null
+  },
+  {
+   "model": "live",
+   "id": "live_market",
+   "name": "Betting line in the live margin",
+   "what": "how much of the pregame margin the live model starts from is the betting line before kickoff rather than GridIron's own number (a switch: off until approved)",
+   "value": "off (GridIron's own margin)",
+   "status": "not reviewed yet",
+   "note": null,
+   "last_change": null
+  },
+  {
+   "model": "live",
+   "id": "live_market_total",
+   "name": "Betting total in the live total",
+   "what": "how much of the pregame total the live projection starts from is the betting total before kickoff rather than GridIron's own (a switch: off until approved)",
+   "value": "off (GridIron's own total)",
+   "status": "not reviewed yet",
+   "note": null,
    "last_change": null
   },
   {

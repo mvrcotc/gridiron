@@ -12,13 +12,14 @@ def holm(ps):
         run=max(run,min(1.0,(m-rank)*ps[i])); adj[i]=run
     return adj
 def jl(p,fb): return json.load(open(p,encoding='utf-8')) if os.path.exists(p) else fb
-TOP={'ep':'ep','margin':'margin','spread':'margin','platt':'platt','total':'total'}
+TOP={'ep':'ep','margin':'margin','spread':'margin','platt':'platt','total':'total','market':'margin','market_total':'total'}
+MARKET=('market','market_total')
 def cat_values(model,c,P):
     """the numbers a weight group controls, for comparing versions"""
     if model in ('pregame','players'): return [P[p] for p in c['params']]
     if c['kind']=='ep': return P['ep']['table']
     if c['kind']=='platt': return P.get('platt')
-    return [P[TOP[c['kind']]][p] for p in c['params']]
+    return [P[TOP[c['kind']]].get(p,0.0) if c['kind'] in MARKET else P[TOP[c['kind']]][p] for p in c['params']]
 def boot_p(d,cl,seed,B):
     u,inv=np.unique(cl,return_inverse=True); sums=np.bincount(inv,weights=d); cn=np.bincount(inv).astype(float)
     ix=np.random.default_rng(seed).integers(0,len(u),size=(B,len(u)))
@@ -68,7 +69,7 @@ def run(A):
                 for c in SPEC['categories']:
                     if c['kind']=='ep' or (c['kind']=='platt' and not P.get('platt')): continue
                     for p,(lo,hi) in c['bounds'].items():
-                        x=P[TOP[c['kind']]][p]
+                        x=P[TOP[c['kind']]].get(p,0.0) if c['kind'] in MARKET else P[TOP[c['kind']]][p]
                         if not lo-1e-9<=x<=hi+1e-9: bad.append('%s %s=%s outside [%s, %s]'%(tag,p,x,lo,hi))
     A.check('LG1','Every weights registry (pregame, live, players) is complete, numbered in order, and every weight sits inside its allowed range',bad,nv)
 

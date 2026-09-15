@@ -1,10 +1,12 @@
 """GridIron's live in-game model in one place: play features, each fitting step, and the formula the page runs.
 
     final margin ~ Normal(mean, sd)
-    mean = D + a*EP_home + b*M0*frac + c*frac        D = home lead now, M0 = GridIron's pregame margin, frac = regulation left
+    mean = D + a*EP_home + b*M0*frac + c*frac        D = home lead now, M0 = pregame margin, frac = regulation left
     sd   = sqrt(sigma^2*frac + eps^2)
     home win probability = Phi(mean/sd), then an optional Platt tail calibration on the logit
     final total = current total + t1*T0*frac + t2*frac + t3*|EP_home|
+    M0 and T0 are GridIron's pregame margin and total, or blends with the betting line and total before kickoff,
+    (1-w)*GridIron + w*line, once the learning loop has switched that on (w_market in the margin and total weights)
 
 The pregame margin M0 and total T0 for every game come from the pregame weights in force that week (gamemodel.py), so
 the live model is fitted and tested on the same pregame numbers the page showed. livewp.py (the report), learn_live.py
@@ -83,10 +85,27 @@ def fit_ep(P,m=None):
 def ep_home(P,table):
     t=np.array(table,float).reshape(-1)
     return np.where(P.has_down,P.sign*t[P.key],0.0)
-def fit_margin(P,m,EPH):
-    X=np.column_stack([_m(P,m,EPH),_m(P,m,P.M0)*_m(P,m,P.frac),_m(P,m,P.frac)]); b=np.linalg.lstsq(X,_m(P,m,P.RES-P.D),rcond=None)[0]
+def prior_margin(P,M):
+    """GridIron's pregame margin, or its blend with the betting line (nflverse spread_line: the home margin it expects)"""
+    w=float(M.get('w_market') or 0.0)
+    return P.M0 if not w else np.where(np.isnan(P.SPR),P.M0,(1-w)*P.M0+w*P.SPR)
+def prior_total(P,T):
+    w=float(T.get('w_market') or 0.0)
+    return P.T0 if not w else np.where(np.isnan(P.TLN),P.T0,(1-w)*P.T0+w*P.TLN)
+def fit_market_weight(P,m,prm,EPH,part):
+    """the share of the pregame prior the betting line should carry, every other weight held: least squares on both priors
+    side by side, weight = the line's share of their combined coefficient, kept within [0, 1]"""
+    if part=='margin': M=prm['margin']; y=P.RES-P.D-M['a_ep']*EPH-M['c_frac']*P.frac; a,b=P.M0,P.SPR
+    else: T=prm['total']; y=P.TOT-P.CUR-T['t_frac']*P.frac-T['t_ep']*np.abs(EPH); a,b=P.T0,P.TLN
+    ok=~np.isnan(b)&~np.isnan(y)&~np.isnan(a)
+    if m is not None: ok=ok&m
+    if ok.sum()<100: return 0.0
+    c=np.linalg.lstsq(np.column_stack([a[ok]*P.frac[ok],b[ok]*P.frac[ok]]),y[ok],rcond=None)[0]; s=c[0]+c[1]
+    return 0.0 if s<=1e-9 else round(float(min(1.0,max(0.0,c[1]/s))),4)
+def fit_margin(P,m,EPH,w=0.0):
+    X=np.column_stack([_m(P,m,EPH),_m(P,m,prior_margin(P,dict(w_market=w)))*_m(P,m,P.frac),_m(P,m,P.frac)]); b=np.linalg.lstsq(X,_m(P,m,P.RES-P.D),rcond=None)[0]
     return dict(a_ep=round(float(b[0]),4),b_prior=round(float(b[1]),4),c_frac=round(float(b[2]),4))
-def mean_margin(P,M,EPH): return P.D+M['a_ep']*EPH+M['b_prior']*P.M0*P.frac+M['c_frac']*P.frac
+def mean_margin(P,M,EPH): return P.D+M['a_ep']*EPH+M['b_prior']*prior_margin(P,M)*P.frac+M['c_frac']*P.frac
 def fit_spread(P,m,resid,start=(13.0,2.0)):
     """maximum likelihood by coarse then fine grid search"""
     fr=_m(P,m,P.frac); r2=_m(P,m,resid)**2; sig,eps=start
@@ -110,10 +129,10 @@ def fit_platt(P,m,raw):
         if np.max(np.abs(st))<1e-9: break
     return dict(alpha=round(float(w[0]),5),beta=round(float(w[1]),5))
 def apply_platt(raw,pl): return raw if not pl else 1/(1+np.exp(-(pl['alpha']+pl['beta']*logit(raw))))
-def fit_total(P,m,EPH):
-    X=np.column_stack([_m(P,m,P.T0)*_m(P,m,P.frac),_m(P,m,P.frac),np.abs(_m(P,m,EPH))]); b=np.linalg.lstsq(X,_m(P,m,P.TOT-P.CUR),rcond=None)[0]
+def fit_total(P,m,EPH,w=0.0):
+    X=np.column_stack([_m(P,m,prior_total(P,dict(w_market=w)))*_m(P,m,P.frac),_m(P,m,P.frac),np.abs(_m(P,m,EPH))]); b=np.linalg.lstsq(X,_m(P,m,P.TOT-P.CUR),rcond=None)[0]
     return dict(t_prior=round(float(b[0]),4),t_frac=round(float(b[1]),4),t_ep=round(float(b[2]),4))
-def total_pred(P,T,EPH): return P.CUR+T['t_prior']*P.T0*P.frac+T['t_frac']*P.frac+T['t_ep']*np.abs(EPH)
+def total_pred(P,T,EPH): return P.CUR+T['t_prior']*prior_total(P,T)*P.frac+T['t_frac']*P.frac+T['t_ep']*np.abs(EPH)
 
 def predict(P,prm):
     """win probability, final-margin mean and final total for every play under one parameter set"""

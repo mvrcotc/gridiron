@@ -182,6 +182,15 @@ It beats a model without the market and trails one that uses the line. Final mar
 plays: 6.88 vs 6.78 for the market's line faded the same way. (An earlier 0.1518 used pregame numbers built
 with a season-hindsight backup-QB flag.)
 
+**Starting from the betting line (a switch, off until approved).** Re-fitting on 2019-22 with the last line before
+kickoff in place of GridIron's pregame margin, then testing on 2023-25: per-play log loss 0.4598 -> 0.4515
+(nflfastR with the line 0.4437), better in every held-out season (week-clustered bootstrap p < 0.001); final margin
+0.14 pts closer, first-quarter plays most of all; the betting total improves the live total by 0.12 pts. Fitted
+with both, GridIron's own margin gets almost no weight (0.03 vs 0.95). The learning loop tests the switches
+`live_market` and `live_market_total` each week on its own walk-forward evidence; turning either on is a big move,
+so it arrives as a proposal for the owner. The page and the audit (U9) use the last line the ledger recorded before
+kickoff.
+
 ## The audit -- run it before every publish
 
 ```bash

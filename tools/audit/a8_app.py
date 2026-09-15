@@ -355,11 +355,16 @@ def run(A):
     def expect(g,hs,as_,per,secs,dn,dist,yl100,poss_home):
         p=D['pred'][g['id']]; frac=((4-per)*900+secs)/3600.0
         ep=poss_home*LF['ep']['table'][band(yl100,LF['ep']['yard_bands'])][dn-1][band(dist or 10,LF['ep']['dist_bands'])]
-        M=LF['margin']; mean=(hs-as_)+M['a_ep']*ep+M['b_prior']*(p['ph']-p['pa'])*frac+M['c_frac']*frac
+        M=LF['margin']; T=LF['total']; M0=p['ph']-p['pa']; T0=p['ph']+p['pa']
+        ln=(((D.get('ledger') or {}).get('entries') or {}).get(g['id']) or {}).get('last') or {}   # the last line before kickoff
+        msp=ln['spread'] if ln.get('spread') is not None else g.get('spread'); mou=ln['ou'] if ln.get('ou') is not None else g.get('ou')
+        if M.get('w_market') and msp is not None: M0=(1-M['w_market'])*M0+M['w_market']*(-msp)
+        if T.get('w_market') and mou is not None: T0=(1-T['w_market'])*T0+T['w_market']*mou
+        mean=(hs-as_)+M['a_ep']*ep+M['b_prior']*M0*frac+M['c_frac']*frac
         sd=math.sqrt(M['sigma']**2*frac+M['eps']**2); wp=0.5*(1+math.erf(mean/(sd*math.sqrt(2))))
         if LF.get('platt'):
             q=min(1-1e-6,max(1e-6,wp)); wp=1/(1+math.exp(-(LF['platt']['alpha']+LF['platt']['beta']*math.log(q/(1-q)))))
-        T=LF['total']; tot=hs+as_+T['t_prior']*(p['ph']+p['pa'])*frac+T['t_frac']*frac+T['t_ep']*abs(ep)
+        tot=hs+as_+T['t_prior']*T0*frac+T['t_frac']*frac+T['t_ep']*abs(ep)
         return wp,mean,tot
     MINUS=chr(0x2212)
     def check_strip(g,label,hs,as_,per,secs,dn,dist,yl100,poss_home):

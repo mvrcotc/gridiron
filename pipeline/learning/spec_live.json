@@ -32,6 +32,12 @@
   {"id": "live_total", "name": "Live total", "what": "how the projected final total combines the score so far, GridIron's pregame total and the clock",
    "kind": "total", "params": ["t_prior", "t_frac", "t_ep"], "metric": "final_total",
    "bounds": {"t_prior": [0.0, 1.5], "t_frac": [-10.0, 30.0], "t_ep": [0.0, 2.0]},
-   "step": {"t_prior": 0.1, "t_frac": 1.5, "t_ep": 0.2}, "min_change": {"t_prior": 0.03, "t_frac": 0.5, "t_ep": 0.06}}
+   "step": {"t_prior": 0.1, "t_frac": 1.5, "t_ep": 0.2}, "min_change": {"t_prior": 0.03, "t_frac": 0.5, "t_ep": 0.06}},
+  {"id": "live_market", "name": "Betting line in the live margin", "what": "how much of the pregame margin the live model starts from is the betting line before kickoff rather than GridIron's own number (a switch: off until approved)",
+   "kind": "market", "params": ["w_market"], "metric": "logloss",
+   "bounds": {"w_market": [0.0, 1.0]}, "step": {"w_market": 0.25}, "min_change": {"w_market": 0.1}},
+  {"id": "live_market_total", "name": "Betting total in the live total", "what": "how much of the pregame total the live projection starts from is the betting total before kickoff rather than GridIron's own (a switch: off until approved)",
+   "kind": "market_total", "params": ["w_market"], "metric": "final_total",
+   "bounds": {"w_market": [0.0, 1.0]}, "step": {"w_market": 0.25}, "min_change": {"w_market": 0.1}}
  ]
 }
