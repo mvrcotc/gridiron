@@ -48,6 +48,34 @@ setTimeout(async()=>{
     out.teams[season]={div,league};
   }
   out.teamsText=T(d.getElementById('p-teams'));
+  const cells=tr=>Object.fromEntries(all(tr,'td[data-k]').map(td=>[td.dataset.k,T(td)]));
+  out.weeks={};
+  for(const season of all(d,'#tseason button[data-season]').map(b=>b.dataset.season)){
+    d.querySelector('#tseason button[data-season="'+season+'"]').click(); await sleep(10);
+    d.querySelector('#tview button[data-view="weeks"]').click(); await sleep(10);
+    out.weeks[season]={};
+    for(const w of all(d,'#tweeks button[data-week]').map(b=>b.dataset.week)){
+      d.querySelector('#tweeks button[data-week="'+w+'"]').click(); await sleep(5);
+      out.weeks[season][w]={rows:all(d,'#ttables tr[data-wgame]').map(tr=>({espn:tr.dataset.wgame,cells:cells(tr)})),heads:all(d,'#ttables thead th').map(T),note:T(d.getElementById('tnote'))};
+    }
+    d.querySelector('#tview button[data-view="div"]').click(); await sleep(10);
+  }
+  out.teampages={};
+  for(const code of [...new Set(all(d,'#ttables tr[data-team]').map(tr=>tr.dataset.team))]){
+    const row=d.querySelector('#ttables tr[data-team="'+code+'"]'); if(!row) continue;
+    row.querySelector('td[data-k="rec"]').click(); await sleep(10);
+    const pages={};
+    for(const season of all(d,'#tmseason button[data-season]').map(b=>b.dataset.season)){
+      d.querySelector('#tmseason button[data-season="'+season+'"]').click(); await sleep(10);
+      pages[season]={on:d.getElementById('p-team').classList.contains('on'),head:T(d.getElementById('tmhead')),crumb:T(d.getElementById('crumb')),
+        tiles:all(d,'#tmmetrics .mtile').map(x=>[T(x.querySelector('dt')),T(x.querySelector('dd'))]),week:T(d.getElementById('tmweek')),
+        sched:all(d,'#tmsched tr[data-wk]').map(tr=>({wk:tr.dataset.wk,cells:cells(tr)})),heads:all(d,'#tmsched thead th').map(T),
+        bars:all(d,'#tmchart .tmbar').map(g=>+g.dataset.wk),inj:all(d,'#tminj .tminjrow').map(x=>x.dataset.pid),
+        players:all(d,'#tmplayers tr[data-pid]').map(tr=>({id:tr.dataset.pid,cells:cells(tr)})),text:T(d.getElementById('p-team'))};
+    }
+    out.teampages[code]=pages;
+    d.querySelector('.navitem[data-go="teams"]').click(); await sleep(10);
+  }
   const picks=[];
   for(const nav of all(d,'.navitem[data-go]').filter(n=>/^\d+$/.test(n.dataset.go))){
     const gi=+nav.dataset.go, g=D.games[gi]; nav.click(); await sleep(15);

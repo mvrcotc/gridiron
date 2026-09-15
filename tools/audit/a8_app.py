@@ -249,6 +249,107 @@ def run(A):
         elif e.get('missed') and g.get('state')!='pre' and 'Not in the since-launch record' not in note: bad.append('%s kicked off without a call but the page does not say so'%n)
     A.check('U13','Model page since-launch record and each game page\'s frozen kickoff call match the ledger',bad,len(R['cards']))
 
+    # ---------------- team pages and the week-by-week view, recomputed from the nflverse schedule and the ledger ----------------
+    from common import rows as _rows, DATA as _DATA
+    GA=[r for r in _rows(os.path.join(_DATA,'games_all.csv')) if r['game_type']=='REG']
+    EF={g['id']:(int(g['sc']['a']),int(g['sc']['h'])) for g in D['games'] if g.get('state')=='post' and g.get('sc')}
+    LP=os.path.join(PIPE,'ledger.json'); LEDG=(json.load(open(LP)).get('entries') or {}) if os.path.exists(LP) else {}
+    AB={'LA':'LAR','WAS':'WSH'}; ab=lambda t:AB.get(t,t); MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; DASH='—'
+    def fn(v):
+        try: return float(v)
+        except (TypeError,ValueError): return None
+    def f1s(v): x='%.1f'%v; return x[:-2] if x.endswith('.0') else x
+    def sgn(x): return (x>0)-(x<0)
+    def eid(r): return str(r.get('espn') or '').split('.')[0]
+    def score(r):
+        if r['home_score'] not in ('',None): return int(float(r['away_score'])),int(float(r['home_score']))
+        return EF.get(eid(r))
+    def sdate(x): return '%s %d'%(MON[int(x[5:7])-1],int(x[8:10])) if x and len(x)>=10 else ''
+    def tline(v): return DASH if v is None else ('PK' if abs(v)<0.05 else ('−' if v<0 else '+')+f1s(abs(v)))
+    def fav(home,away,m): return 'PK' if abs(m)<0.05 else '%s −%s'%(ab(home if m>0 else away),f1s(abs(m)))
+    def gcall(r,sc,sl,label):
+        e=LEDG.get(eid(r)) or {}; c=e.get('call') or {}
+        if not (e.get('frozen') and c.get('ph') is not None): return DASH
+        gm=c['ph']-c['pa']; out=label(gm)
+        if sc and sl is not None:
+            pick,res=sgn(gm-sl),sgn(sc[1]-sc[0]-sl)
+            if pick and res: out+=' ✓' if pick==res else ' ✗'
+        return out
+    TDm=D.get('teams') or {}; TP=R.get('teampages') or {}; bad=[]
+    if len(TP)!=32: bad.append('%d team pages rendered, expected 32'%len(TP))
+    for code,pages in TP.items():
+        if sorted(pages)!=sorted(str(x) for x in TDm.get('seasons',[])): bad.append('%s team page seasons %s'%(ab(code),sorted(pages)))
+        for season,pg in pages.items():
+            sea=int(season); n='%s %s'%(ab(code),season); S=TDm['by'][season]['rows'][code]; cur=sea==TDm['current']
+            if not pg['on'] or TDm['meta'][code]['name'] not in (pg['crumb'] or ''): bad.append('%s team page not shown or crumb %r'%(n,pg['crumb']))
+            games={int(r['week']):r for r in GA if int(r['season'])==sea and code in (r['home_team'],r['away_team'])}
+            maxw=max(int(r['week']) for r in GA if int(r['season'])==sea); shown={int(x['wk']):x['cells'] for x in pg['sched']}
+            if sorted(shown)!=list(range(1,maxw+1)): bad.append('%s schedule shows weeks %s'%(n,sorted(shown))); continue
+            if ('GridIron' in pg['heads'])!=cur: bad.append('%s GridIron column %s'%(n,'missing' if cur else 'shown for a past season'))
+            for w in range(1,maxw+1):
+                cl=shown[w]; r=games.get(w)
+                if not r:
+                    if cl.get('bye')!='Bye': bad.append('%s week %d should be a bye, shows %s'%(n,w,cl))
+                    continue
+                home=r['home_team']==code; opp=r['away_team'] if home else r['home_team']; sc=score(r); sl=fn(r['spread_line']); tl=fn(r['total_line'])
+                exp=None if sl is None else (sl if home else -sl)
+                want={'wk':str(w),'date':sdate(r['gameday']),'opp':('vs ' if home else '@ ')+ab(opp),'line':tline(None if exp is None else -exp),'tot':DASH if tl is None else f1s(tl)}
+                if sc:
+                    pf,pa=(sc[1],sc[0]) if home else sc; res='W' if pf>pa else 'L' if pf<pa else 'T'
+                    want.update(res='%s %d–%d'%(res,pf,pa)+(' OT' if r.get('overtime')=='1' and r['home_score'] not in ('',None) else ''),
+                                ats=DASH if exp is None else {1:'Covered',-1:'Missed',0:'Push'}[sgn(pf-pa-exp)],ou=DASH if tl is None else {1:'Over',-1:'Under',0:'Push'}[sgn(pf+pa-tl)])
+                else: want.update(res=DASH,ats=DASH,ou=DASH)
+                if cur: want['gi']=gcall(r,sc,sl,lambda gm,home=home:tline(-(gm if home else -gm)))
+                for k,v in want.items():
+                    if cl.get(k)!=v: bad.append('%s week %d %s shows %r, schedule gives %r'%(n,w,k,cl.get(k),v))
+            if sorted(pg['bars'])!=sorted(w for w,r in games.items() if score(r)): bad.append('%s chart has bars for weeks %s'%(n,pg['bars']))
+            tl_={a_:b_ for a_,b_ in pg['tiles']}
+            if S['gp']:
+                pl=[k for k,x in TDm['by'][season]['rows'].items() if x['gp']]
+                rk=lambda f,low=False:1+sum(1 for k in pl if (TDm['by'][season]['rows'][k][f]<S[f] if low else TDm['by'][season]['rows'][k][f]>S[f]))
+                for label,val in (('Record',wl([S['w'],S['l'],S['t']])),('Scored / game','%s #%d of %d'%(f1s(S['pfg']),rk('pfg'),len(pl))),
+                                  ('Allowed / game','%s #%d of %d'%(f1s(S['pag']),rk('pag',True),len(pl))),('Against the spread',wl(S['ats'])),('Over / under',wl(S['ou']))):
+                    if not (tl_.get(label) or '').startswith(val): bad.append('%s tile %s shows %r, standings give %r'%(n,label,tl_.get(label),val))
+            want_inj=sorted(g for g in (D.get('injd') or {}) if (D['players'].get(g) or {}).get('t')==code)
+            if sorted(pg['inj'])!=want_inj: bad.append('%s injury report lists %d players, data has %d'%(n,len(pg['inj']),len(want_inj)))
+            ros=[g for g,p in D['players'].items() if p.get('t')==code and ((D.get('prod') or {}).get(g) or {}).get('S')]
+            def top(f,k,mn): return sorted([g for g in ros if D['prod'][g]['S'].get(f,0)>=mn],key=lambda g:(-D['prod'][g]['S'].get(f,0),g))[:k]
+            want_pl=[(g,'Passing') for g in top('att',1,100)]+[(g,'Receiving') for g in top('tgt',3,20)]+[(g,'Rushing') for g in top('car',2,40)]
+            got_pl=[(x['id'],x['cells'].get('role')) for x in pg['players']]
+            if got_pl!=want_pl: bad.append('%s key players %s, production data gives %s'%(n,got_pl,want_pl))
+            for x in pg['players']:
+                st=D['prod'][x['id']]['S']; g_=lambda k:st.get(k,0); role=x['cells'].get('role')
+                line={'Passing':'%d/%d, %d yds, %d TD'%(g_('cmp'),g_('att'),g_('py'),g_('ptd')),'Receiving':'%d targets, %d rec, %d yds, %d TD'%(g_('tgt'),g_('rec'),g_('ry'),g_('rtd')),
+                      'Rushing':'%d carries, %d yds, %d TD'%(g_('car'),g_('ru'),g_('rutd'))}.get(role)
+                if x['cells'].get('line')!=line or x['cells'].get('g')!=str(g_('g')): bad.append('%s %s line %r, data %r'%(n,x['id'],x['cells'].get('line'),line))
+            junk=[t for t in ('undefined','NaN','null','[object') if t in (pg.get('text') or '')]
+            if junk: bad.append('%s team page shows %s'%(n,junk))
+    A.check('U14','Every team page (32 teams, both seasons): schedule, results, closing lines, ATS, O/U, GridIron\'s frozen calls, chart, tiles, injuries and key players match the schedule, standings and ledger',bad,64)
+
+    bad=[]; WK=R.get('weeks') or {}; nwk=0
+    for season,weeks in WK.items():
+        sea=int(season); cur=sea==TDm['current']; sched=[r for r in GA if int(r['season'])==sea]
+        if sorted(int(w) for w in weeks)!=sorted({int(r['week']) for r in sched}): bad.append('%s week picker offers %s'%(season,sorted(weeks)))
+        for w,V in weeks.items():
+            games=[r for r in sched if int(r['week'])==int(w)]; shown={x['espn']:x['cells'] for x in V['rows']}
+            if sorted(shown)!=sorted(eid(r) for r in games): bad.append('%s week %s shows %d games, schedule has %d'%(season,w,len(shown),len(games))); continue
+            if ('GridIron' in V['heads'])!=cur: bad.append('%s week %s GridIron column wrong'%(season,w))
+            nwk+=1
+            for r in games:
+                cl=shown[eid(r)]; sc=score(r); sl=fn(r['spread_line']); tl=fn(r['total_line']); n='%s week %s %s@%s'%(season,w,ab(r['away_team']),ab(r['home_team']))
+                want={'date':sdate(r['gameday']),'game':'%s @ %s'%(ab(r['away_team']),ab(r['home_team'])),'close':DASH if sl is None else fav(r['home_team'],r['away_team'],sl),
+                      'total':DASH if tl is None else f1s(tl)}
+                if sc:
+                    want.update(final='%d–%d'%sc+(' OT' if r.get('overtime')=='1' and r['home_score'] not in ('',None) else ''),
+                                ats=DASH if sl is None else {1:ab(r['home_team']),-1:ab(r['away_team']),0:'Push'}[sgn(sc[1]-sc[0]-sl)],
+                                ou=DASH if tl is None else {1:'Over',-1:'Under',0:'Push'}[sgn(sc[0]+sc[1]-tl)])
+                else: want.update(ats=DASH,ou=DASH)
+                if cur: want['gi']=gcall(r,sc,sl,lambda gm,r=r:fav(r['home_team'],r['away_team'],gm))
+                for k,v in want.items():
+                    if cl.get(k)!=v: bad.append('%s %s shows %r, schedule gives %r'%(n,k,cl.get(k),v))
+            if not (V.get('note') or '').startswith('Week %s of %s'%(w,season)): bad.append('%s week %s note %r'%(season,w,V.get('note')))
+    A.check('U15','Week-by-week view: every game of every week in both seasons shows its result, closing line, ATS and O/U winner, and GridIron\'s frozen call, matching the schedule and ledger',bad,nwk)
+
     # ---------------- a game in progress, rendered from a fixture built out of real ESPN payloads ----------------
     RAWE=os.path.join(ROOT,'data','raw','espn')
     fin=[g for g in D['games'] if g.get('state')=='post' and os.path.exists(os.path.join(RAWE,'f_%s.json'%g['id']))]

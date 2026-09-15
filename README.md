@@ -65,7 +65,13 @@ totals were tested on held-out seasons, did not help, and are not used.
 
 - **Teams** (home): standings by division or as one sortable league table, for this season or last, with leader
   tiles and each team's game this week. Ordering is win percentage, then division record, then point differential
-  -- simpler than the NFL's full tiebreakers, and the page says so.
+  -- simpler than the NFL's full tiebreakers, and the page says so. **Week by week** shows every game of any week of
+  either season with its final score, closing spread and total, who covered, over or under, and GridIron's call
+  frozen at kickoff (this season, since launch).
+- **A team** (click its row, or a team anywhere a link appears): record and rank tiles, this week's game, the full
+  schedule with results against the closing line and GridIron's frozen calls, points scored and allowed by game,
+  its injury report, and last season's key players on the current roster. Schedules come from `teams.py`
+  (`D.teams.games`, the nflverse schedule with ESPN finals ahead of nflverse).
 - **A game** (pick it in the sidebar): one page with everything about it, in the order the questions come up --
   line, total and implied points; GridIron's own call and injury fallout; both teams' seasons side by side;
   conditions; charts; every matchup with projections or results; and the field (formation or depth chart).

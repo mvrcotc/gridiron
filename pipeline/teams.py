@@ -84,6 +84,16 @@ def season_table(season):
     weeks=[int(r['week']) for r,_ in games]
     return dict(through=max(weeks) if weeks else 0,final_games=len(games),scheduled=len(sched),from_espn=src.get('espn',0),rows=out)
 
+def schedule(season):
+    """every regular-season game as [week, date, away, home, away pts, home pts, closing spread_line, closing total_line, espn id,
+    overtime, where the score came from]; scores are null until final. spread_line is the home margin the line expects"""
+    out=[]
+    for r in sorted((r for r in ROWS if int(r['season'])==season),key=lambda r:(int(r['week']),r['gameday'] or '',r['gametime'] or '',r['game_id'])):
+        f=final(r); sl,tl=fnum(r.get('spread_line')),fnum(r.get('total_line'))
+        out.append([int(r['week']),r['gameday'],r['away_team'],r['home_team'],int(f[0]) if f else None,int(f[1]) if f else None,
+                    sl,tl,str(r.get('espn') or '').split('.')[0] or None,1 if r.get('overtime')=='1' and f else 0,f[2] if f else None])
+    return out
+
 meta=((D.get('teams') or {}).get('meta')) or {}
 for t in NAMES: meta.setdefault(t,{})
 for g in D['games']:                                   # ESPN colours and names for teams on the slate; kept for teams on a bye
@@ -93,7 +103,7 @@ for g in D['games']:                                   # ESPN colours and names 
 for t in NAMES: meta[t].update(ab=N2E.get(t,t),name=NAMES[t],div=DIVOF[t],conf=CONF[t])
 seasons=[CURRENT,CURRENT-1]
 D['teams']=dict(current=CURRENT,seasons=seasons,divisions=[dict(name=d,conf=c,teams=ts.split()) for d,c,ts in DIVS],meta=meta,
-                by={str(s):season_table(s) for s in seasons},updated=time.strftime('%Y-%m-%dT%H:%MZ',time.gmtime()),
+                by={str(s):season_table(s) for s in seasons},games={str(s):schedule(s) for s in seasons},updated=time.strftime('%Y-%m-%dT%H:%MZ',time.gmtime()),
                 note='Teams are ordered by win percentage, then division record, then point differential; the NFL’s official tiebreakers go further.')
 json.dump(D,open(os.path.join(DATA,'gi2.json'),'w'),separators=(',',':'))
 for s in seasons:

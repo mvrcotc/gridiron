@@ -806,6 +806,36 @@ input[type=search]{width:172px}
 .rcmp td:first-child{font-family:var(--sans);color:var(--fg-3)}
 .rcmp td.better{color:var(--fg);font-weight:600}
 #grecords .twrap{background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-lg);max-width:720px}
+.tt tbody tr[data-team]{cursor:pointer}
+.tmopp{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);border-radius:3px}
+.tmopp i{width:8px;height:8px;border-radius:2px;flex:none}
+.tmopp b{font-weight:600;color:var(--fg);letter-spacing:-.01em}
+.tmopp:hover b{text-decoration:underline;text-underline-offset:3px}
+.tmopp:focus-visible{outline:2px solid var(--fg-3);outline-offset:2px}
+.tvs{color:var(--fg-4);font-size:11px}
+.tmatch{display:inline-flex;align-items:center;gap:7px;color:var(--fg-4)}
+.twks td[data-k="game"],.tmsched td[data-k="opp"],.tmpl td[data-k="role"],.tmpl td[data-k="line"]{text-align:left}
+.tweeks{flex-wrap:wrap;border-radius:14px;margin-bottom:14px;width:max-content;max-width:100%}
+.tweeks button{padding:4px 9px;min-width:32px}
+.tweeks button.tfut{color:var(--fg-4)}
+tr.tbyer td{color:var(--fg-4)}
+.tt tr.tbyer td[data-k="bye"]{text-align:left;position:static;background:none}
+.tmname{display:flex;align-items:center;gap:12px}
+.tmname i{width:14px;height:14px;border-radius:4px;flex:none}
+.tmweek{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tmweek .tnote{margin:0}
+.tmlegend{display:flex;gap:16px;font-size:11.5px;color:var(--fg-3);margin-bottom:8px}
+.tmlegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tmsvg{display:block;color:var(--fg-3);max-width:none}
+.tmsvg .tmax{fill:var(--fg-4);font-size:10px;font-family:var(--mono)}
+.tmsvg .tmval{fill:var(--fg-2);font-size:10.5px;font-family:var(--mono)}
+.tmbar:hover path{opacity:.8}
+.tminj{display:flex;flex-direction:column}
+.tminjrow{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-3);font-size:13px;flex-wrap:wrap}
+.tminjrow:last-child{border-bottom:none}
+.tminjrow b{font-weight:500;color:var(--fg)}
+.tminjrow .ps{color:var(--fg-4);font-size:11px;font-family:var(--mono)}
+.tminjrow .tnote{margin:0 0 0 auto}
 .linkbtn{font:inherit;color:var(--fg-2);background:none;border:none;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .linkbtn:hover{color:var(--fg)}
 @media (max-width:700px){.tt td,.tt th{padding:7px 8px}.tteam span{display:none}.gjump{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.gjump button{flex:none}}
@@ -869,13 +899,14 @@ input[type=search]{width:172px}
       <section class="page" id="p-teams">
         <div class="phead">
           <div><h2>The league, <em>team by team</em></h2>
-            <p>Every team's record, scoring, and how it has fared against the spread and the total. Pick a game on
-               the left for everything about that game.</p></div>
+            <p>Every team's record, scoring, and how it has fared against the spread and the total. Pick a team for
+               its own page, a week to see every result against the closing line, or a game on the left.</p></div>
           <div class="controls">
             <div class="pills" id="tseason" role="group" aria-label="Season"></div>
             <div class="pills" id="tview" role="group" aria-label="Layout">
               <button data-view="div" aria-pressed="true">By division</button>
               <button data-view="league" aria-pressed="false">League table</button>
+              <button data-view="weeks" aria-pressed="false">Week by week</button>
             </div>
           </div>
         </div>
@@ -949,6 +980,16 @@ input[type=search]{width:172px}
             <div class="fbox" id="fbox"></div>
           </div>
         </div>
+      </section>
+
+      <section class="page" id="p-team">
+        <div class="phead" id="tmhead"></div>
+        <div class="gmetrics" id="tmmetrics"></div>
+        <div class="sec" id="tmsec-week"><div class="sechd"><h3>This week</h3></div><div id="tmweek"></div></div>
+        <div class="sec" id="tmsec-sched"><div class="sechd"><h3>Schedule and results</h3><span class="sechint" id="tmschint"></span></div><div id="tmsched"></div></div>
+        <div class="sec" id="tmsec-chart"><div class="sechd"><h3>Points by game</h3></div><div id="tmchart"></div></div>
+        <div class="sec" id="tmsec-inj"><div class="sechd"><h3>Injury report</h3></div><div id="tminj"></div></div>
+        <div class="sec" id="tmsec-pl"><div class="sechd"><h3>Key players</h3><span class="sechint" id="tmplhint"></span></div><div id="tmplayers"></div></div>
       </section>
 
       <section class="page" id="p-model">
