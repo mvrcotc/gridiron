@@ -157,6 +157,7 @@ def run(A):
     js=open(os.path.join(APP,'app.js'),encoding='ascii').read()
     for lit in {'{:,}'.format(T['atsn']),'%.1f%%'%T['ats'],'%.2f'%T['gm'],'%.2f'%T['vm'],'1,828','49.8%','10.28'}:
         for m in re.finditer(re.escape(lit),js): bad.append('app.js hardcodes "%s" near: %s'%(lit,js[max(0,m.start()-50):m.end()+10].replace('\n',' ')))
+    if 'stalebar' not in js or 'menubtn' not in js: bad.append('app.js lost the stale-data banner or the phone games menu')
     if 'reloadForNewApp()' not in js or 'routeFromHash()' not in js: bad.append('app.js no longer reloads open tabs when a new version is published, or no longer restores the view from the address')
     A.check('U7','Code regressions: ASCII-only scripts, no duplicate functions, no hardcoded paths or stale track numbers',bad)
 
@@ -220,6 +221,33 @@ def run(A):
             if rec.get(label)!=want: bad.append('%s %s shows %s, data %s'%(n,label,rec.get(label),want))
         if len(c.get('jump') or [])<6 or not c.get('field'): bad.append('%s game page is missing its section links or its field'%n)
     A.check('U12','Every game page carries its season-so-far panel matching the standings, its section links and its field',bad,len(R['cards']))
+
+    # ---------------- since-launch record (kickoff ledger) on the Model page and each game page ----------------
+    LG=D.get('ledger') or {}; LR=LG.get('record') or {}; LE=LG.get('entries') or {}; bad=[]
+    st={x[0].lower():' '.join(x) for x in (R['model'].get('since') or [])}; stx=R['model'].get('sinceText') or ''
+    def shows(k,want):
+        if want not in st.get(k,''): bad.append('since-launch tile "%s" should show %s, shows "%s"'%(k,want,st.get(k)))
+    if not LG: bad.append('the data carries no kickoff ledger')
+    elif LR.get('settled'):
+        shows('margin error','%.2f pts'%LR['gm']); shows('margin error','closing line %.2f'%LR['vm'])
+        at=LR['ats']; shows('against the close','%d-%d'%(at[0],at[1]))
+        if at[0]+at[1]: shows('against the close','%.1f%%'%(100.0*at[0]/(at[0]+at[1])))
+        cv=LR.get('clv') or {}
+        if cv.get('n'): shows('line moved toward gridiron','%d of %d'%(cv['toward'],cv['n']))
+        if '%d calls frozen, %d settled'%(LR['frozen'],LR['settled']) not in stx: bad.append('since-launch card does not state %d frozen, %d settled'%(LR['frozen'],LR['settled']))
+    elif 'No settled games yet' not in stx: bad.append('since-launch card should say no games have settled')
+    def lab(g,v):
+        team,mag=splab(g,v); return 'PK' if team=='PK' else '%s −%s'%(team,('%.1f'%mag)[:-2] if ('%.1f'%mag).endswith('.0') else '%.1f'%mag)
+    for c in R['cards']:
+        g=G[c['id']]; e=LE.get(c['id']) or {}; note=c.get('ledger') or ''; n=g['a']+'@'+g['h']
+        if e.get('frozen'):
+            cl=e.get('call') or {}; fin=e.get('final'); cz=e.get('close')
+            if not note.startswith('Frozen at kickoff'): bad.append('%s frozen call missing from its game page (shows "%s")'%(n,note[:60])); continue
+            if cl.get('sp') is not None and 'GridIron '+lab(g,cl['sp'])+',' not in note: bad.append('%s frozen call shows "%s", ledger spread %s'%(n,note[:80],cl['sp']))
+            if cz and cz.get('spread') is not None and 'closed '+lab(g,cz['spread']) not in note: bad.append('%s closing line not shown as %s'%(n,lab(g,cz['spread'])))
+            if fin and cz and cz.get('spread') is not None and 'final %s %d–%s %d'%(g['a'],fin['a'],g['h'],fin['h']) not in note: bad.append('%s final score not shown in the ledger note'%n)
+        elif e.get('missed') and g.get('state')!='pre' and 'Not in the since-launch record' not in note: bad.append('%s kicked off without a call but the page does not say so'%n)
+    A.check('U13','Model page since-launch record and each game page\'s frozen kickoff call match the ledger',bad,len(R['cards']))
 
     # ---------------- a game in progress, rendered from a fixture built out of real ESPN payloads ----------------
     RAWE=os.path.join(ROOT,'data','raw','espn')

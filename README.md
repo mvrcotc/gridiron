@@ -47,6 +47,7 @@ python3 refresh.py --stage props
 | `project` | player projections: model inputs -> weather -> injury fallout -> simulate |
 | `backtest` | (daily) track record from the exact live model, plus held-out tests of excluded ingredients |
 | `predict` | game predictions from that same model; carries the live model's constants into the data |
+| `ledger` | freezes GridIron's last pre-kickoff call for each game at kickoff, beside the first line it saw, the closing line and the final score -- the since-launch record (`pipeline/ledger.json`, also published with the data so refreshes that do not commit keep it) |
 | `props` | DraftKings lines, de-duplicated, fetch time stamped |
 | `ids` | ESPN athlete id -> gsis_id map the browser uses for live box scores |
 | `site` | versioned site files |
@@ -69,9 +70,11 @@ totals were tested on held-out seasons, did not help, and are not used.
   line, total and implied points; GridIron's own call and injury fallout; both teams' seasons side by side;
   conditions; charts; every matchup with projections or results; and the field (formation or depth chart).
   Section links stay at the top as you scroll.
-- **Model**: the track record and how GridIron learns.
+- **Model**: the since-launch record (real calls frozen at kickoff, scored against the closing line), the backtest,
+  and how GridIron learns. Each game's call card also shows its frozen call, the close and the result.
 
-Search filters the games in the sidebar (by team or player) and the teams on the Teams page.
+Search filters the games in the sidebar (by team or player) and the teams on the Teams page. On a phone the
+sidebar folds into a menu at the top that names the page you are on.
 
 ## Hosting and how fresh it is
 
@@ -81,7 +84,11 @@ Search filters the games in the sidebar (by team or player) and the teams on the
   GitHub starts scheduled runs late and skips many (about one every two hours in practice), so while a
   game is within 8 hours of kickoff, under way, or finished within 5 hours, each run queues the next one
   itself about 10 minutes after it started. Only one chain runs; cancelling a run ends it. The daily lane
-  runs at 09:03 UTC and commits `data/gi2.json` and `pipeline/track.json`.
+  runs at 09:03 UTC and commits `data/gi2.json`, `pipeline/track.json`, the three model registries, the
+  learning log and `pipeline/ledger.json`.
+- **When refreshes fail:** if two runs in a row fail, the `alert` job opens a GitHub issue, *GridIron refresh is
+  failing*, with the failing audit lines; the next run that deploys closes it. The page itself shows a banner when
+  its data is more than 35 minutes old during a game window (8 hours otherwise).
 - **Cache-safe deploys:** the Pages CDN caches for up to 10 minutes and ignores query strings, so each build
   writes content-versioned files (`data.<v>.json`, `app.<code>.js`, `context.<code>.js`). `version.json` names
   the current ones and the page swaps in new data without reloading. Two previous builds stay served.
@@ -187,7 +194,9 @@ calling the pipeline. It covers game facts against ESPN and nflverse, every play
 factors, projections, predictions, props, the track record, the rendered page itself (every number, label
 and direction a reader sees), a game in progress rendered from real ESPN payloads (U8), the live win
 probability recomputed from the fitted model for both field-position forms ESPN sends (U9), code
-regressions, and live geodata and line drift.
+regressions, live geodata and line drift, and the kickoff ledger (K1-K5: only calls recorded before kickoff are
+frozen, a frozen call never changes, closes and scores match nflverse, the record recomputes; U13: the page shows
+exactly that record).
 
 **Rule: never publish with a FAIL.** WARNs are disclosed limits (e.g. prop prices are not published, the
 under lean is unproven, ESPN sent a word where a number belongs) and do not block.
@@ -223,6 +232,11 @@ Every game is predicted by the weights in force before its week, and a backup qu
 starts so far that season -- what the live site can know at kickoff. (The first published record, 10.16 and
 49.7%, flagged backups with season hindsight.) It does not beat the market. Its value is explaining why a line
 sits where it does, and player detail.
+
+The backtest is a replay. What counts from here is the **since-launch record** on the Model page: every call
+frozen at kickoff and scored against the closing line, plus how often the line moved toward GridIron's number
+between the first line it saw and the close. The week-1 calls were recovered from committed data snapshots;
+games that kicked off before any snapshot are listed as missed rather than filled in.
 
 ## Not yet done
 

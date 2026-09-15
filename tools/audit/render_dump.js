@@ -62,7 +62,7 @@ setTimeout(async()=>{
       rows:all(d,'#gmatchups .mrow2').map(r=>({oid:r.dataset.oid,med:T(r.querySelector('.pj .med')),act:T(r.querySelector('.act')),n2:T(r.querySelector('.n2'))})),
       records:all(d,'#grecords tr[data-row]').map(tr=>[tr.dataset.row].concat(all(tr,'td').slice(1).map(T))),
       jump:all(d,'#gjump button').map(T),field:!!d.querySelector('#fbox svg'),
-      foot:T(call.querySelector('.pr-foot')),text:T(d.getElementById('p-game'))});
+      ledger:T(call.querySelector('.pr-ledger')),foot:T(call.querySelector('.pr-foot')),text:T(d.getElementById('p-game'))});
     for(const r of all(d,'#gmatchups .mrow2')){const o=r.dataset.oid,p=(D.proj||{})[o]; if(!p||picks.some(x=>x.o===o)) continue;
       if(D.props&&D.props.by&&D.props.by[o]&&picks.filter(x=>x.why==='prop').length<3) picks.push({o,why:'prop',gi});
       else if(p.inj&&!picks.some(x=>x.why==='inj')) picks.push({o,why:'inj',gi});
@@ -76,7 +76,7 @@ setTimeout(async()=>{
       market:all(dr,'.mkrow').map(x=>[T(x.querySelector('.mkk')),T(x.querySelector('.mkl')),T(x.querySelector('.mkp'))])});
     const sc=d.getElementById('scrim'); if(sc) sc.click(); await sleep(40); }
   d.querySelector('.navitem[data-go="model"]').click(); await sleep(150);
-  out.model={learn:{rows:all(d,'.ltab .lrow').map(r=>({k:T(r.querySelector('.fk')),st:T(r.querySelector('.fv')),v:T(r.querySelector('.lval'))})),rev:T(d.querySelector('.lrev')),dec:all(d,'.ldec').length},tiles:all(d,'.ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),
+  out.model={learn:{rows:all(d,'.ltab .lrow').map(r=>({k:T(r.querySelector('.fk')),st:T(r.querySelector('.fv')),v:T(r.querySelector('.lval'))})),rev:T(d.querySelector('.lrev')),dec:all(d,'.ldec').length},since:all(d,'#since .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),sinceText:T(d.getElementById('since')),tiles:all(d,'.mcard:not(#since) .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),
     frows:all(d,'.ftab:not(.ltab) .frow').map(T),wprows:all(d,'.wprow').map(T),text:T(d.getElementById('modelgrid'))};
   out.errors=errs; fs.writeFileSync(process.argv[2]||'/dev/stdout',JSON.stringify(out)); W.close();
 },700);

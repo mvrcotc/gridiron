@@ -264,6 +264,11 @@ em.s{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-
   box-shadow:0 0 0 3px rgba(74,222,128,.14)}
 .scroller{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 @media (max-width:980px){.scroller{overflow:visible}.side{border-right:none;border-bottom:1px solid var(--line-2)}}
+@media (max-width:640px){
+  .bar{flex-wrap:wrap;height:auto;padding:9px 16px;row-gap:3px}
+  .crumb{flex:1 1 100%;white-space:nowrap;overflow:hidden}
+  .bar-r{margin-left:0}
+}
 
 .page{display:none;max-width:1280px;margin:0 auto;padding:30px 26px 150px}
 .page.on{display:block;animation:viewIn .32s var(--e) both}
@@ -804,6 +809,24 @@ input[type=search]{width:172px}
 .linkbtn{font:inherit;color:var(--fg-2);background:none;border:none;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .linkbtn:hover{color:var(--fg)}
 @media (max-width:700px){.tt td,.tt th{padding:7px 8px}.tteam span{display:none}.gjump{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.gjump button{flex:none}}
+.menubtn{display:none}
+.stalebar{flex:none;padding:9px 26px;font-size:12.5px;line-height:1.5;color:#FDE68A;background:rgba(251,191,36,.08);border-bottom:1px solid rgba(251,191,36,.25)}
+.stalebar b{color:#FEF3C7;font-weight:600}
+@media (max-width:980px){
+  .side{position:sticky;top:0;z-index:30}
+  .side-hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .menubtn{display:inline-flex;align-items:center;gap:6px;font:500 13px var(--sans);color:var(--fg-2);background:var(--elev);border:1px solid var(--line-2);border-radius:var(--pill);padding:8px 12px;cursor:pointer;max-width:58vw;min-height:40px}
+  .menubtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .menubtn svg{width:14px;height:14px;flex:none;transition:transform .2s}
+  .menubtn:focus-visible{outline:2px solid var(--info);outline-offset:2px}
+  .side.open .menubtn svg{transform:rotate(180deg)}
+  .side .side-search,.side .side-nav{display:none}
+  .side.open .side-search{display:flex}
+  .side.open .side-nav{display:block;max-height:70vh;overflow-y:auto}
+  .stalebar{padding:9px 16px}
+}
+.pr-ledger{font-size:11.5px;color:var(--fg-3);margin-top:12px;line-height:1.55}
+.pr-ledger b{color:var(--fg-2);font-weight:500}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;
     transition-duration:.001ms!important}
@@ -823,6 +846,7 @@ input[type=search]{width:172px}
     <div class="side-hd">
       <div class="brand"><span class="mk"></span>
         <div><div class="bn">GridIron</div><div class="bs">Week 1 &middot; 2026</div></div></div>
+      <button class="menubtn" id="menubtn" aria-expanded="false" aria-controls="sidenav"><span id="menulbl">Teams</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
     </div>
     <div class="side-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
@@ -839,6 +863,7 @@ input[type=search]{width:172px}
         <span class="stamp"><span class="pulse"></span><span id="stamp"></span></span>
       </div>
     </header>
+    <div class="stalebar" id="stalebar" role="status" hidden></div>
     <div class="scroller" id="scroller">
 
       <section class="page" id="p-teams">

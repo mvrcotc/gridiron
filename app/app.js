@@ -419,6 +419,7 @@ function predBlock(g){
     '<div class="pr-how"><span class="pr-lab">How it got there</span>'+rows+
       '<div class="wf tot"><span class="wk">Projected score</span><span class="wd">'+grade(g,p)+'</span>'+
       '<span class="wv">'+esc(g.a)+' '+num(p.pa).toFixed(1)+' \u00b7 '+esc(g.h)+' '+num(p.ph).toFixed(1)+'</span></div></div>'+
+    ledgerNote(g)+
     '<div class="pr-foot">'+esc((p.notes||[]).join(' \u00b7 '))+((p.notes||[]).length?'. ':'')+
       'On '+num(HO.atsn).toLocaleString()+' games from 2023\u201325 that the model never trained on, GridIron picked <b>'+
       num(HO.ats).toFixed(1)+'%</b> against the spread \u2014 short of the 52.4% needed to profit. '+
@@ -1250,6 +1251,8 @@ function go(target){
   else { document.getElementById('p-game').classList.add('on'); drawGame(); }
   crumbFor();
   try{ history.replaceState(null,'',location.pathname+location.search+'#'+(typeof target==='number'?'game-'+D.games[target].id:target)); }catch(e){}
+  var ml=document.getElementById('menulbl'); if(ml) ml.textContent=target==='teams'?'Teams':target==='model'?'Model':(D.games[gi].a+' at '+D.games[gi].h);
+  var sd=document.getElementById('side'), mb=document.getElementById('menubtn'); if(sd) sd.classList.remove('open'); if(mb) mb.setAttribute('aria-expanded','false');
   var sc=document.getElementById('scroller'); if(sc) sc.scrollTop=0;
 }
 
@@ -1584,6 +1587,49 @@ function learnCard(){
   } else if(!(L.proposals||[]).length) h+='<div class="verdict">Nothing came close in the latest review.</div>';
   return h+'</div>';
 }
+/* ------------------------- kickoff ledger: real calls, frozen at kickoff ------------------------- */
+function signedPts(v){ return (v>0?'+':v<0?'\u2212':'')+Math.abs(num(v)).toFixed(1)+' pts'; }
+function ledgerNote(g){
+  var e=((D.ledger||{}).entries||{})[g.id]; if(!e) return '';
+  if(!e.frozen){
+    if(e.missed&&g.state!=='pre') return '<div class="pr-ledger">Not in the since-launch record: this game kicked off before GridIron recorded a call.</div>';
+    return g.state==='pre'&&e.call?'<div class="pr-ledger">This call goes into the since-launch record when it freezes at kickoff.</div>':'';
+  }
+  var c=e.call||{}, f=e.first, cl=e.close, fin=e.final;
+  var bits=['<b>Frozen at kickoff:</b> GridIron '+spLab(g,c.sp)+', total '+esc(fx(c.tot))];
+  if(f&&f.spread!=null) bits.push('first line GridIron saw '+spLab(g,f.spread));
+  if(cl&&cl.spread!=null) bits.push('closed '+spLab(g,cl.spread)+(cl.ou!=null?', total '+esc(fx(cl.ou)):''));
+  if(fin&&cl&&cl.spread!=null&&c.ph!=null){
+    var am=fin.h-fin.a, cm=-cl.spread, pick=Math.sign((c.ph-c.pa)-cm), res=Math.sign(am-cm);
+    bits.push('final '+esc(g.a)+' '+fin.a+'\u2013'+esc(g.h)+' '+fin.h+
+      (!pick?'':res===0?' (push against the close)':pick===res?' (GridIron\u2019s side covered the close)':' (GridIron\u2019s side did not cover the close)'));
+  }
+  return '<div class="pr-ledger">'+bits.join(' \u00b7 ')+'</div>';
+}
+function ledgerCard(){
+  var LG=D.ledger; if(!LG||!LG.record) return '';
+  var R=LG.record, n=R.settled||0;
+  function tile(k,v,s){ return '<div class="ttile"><span class="tk">'+esc(k)+'</span><span class="tv">'+esc(v)+'</span><span class="ts2">'+esc(s)+'</span></div>'; }
+  function rec(a){ return a[0]+'-'+a[1]+(a[2]?'-'+a[2]:''); }
+  function pct(a){ var d=a[0]+a[1]; return d?(100*a[0]/d).toFixed(1)+'%':'\u2014'; }
+  var h='<div class="mcard wide" id="since"><h3>Since launch, <em>real calls only</em></h3>'+
+    '<p class="sub3">Every GridIron prediction is frozen at kickoff and scored against the closing line and the final score, so nothing here was known after the fact '+
+    '\u2014 unlike the backtest above. '+esc(R.frozen+' calls frozen, '+n+' settled'+(R.pending?', '+R.pending+' awaiting a final score':'')+
+    (R.missed?', '+R.missed+' games kicked off before GridIron recorded a call':'')+'.')+'</p>';
+  if(!n) return h+'<div class="verdict">No settled games yet.</div></div>';
+  var clv=R.clv||{}, clt=R.clv_total||{};
+  h+='<div class="ttiles">'+
+    tile('Margin error',num(R.gm).toFixed(2)+' pts','closing line '+num(R.vm).toFixed(2))+
+    tile('Total error',R.gt==null?'\u2014':num(R.gt).toFixed(2)+' pts',R.vt==null?'no closing totals':'closing line '+num(R.vt).toFixed(2))+
+    tile('Against the close',pct(R.ats),rec(R.ats)+' \u00b7 break-even is 52.4%')+
+    tile('Line moved toward GridIron',clv.n?clv.toward+' of '+clv.n:'\u2014',clv.n?'average '+signedPts(clv.pts)+' from the first line it saw':'no line moves yet')+
+  '</div>'+
+  '<div class="verdict"><b>Read this with care.</b> '+n+' games cannot separate skill from luck; against-the-spread results need hundreds. '+
+    'Whether the line moves toward GridIron\u2019s number before kickoff is the quicker signal bettors watch, and that too is only '+(clv.n||0)+' games so far. '+
+    'Straight up '+rec(R.su)+(R.brier!=null?' \u00b7 win-probability Brier score '+num(R.brier).toFixed(3)+' over '+R.brier_n+' games':'')+
+    ' \u00b7 totals '+rec(R.ou)+' against the close'+(clt.n?', '+clt.toward+' of '+clt.n+' totals moved toward GridIron':'')+'.</div>';
+  return h+'</div>';
+}
 function trackCard(){
   var T=D.track; if(!T) return '';
   var A=T.held||T.all, W=T.wk1, F=T.ptsfit;
@@ -1639,7 +1685,7 @@ function trackCard(){
 
 function drawModel(){
   var C=D.cal; if(!C) return;
-  var h=trackCard()+learnCard();
+  var h=trackCard()+ledgerCard()+learnCard();
   /* calibration */
   var worst=Math.max.apply(null,C.pit.map(function(v){return Math.abs(v-0.1);}));
   h+='<div class="mcard"><h3>Calibration</h3>'+
@@ -1796,6 +1842,9 @@ document.getElementById('sidenav').addEventListener('click',function(e){
   var b=e.target.closest('[data-go]'); if(!b) return;
   var v=b.dataset.go;
   go(v==='teams'||v==='model' ? v : +v);
+});
+document.getElementById('menubtn').addEventListener('click',function(){
+  var sd=document.getElementById('side'), on=sd.classList.toggle('open'); this.setAttribute('aria-expanded',String(on));
 });
 document.getElementById('p-teams').addEventListener('click',function(e){
   var b=e.target.closest('[data-season]'); if(b){ tseason=b.dataset.season; drawTeams(); return; }
@@ -2010,7 +2059,17 @@ function stampFresh(){
   bits.push(meta.built ? 'model data '+ago(meta.built) : 'depth chart '+String(D.dt).slice(0,10)+' \u00b7 '+MATCHUPS.length+' matchups');
   if(LIVE.scoresAt) bits.push('scores '+ago(new Date(LIVE.scoresAt).toISOString()));
   el.textContent=bits.join(' \u00b7 ');
-  el.classList.toggle('stale', !!(meta.built && Date.now()-Date.parse(meta.built)>45*60000));
+  /* stale: older than 35 minutes while a game is on or within three hours of kickoff, otherwise older than 8 hours */
+  var now=Date.now(), age=meta.built?now-Date.parse(meta.built):0;
+  var hot=D.games.some(function(g){ var k=Date.parse(g.date); return g.state==='in'||(g.state==='pre'&&k-now<3*3600000); });
+  var stale=!!(meta.built&&age>(hot?35*60000:8*3600000));
+  el.classList.toggle('stale',stale);
+  var sb=document.getElementById('stalebar');
+  if(sb){
+    sb.hidden=!stale;
+    render(sb,stale?'<b>GridIron\u2019s data was last updated '+esc(ago(meta.built))+'.</b> A refresh may be failing'+(hot?' during a game window':'')+
+      ', so lines, injuries and projections here may be out of date. Scores and box scores still update live from ESPN.':'');
+  }
 }
 function applyData(nd){
   if(!nd||!nd.games||!nd.games.length) return;

@@ -148,6 +148,7 @@ def stage_project(): run('project.py','project')
 def stage_learn():   run('learn.py','learn',['review','--update-history'])
 def stage_backtest(): run('backtest.py','backtest')
 def stage_predict(): run('predict.py','predict')
+def stage_ledger():  run('ledger.py','ledger')
 def stage_props():   run('props.py','props')
 
 def stage_embed():
@@ -166,7 +167,7 @@ def stage_embed():
 
 def stage_audit():
     """independent audit; any FAIL stops the run before anything is published"""
-    mods=[] if LANE in (None,'daily') else [os.path.basename(p)[:-3] for p in sorted(glob.glob(os.path.join(ROOT,'tools','audit','a[0-8]_*.py'))+glob.glob(os.path.join(ROOT,'tools','audit','a10_*.py')))]
+    mods=[] if LANE in (None,'daily') else [os.path.basename(p)[:-3] for p in sorted(glob.glob(os.path.join(ROOT,'tools','audit','a[0-8]_*.py'))+glob.glob(os.path.join(ROOT,'tools','audit','a1[0-9]_*.py')))]
     r=subprocess.run([sys.executable,os.path.join(ROOT,'tools','audit','run.py')]+mods,capture_output=True,text=True)
     for line in (r.stdout or '').strip().split('\n'):
         if line.startswith(('  FAIL','         -')) or line[:1].isdigit(): say(line[:170])
@@ -208,14 +209,15 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('learn',   stage_learn,   'weekly model review: re-test every weight on games it never saw; change only on strong, confirmed evidence'),
         ('backtest',stage_backtest,'track record from the exact live model'),
         ('predict', stage_predict, 'game predictions from the backtested model'),
+        ('ledger',  stage_ledger,  'freeze each GridIron call at kickoff; closing lines, results and the since-launch record'),
         ('props',   stage_props,   'DraftKings prop lines'),
         ('ids',     stage_ids,     'ESPN athlete id -> gsis map for live box scores'),
         ('site',    stage_site,    'build site/ for GitHub Pages'),
         ('embed',   stage_embed,   'write the dataset into the claude.ai artifact page (legacy)'),
         ('audit',   stage_audit,   'independent audit -- stops the run on any failure'),
         ('check',   stage_check,   'sanity report')]
-LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','project','predict','props','ids','site','audit'],
-       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','project','learn','backtest','predict','props','ids','site','audit']}
+LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','project','predict','ledger','props','ids','site','audit'],
+       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','project','learn','backtest','predict','ledger','props','ids','site','audit']}
 
 if __name__=='__main__':
     a=sys.argv[1:]
