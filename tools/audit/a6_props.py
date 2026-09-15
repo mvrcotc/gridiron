@@ -18,7 +18,13 @@ def run(A):
     rawp=os.path.join(PIPE,'props.json'); RAW=json.load(open(rawp)) if os.path.exists(rawp) else []
     G={g['id']:g for g in D['games']}
     if not BY:
-        A.check('X0','Prop lines present',['no prop lines in the dataset']); return
+        upcoming=[g for g in D['games'] if g.get('state')=='pre']
+        live=[k for k,v in PJ.items() if not v.get('out')]; scanned=int(P.get('scanned') or 0)
+        if not upcoming or not live:
+            A.check('X0','No prop lines expected: every game on the slate has kicked off, so nothing is left to match',[]); return
+        if scanned>=200 and len(live)>=50:
+            A.check('X0','Prop lines present',['DraftKings listed %d lines and %d players are projected, yet none matched -- the join is broken'%(scanned,len(live))]); return
+        A.warn('X0','DraftKings has not posted prop lines for the games still to play',['%d lines scanned for %d upcoming games and %d projected players'%(scanned,len(upcoming),len(live))],len(upcoming)); return
 
     bad=[]
     for r in RAW:
