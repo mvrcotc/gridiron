@@ -157,6 +157,7 @@ def run(A):
     js=open(os.path.join(APP,'app.js'),encoding='ascii').read()
     for lit in {'{:,}'.format(T['atsn']),'%.1f%%'%T['ats'],'%.2f'%T['gm'],'%.2f'%T['vm'],'1,828','49.8%','10.28'}:
         for m in re.finditer(re.escape(lit),js): bad.append('app.js hardcodes "%s" near: %s'%(lit,js[max(0,m.start()-50):m.end()+10].replace('\n',' ')))
+    if 'reloadForNewApp()' not in js or 'routeFromHash()' not in js: bad.append('app.js no longer reloads open tabs when a new version is published, or no longer restores the view from the address')
     A.check('U7','Code regressions: ASCII-only scripts, no duplicate functions, no hardcoded paths or stale track numbers',bad)
 
     Lr=R['model'].get('learn') or {}; LD=D.get('learn') or {}; bad=[]

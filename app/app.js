@@ -1249,6 +1249,7 @@ function go(target){
   else if(target==='model'){ document.getElementById('p-model').classList.add('on'); drawModel(); }
   else { document.getElementById('p-game').classList.add('on'); drawGame(); }
   crumbFor();
+  try{ history.replaceState(null,'',location.pathname+location.search+'#'+(typeof target==='number'?'game-'+D.games[target].id:target)); }catch(e){}
   var sc=document.getElementById('scroller'); if(sc) sc.scrollTop=0;
 }
 
@@ -1482,6 +1483,7 @@ function closeDrawer(){
   document.getElementById('drawer').classList.remove('on');
   document.getElementById('scrim').classList.remove('on');
   if(selected){selected=null; if(typeof route==='number') buildField();}
+  if(typeof LIVE!=='undefined'&&LIVE.codeStale) reloadForNewApp();
 }
 
 /* ============================ model view ============================ */
@@ -2023,11 +2025,25 @@ function applyData(nd){
   if(open&&D.players[open[0]]) openPlayer(open[0],open[1],open[2]);
   stampFresh();
 }
+/* a new version of the page itself was published: reload in place -- the address keeps the current view --
+   unless a player drawer is open, in which case it reloads as soon as the drawer closes */
+function reloadForNewApp(){
+  var dr=document.getElementById('drawer');
+  if(dr&&dr.classList.contains('on')) return;
+  location.reload();
+}
+function routeFromHash(){
+  var h=String(location.hash||'').replace(/^#/,'');
+  if(h==='model') return 'model';
+  var m=h.match(/^game-(\d+)$/);
+  if(m){ for(var i=0;i<D.games.length;i++){ if(String(D.games[i].id)===m[1]) return i; } }
+  return 'teams';
+}
 function pollVersion(){
   if(!LIVE.on) return;
   getJSON('version.json?t='+Date.now()).then(function(v){
     if(!v) return;
-    if(v.code&&LIVE.code&&v.code!==LIVE.code){ LIVE.codeStale=true; return; }
+    if(v.code&&LIVE.code&&v.code!==LIVE.code){ LIVE.codeStale=true; reloadForNewApp(); return; }
     if(!v.version||v.version===LIVE.version) return;
     return getJSON(v.data||('data.json?v='+encodeURIComponent(v.version))).then(function(nd){
       if(nd&&nd.meta&&nd.meta.version===v.version){ LIVE.version=v.version; applyData(nd); }
@@ -2035,7 +2051,7 @@ function pollVersion(){
   }).catch(function(){}).then(stampFresh);
 }
 if(typeof setLeague==='function') setLeague(D.lg||null);
-buildSidebar(); go('teams');
+buildSidebar(); go(routeFromHash());
 stampFresh();
 if(LIVE.on){
   pollScores();
