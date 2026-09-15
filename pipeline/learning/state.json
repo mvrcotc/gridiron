@@ -4,19 +4,36 @@
    "pending": {},
    "changes": {},
    "last_cutoff": [
-    2025,
-    18
+    2026,
+    1
    ],
-   "last_games": 1871
+   "last_games": 1887
   },
   "live": {
-   "pending": {},
+   "pending": {
+    "live_market|big|on": {
+     "review": "R2026-01",
+     "cutoff": [
+      2026,
+      1
+     ],
+     "games": 1887
+    },
+    "live_market_total|big|on": {
+     "review": "R2026-01",
+     "cutoff": [
+      2026,
+      1
+     ],
+     "games": 1887
+    }
+   },
    "changes": {},
    "last_cutoff": [
-    2025,
-    18
+    2026,
+    1
    ],
-   "last_games": 1871
+   "last_games": 1887
   },
   "players": {
    "pending": {
@@ -51,22 +68,25 @@
       18
      ],
      "games": 27165
-    },
-    "pl_script|big|-": {
-     "review": "R2025-18",
-     "cutoff": [
-      2025,
-      18
-     ],
-     "games": 27165
     }
    },
-   "changes": {},
+   "changes": {
+    "pl_volume_trust": [
+     {
+      "seq": 36469,
+      "season": 2026,
+      "steps": 1.0,
+      "how": "auto",
+      "version": 2
+     }
+    ],
+    "pl_efficiency_trust": []
+   },
    "last_cutoff": [
-    2025,
-    18
+    2026,
+    1
    ],
-   "last_games": 27165
+   "last_games": 27400
   }
  }
 }

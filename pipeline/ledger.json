@@ -1,39 +1,39 @@
 {
- "updated": "2026-09-15T05:01:48Z",
+ "updated": "2026-09-15T14:20:03Z",
  "record": {
   "frozen": 14,
-  "settled": 13,
-  "pending": 1,
+  "settled": 14,
+  "pending": 0,
   "missed": 2,
-  "gm": 10.95,
-  "vm": 10.65,
-  "gt": 12.97,
-  "vt": 11.58,
+  "gm": 11.74,
+  "vm": 11.21,
+  "gt": 12.16,
+  "vt": 10.86,
   "ats": [
    4,
-   8,
+   9,
    0
   ],
   "ou": [
    5,
-   7,
+   8,
    0
   ],
   "su": [
    10,
-   3
+   4
   ],
-  "brier": 0.2172,
-  "brier_n": 13,
+  "brier": 0.2233,
+  "brier_n": 14,
   "clv": {
    "n": 4,
    "toward": 3,
    "pts": 0.5
   },
   "clv_total": {
-   "n": 5,
-   "toward": 3,
-   "pts": 0.2
+   "n": 6,
+   "toward": 4,
+   "pts": 0.33
   }
  },
  "entries": {
@@ -737,7 +737,17 @@
    "source": "data snapshot e9361b4 committed 2026-09-14T17:53:35Z",
    "frozen_at": "2026-09-15T02:22:31Z",
    "season": 2026,
-   "week": 1
+   "week": 1,
+   "final": {
+    "a": 10,
+    "h": 31,
+    "src": "nflverse"
+   },
+   "close": {
+    "spread": -2.5,
+    "ou": 42.5,
+    "src": "nflverse"
+   }
   }
  },
  "note": "Each call is the last GridIron prediction recorded before kickoff; the first line is the first one GridIron saw, not necessarily the opening line. Closing lines and scores come from nflverse."

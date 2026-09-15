@@ -1,6 +1,6 @@
 {
  "model": "players",
- "current": 1,
+ "current": 2,
  "versions": [
   {
    "v": 1,
@@ -15,6 +15,35 @@
     "prev_weight": 0.1,
     "k_ts": 15,
     "k_cshare": 20,
+    "k_cr": 60,
+    "k_ypt": 120,
+    "k_adot": 40,
+    "k_ypc": 40,
+    "k_rutd": 40,
+    "k_pcmp": 60,
+    "k_pass": 120,
+    "opp_scale": 1.0,
+    "script_scale": 1.0,
+    "vol": 2.3,
+    "yshape": 0.45,
+    "absorb_tgt": 0.746,
+    "absorb_car": 0.538
+   }
+  },
+  {
+   "v": 2,
+   "date": "2026-09-15",
+   "cutoff": [
+    2026,
+    1
+   ],
+   "how": "auto",
+   "note": "Volume trust ×1.00 of launch values → ×0.80 of launch values: expected PPR points error 4.557 → 4.543; 99.6% confidence after correcting for 9 ideas tested (need 95%); better in 3 of 3 seasons with 500+ player-weeks",
+   "decision": "R2026-01:players:pl_volume_trust",
+   "params": {
+    "prev_weight": 0.1,
+    "k_ts": 12.0,
+    "k_cshare": 16.0,
     "k_cr": 60,
     "k_ypt": 120,
     "k_adot": 40,

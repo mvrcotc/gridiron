@@ -1,8 +1,11 @@
 {
- "review": "R2025-18",
+ "review": "R2026-01",
  "cutoff": [
-  2025,
-  18
+  2026,
+  1
  ],
- "candidates": []
+ "candidates": [
+  "live_market_total|full",
+  "live_market|full"
+ ]
 }
