@@ -350,6 +350,16 @@ def run(A):
             if not (V.get('note') or '').startswith('Week %s of %s'%(w,season)): bad.append('%s week %s note %r'%(season,w,V.get('note')))
     A.check('U15','Week-by-week view: every game of every week in both seasons shows its result, closing line, ATS and O/U winner, and GridIron\'s frozen call, matching the schedule and ledger',bad,nwk)
 
+    # ---------------- partner links: never outside the single sidebar card, never more than one ----------------
+    bad=[]
+    pages=[('Teams page',R.get('adsTeams')),('Model page',R.get('adsModel'))]+[('game '+c['id'],c.get('ads')) for c in R['cards']]+\
+          [('team %s %s'%(k,s),p.get('ads')) for k,v in (R.get('teampages') or {}).items() for s,p in v.items()]
+    for name,a in pages:
+        if not a: bad.append('%s has no partner-link count in the render'%name); continue
+        if a[1]: bad.append('%s shows %d partner link(s) outside the sidebar card'%(name,a[1]))
+        if a[0]>1: bad.append('%s shows %d partner links; at most one is allowed'%(name,a[0]))
+    A.check('U16','No page carries a partner link outside the one sidebar card, and never more than one',bad,len(pages))
+
     # ---------------- a game in progress, rendered from a fixture built out of real ESPN payloads ----------------
     RAWE=os.path.join(ROOT,'data','raw','espn')
     fin=[g for g in D['games'] if g.get('state')=='post' and os.path.exists(os.path.join(RAWE,'f_%s.json'%g['id']))]

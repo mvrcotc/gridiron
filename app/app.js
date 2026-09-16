@@ -2262,6 +2262,25 @@ function stampFresh(){
       ', so lines, injuries and projections here may be out of date. Scores and box scores still update live from ESPN.':'');
   }
 }
+/* ------------------------- partner card: one small, labeled affiliate unit at the foot of the sidebar -------------------------
+   partners.py decides what may show (switched on, a real https link, the fine print written there). The page re-checks
+   the link and the sportsbook helpline before showing anything, shows one partner a day, and never places a partner link
+   near GridIron's own calls. */
+function drawPartner(){
+  var el=document.getElementById('sidead'); if(!el) return;
+  var P=D.partners||{}, ok=((P.on&&P.items)||[]).filter(function(x){
+    return x&&x.name&&/^https:\/\/[^\s"'<>]+$/.test(String(x.url||''))&&
+      (x.kind==='dfs'||(x.kind==='sportsbook'&&String(x.fine||'').indexOf('1-800-GAMBLER')>=0));
+  });
+  if(!ok.length){ render(el,''); el.hidden=true; return; }
+  var x=ok[Math.floor(Date.now()/864e5)%ok.length];
+  render(el,'<aside class="side-ad" aria-label="Advertisement"><div class="sa-top"><span class="sa-tag">Ad</span><span class="sa-kind">'+
+    (x.kind==='sportsbook'?'Sportsbook partner':'Fantasy partner')+'</span></div>'+
+    '<a class="sa-link" href="'+esc(x.url)+'" target="_blank" rel="sponsored noopener noreferrer"><b>'+esc(x.name)+'</b>'+
+    (x.headline?'<span>'+esc(x.headline)+'</span>':'')+'<em>'+esc(x.cta||'Visit')+' \u2192</em></a>'+
+    '<p class="sa-fine">'+esc(x.fine)+' '+esc(P.disclosure||'GridIron may earn a commission from partner links.')+'</p></aside>');
+  el.hidden=false;
+}
 function applyData(nd){
   if(!nd||!nd.games||!nd.games.length) return;
   var sc=document.getElementById('scroller'), top=sc?sc.scrollTop:0;
@@ -2269,7 +2288,7 @@ function applyData(nd){
   D=nd; SP=D.sprite||null; if(LIVE.sb) applyScoreboard(LIVE.sb); MATCHUPS=buildMatchups();
   var ni=D.games.findIndex(function(g){return g.id===gid;}); gi=ni<0?0:ni;
   if(typeof setLeague==='function') setLeague(D.lg||null);
-  buildSidebar();
+  buildSidebar(); drawPartner();
   go(typeof route==='number'?gi:route);
   if(sc) sc.scrollTop=top;
   if(open&&D.players[open[0]]) openPlayer(open[0],open[1],open[2]);
@@ -2302,7 +2321,7 @@ function pollVersion(){
   }).catch(function(){}).then(stampFresh);
 }
 if(typeof setLeague==='function') setLeague(D.lg||null);
-buildSidebar(); go(routeFromHash());
+buildSidebar(); drawPartner(); go(routeFromHash());
 stampFresh();
 if(LIVE.on){
   pollScores();

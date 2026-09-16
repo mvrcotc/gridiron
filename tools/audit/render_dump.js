@@ -16,12 +16,14 @@ if(process.env.GRIDIRON_FIXTURE_FILE){
   SHIM='<script>(function(){var F='+F+';window.GRIDIRON_FIXTURE=function(u){if(/scoreboard/.test(u))return F.scoreboard;'+
     'var m=/event=([^&]+)/.exec(u);return m?(F.summaries[decodeURIComponent(m[1])]||null):null;};})();<\/script>'+SHIM;
 }
+// optional partner fixture: replaces the data's partners so the ad card can be audited without real links (GRIDIRON_PARTNERS_FILE=path.json)
+const PF=process.env.GRIDIRON_PARTNERS_FILE?fs.readFileSync(process.env.GRIDIRON_PARTNERS_FILE,'utf8').replace(/<\//g,'<\\/'):null;
 let html;
 if(MODE==='site'){
   const loader=/<script>\s*\(function\(\)\{[\s\S]*?GRIDIRON_LIVE[\s\S]*?<\/script>/;
   const idx=rd('index.html'); if(!loader.test(idx)) throw new Error('site/index.html has no data loader');
   const V=JSON.parse(rd('version.json'));
-  html=idx.replace(loader,()=>SHIM+'<script>window.GRIDIRON_CODE='+JSON.stringify(V.code)+';window.GRIDIRON_DATA='+rd(V.data)+';<\/script>'+
+  html=idx.replace(loader,()=>SHIM+'<script>window.GRIDIRON_CODE='+JSON.stringify(V.code)+';window.GRIDIRON_DATA='+rd(V.data)+';<\/script>'+(PF?'<script>window.GRIDIRON_DATA.partners='+PF+';<\/script>':'')+
     '<script>'+rd(V.context)+'<\/script><script>'+rd(V.app)+'<\/script>');
 } else {
   html=rd('gridiron-v2.html').replace('<script src="context.js"></script>',()=>SHIM+'<script>'+rd('context.js')+'</script>')
@@ -35,6 +37,12 @@ setTimeout(async()=>{
   const D=W.GRIDIRON_DATA||JSON.parse(d.getElementById('gi-data').textContent), out={mode:MODE,cards:[],drawers:[],model:{},sidebar:[]};
   out.sidebar=all(d,'.navitem[data-go]').filter(n=>/^\d+$/.test(n.dataset.go)).map(n=>({gi:+n.dataset.go,text:T(n)}));
   out.stamp=T(d.getElementById('stamp'));
+  const adsNow=()=>{const a=all(d,'a[rel~="sponsored"]'); return [a.length,a.filter(x=>!x.closest('#sidead')).length];};
+  const slot=d.getElementById('sidead');
+  out.ad={hidden:!slot||slot.hidden,count:all(d,'#sidead .side-ad').length,tag:T(d.querySelector('#sidead .sa-tag')),fine:T(d.querySelector('#sidead .sa-fine')),
+    links:all(d,'#sidead a').map(a=>({href:a.getAttribute('href'),rel:a.getAttribute('rel'),target:a.getAttribute('target'),text:T(a)}))};
+  out.adsTeams=adsNow();
+  if(PF){ out.errors=errs; fs.writeFileSync(process.argv[2]||'/dev/stdout',JSON.stringify(out)); W.close(); return; }
   out.teams={};
   for(const season of all(d,'#tseason button[data-season]').map(b=>b.dataset.season)){
     d.querySelector('#tseason button[data-season="'+season+'"]').click(); await sleep(20);
@@ -67,7 +75,7 @@ setTimeout(async()=>{
     const pages={};
     for(const season of all(d,'#tmseason button[data-season]').map(b=>b.dataset.season)){
       d.querySelector('#tmseason button[data-season="'+season+'"]').click(); await sleep(10);
-      pages[season]={on:d.getElementById('p-team').classList.contains('on'),head:T(d.getElementById('tmhead')),crumb:T(d.getElementById('crumb')),
+      pages[season]={ads:adsNow(),on:d.getElementById('p-team').classList.contains('on'),head:T(d.getElementById('tmhead')),crumb:T(d.getElementById('crumb')),
         tiles:all(d,'#tmmetrics .mtile').map(x=>[T(x.querySelector('dt')),T(x.querySelector('dd'))]),week:T(d.getElementById('tmweek')),
         sched:all(d,'#tmsched tr[data-wk]').map(tr=>({wk:tr.dataset.wk,cells:cells(tr)})),heads:all(d,'#tmsched thead th').map(T),
         bars:all(d,'#tmchart .tmbar').map(g=>+g.dataset.wk),inj:all(d,'#tminj .tminjrow').map(x=>x.dataset.pid),
@@ -80,7 +88,7 @@ setTimeout(async()=>{
   for(const nav of all(d,'.navitem[data-go]').filter(n=>/^\d+$/.test(n.dataset.go))){
     const gi=+nav.dataset.go, g=D.games[gi]; nav.click(); await sleep(15);
     const call=d.getElementById('gcall');
-    out.cards.push({id:g.id,gi,meta:T(d.getElementById('gsub')),metrics:all(d,'#gmetrics .mtile').map(x=>[T(x.querySelector('dt')),T(x.querySelector('dd'))]),
+    out.cards.push({id:g.id,gi,ads:adsNow(),meta:T(d.getElementById('gsub')),metrics:all(d,'#gmetrics .mtile').map(x=>[T(x.querySelector('dt')),T(x.querySelector('dd'))]),
       score:T(d.getElementById('gscore')),live:T(call.querySelector('.pr-live')),conf:T(call.querySelector('.pr-conf')),
       pred:all(call,'.pr-col').map(c=>({lab:T(c.querySelector('.pr-lab')),rows:all(c,'.pr-r').map(r=>[T(r.querySelector('span')),T(r.querySelector('b'))]),
         lean:T(c.querySelector('.pr-d')),wpl:all(c,'.wpl span').map(T)})),
@@ -104,6 +112,7 @@ setTimeout(async()=>{
       market:all(dr,'.mkrow').map(x=>[T(x.querySelector('.mkk')),T(x.querySelector('.mkl')),T(x.querySelector('.mkp'))])});
     const sc=d.getElementById('scrim'); if(sc) sc.click(); await sleep(40); }
   d.querySelector('.navitem[data-go="model"]').click(); await sleep(150);
+  out.adsModel=adsNow();
   out.model={learn:{rows:all(d,'.ltab .lrow').map(r=>({k:T(r.querySelector('.fk')),st:T(r.querySelector('.fv')),v:T(r.querySelector('.lval'))})),rev:T(d.querySelector('.lrev')),dec:all(d,'.ldec').length},since:all(d,'#since .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),sinceText:T(d.getElementById('since')),tiles:all(d,'.mcard:not(#since) .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),
     frows:all(d,'.ftab:not(.ltab) .frow').map(T),wprows:all(d,'.wprow').map(T),text:T(d.getElementById('modelgrid'))};
   out.errors=errs; fs.writeFileSync(process.argv[2]||'/dev/stdout',JSON.stringify(out)); W.close();

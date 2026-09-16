@@ -179,6 +179,7 @@ def stage_audit():
     say('audit clean')
 
 def stage_ids(): run('ids.py','ids')
+def stage_partners(): run('partners.py','partners')
 
 def stage_site():
     """static website for GitHub Pages"""
@@ -216,12 +217,13 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('ledger',  stage_ledger,  'freeze each GridIron call at kickoff; closing lines, results and the since-launch record'),
         ('props',   stage_props,   'DraftKings prop lines'),
         ('ids',     stage_ids,     'ESPN athlete id -> gsis map for live box scores'),
+        ('partners',stage_partners,'partner ad card: validates partners.json; off unless switched on with real links'),
         ('site',    stage_site,    'build site/ for GitHub Pages'),
         ('embed',   stage_embed,   'write the dataset into the claude.ai artifact page (legacy)'),
         ('audit',   stage_audit,   'independent audit -- stops the run on any failure'),
         ('check',   stage_check,   'sanity report')]
-LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','predict','ledger','props','ids','site','audit'],
-       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','learn','backtest','predict','ledger','props','ids','site','audit']}
+LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','predict','ledger','props','ids','partners','site','audit'],
+       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','learn','backtest','predict','ledger','props','ids','partners','site','audit']}
 
 if __name__=='__main__':
     a=sys.argv[1:]

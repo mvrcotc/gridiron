@@ -50,6 +50,7 @@ python3 refresh.py --stage props
 | `ledger` | freezes GridIron's last pre-kickoff call for each game at kickoff, beside the first line it saw, the closing line and the final score -- the since-launch record (`pipeline/ledger.json`, also published with the data so refreshes that do not commit keep it) |
 | `props` | DraftKings lines, de-duplicated, fetch time stamped |
 | `ids` | ESPN athlete id -> gsis_id map the browser uses for live box scores |
+| `partners` | validates `partners.json` and publishes the partner ad card; off unless switched on with real links |
 | `site` | versioned site files |
 | `audit` | independent audit; **any FAIL stops here** |
 
@@ -81,6 +82,32 @@ totals were tested on held-out seasons, did not help, and are not used.
 
 Search filters the games in the sidebar (by team or player) and the teams on the Teams page. On a phone the
 sidebar folds into a menu at the top that names the page you are on.
+
+## Partner ads
+
+One small card labeled **Ad** sits at the foot of the sidebar (inside the menu on phones). It never appears in a
+game's call, its predictions or any table, and nothing pops up or moves the layout. It is off until you switch it on.
+
+To run a partner, edit `partners.json` at the top of the repo:
+
+1. Set `"enabled": true` at the top of the file.
+2. On a partner, set `"enabled": true`, `kind` (`dfs` for fantasy apps, `sportsbook`), and paste the `name`, `headline`,
+   button text (`cta`), `terms` and https tracking `url` exactly as your affiliate program approves them.
+3. Commit; the next refresh publishes it.
+
+The page writes the fine print itself: sportsbooks always show *21+ and present in an eligible state. Gambling problem?
+Call 1-800-GAMBLER*, fantasy apps show an eligibility note, and every card says GridIron may earn a commission. Links
+open in a new tab as `rel="sponsored"`. An entry without an https link, a name or a known kind is skipped, and the
+refresh log says why. With several partners on, one shows per day in rotation.
+
+**Your responsibility, not the code's:** many states require sports betting affiliates to be licensed before promoting a
+sportsbook, and advertising rules differ by state. Use each operator's approved copy verbatim. GitHub Pages hosts this
+site on the understanding that it is not primarily commercial; if the ads ever become the point, move to a host whose
+terms allow commercial sites.
+
+Audits: AD1 (only switched-on, valid partners are published, with the required fine print), AD2 (renders test partners:
+nothing when off, one labeled card otherwise, and unsafe or incomplete entries refused), U16 (no partner link outside
+the sidebar card on any page).
 
 ## Hosting and how fresh it is
 

@@ -1,0 +1,8 @@
+{
+ "about": "Partner links for the one small ad card at the foot of the sidebar. Nothing shows until \"enabled\" is true here AND a partner below is \"enabled\": true with its real https tracking link. Use the exact name, headline and terms your affiliate program approves. kind is \"dfs\" (fantasy apps) or \"sportsbook\". The page adds the fine print itself: sportsbooks always get 21+ and 1-800-GAMBLER, fantasy apps an eligibility note, and every card says GridIron may earn a commission. Only promote a sportsbook where you hold whatever affiliate license that state requires. With several partners switched on, one shows per day, in rotation. Limits: name 40 characters, headline 90, button text 24, terms 160.",
+ "enabled": false,
+ "partners": [
+  {"id": "fantasy-1", "enabled": false, "kind": "dfs", "name": "", "headline": "", "cta": "Play now", "url": "", "terms": ""},
+  {"id": "sportsbook-1", "enabled": false, "kind": "sportsbook", "name": "", "headline": "", "cta": "Visit", "url": "", "terms": ""}
+ ]
+}
