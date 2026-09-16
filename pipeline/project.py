@@ -21,6 +21,7 @@ hits=[(int(BOOK.rows[BOOK.by_espn[g['id']]]['season']),int(BOOK.rows[BOOK.by_esp
 if not hits: sys.exit('slate games not found in the nflverse schedule')
 SEASON,WEEK=Counter(hits).most_common(1)[0][0]
 PANEL=pm.Panel.from_csv([SEASON-1,SEASON])
+TBL=pm.TB.for_season(SEASON)      # player-model tables fitted on last season
 
 def wxmult(g):
     dome=1.0 if (g.get('indoor') or str(g.get('roof') or '').lower() in ('dome','closed')) else 0.0
@@ -87,7 +88,7 @@ for pid,b in sorted(base.items()):
     s0=sim(pid,b['pj']); s1=sim(pid,b['wx']); fin=b['fin']; x=fin
     med0,med1=round(float(np.median(s0['pts'])),1),round(float(np.median(s1['pts'])),1)
     xrec={'tgt':round(x['tgt'],2),'cr':round(x['cr'],3),'ypt':round(x['ypt'],2),'tdpt':round(x['tdpt'],4),'car':round(x['car'],2),
-          'ypc':round(x['ypc'],2),'adj':round(P['opp_scale']*pm.DEF.get(nf(GCTX[b['team']]['opp']),0.0),2),'n':round(x['n'],0)}
+          'ypc':round(x['ypc'],2),'adj':round(P['opp_scale']*TBL['DEF'].get(nf(GCTX[b['team']]['opp']),0.0),2),'n':round(x['n'],0)}
     if (IJ.get(pid) or {}).get('s') in OUT:
         PROJ[pid]={'med':0.0,'flr':0.0,'ceil':0.0,'mean':0.0,'q':[0.0]*16,'x':xrec,'out':IJ[pid]['s'],'med_if':med1}; continue
     s2=sim(pid,fin); sd=s2; qp=QP.get(pid)
@@ -118,9 +119,9 @@ D['injrule']={'out':sorted(OUT),'note':'Players ruled Out, Doubtful or on IR are
   'using rates measured on 2025 absences: receiving disperses across the position group, rushing concentrates on the next back. '
   'Only %d%% of lost targets and %d%% of lost carries are recovered at all — the rest is volume that simply never happens.'%(round(100*P['absorb_tgt']),round(100*P['absorb_car']))}
 D['cal']={'pit':CAL['pit'],'dev':round(CAL.get('dev',0),3),'qs':QS,'k':{'ts':P['k_ts'],'cr':P['k_cr'],'ypt':P['k_ypt']},
-          'script':{'slope':round(pm.SLOPE*P['script_scale'],5),'icept':round(pm.ICEPT,4),'plays':round(pm.PLAYS,1)},
-          'def':{t:round(P['opp_scale']*v,2) for t,v in pm.DEF.items()},
-          'base':{p:{k:round(v,4) for k,v in bb.items()} for p,bb in pm.BASE.items()},'n':CAL.get('n',2301),
+          'script':{'slope':round(TBL['slope']*P['script_scale'],5),'icept':round(TBL['icept'],4),'plays':round(TBL['plays'],1)},
+          'def':{t:round(P['opp_scale']*v,2) for t,v in TBL['DEF'].items()},
+          'base':{p:{k:round(v,4) for k,v in bb.items()} for p,bb in TBL['base'].items()},'tables':TBL['season'],'n':CAL.get('n',2301),
           'history':{'season':SEASON,'week':WEEK,'prev_weight':P['prev_weight'],'version':PV['v']}}
 if QF: D['injrule']['q']=dict(seasons=QF['seasons'],reports=QF['reports'],played=QF['played'],test=QF.get('test'),
     note='Questionable players are projected for the share of games players in the same spot have actually played since %d (%d reports), '

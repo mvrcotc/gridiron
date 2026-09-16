@@ -13,7 +13,8 @@ faces='--no-faces' not in sys.argv; SITE_URL=os.environ.get('GRIDIRON_SITE_URL',
 html=open(os.path.join(APP,'gridiron-v2.html'),encoding='utf-8').read()
 html=re.sub(r'<script id="gi-data" type="application/json">.*?</script>\n?','',html,count=1,flags=re.S)
 assert 'id="gi-data"' not in html and '<script src="app.js"></script>' in html and '<script src="context.js"></script>' in html
-code=hashlib.sha1(open(os.path.join(APP,'app.js'),'rb').read()+open(os.path.join(APP,'context.js'),'rb').read()).hexdigest()[:10]
+code=hashlib.sha1(open(os.path.join(APP,'app.js'),'rb').read()+open(os.path.join(APP,'context.js'),'rb').read()
+                 +open(os.path.join(APP,'gridiron-v2.html'),'rb').read()).hexdigest()[:10]   # the shell's CSS counts too, so a style fix reloads open tabs
 cut=html.index('<div class="shell">'); head,body=html[:cut],html[cut:]
 loader=('<script>\n(function(){\n'
  '  window.GRIDIRON_LIVE=true;\n'

@@ -42,8 +42,19 @@ def _lg_for(s):
     prev=[k for k in full if k<=s]
     return LG[max(prev)] if prev else LG[max(full)]
 PF=json.load(open(os.path.join(D,'ptsfit.json')))
-B0,BY,BT,BO=PF['b0'],PF['byds'],PF['btd'],PF['bto']
-def pts_box(y,td,to): return B0+BY*y+BT*td+BO*to
+# box-score points: pts = b0 + byds*yds + btd*TD + bto*TO, fitted on each season's team games. A season's ratings use the
+# previous season's conversion (the first season on file uses its own), so no rating comes from a fit on later games.
+# ptsfit.json keeps the 2025 fit for the Model page.
+import numpy as _np
+CONV={}
+for _s in YEARS:
+    _rs=[t for t in TW if t['season']==_s and t['pts'] is not None]
+    if len(_rs)<200: continue
+    CONV[_s]=[float(x) for x in _np.linalg.lstsq(_np.array([[1.0,t['yds'],t['td'],t['to']] for t in _rs]),_np.array([t['pts'] for t in _rs]),rcond=None)[0]]
+def conv_for(s):
+    prev=[k for k in CONV if k<s]; return CONV[max(prev)] if prev else CONV[min(CONV)]
+def pts_box(y,td,to,s):
+    b=conv_for(s); return b[0]+b[1]*y+b[2]*td+b[3]*to
 
 class Mul:
     def __init__(s,k,carry,decay=1.0):
@@ -110,7 +121,7 @@ def run(P,ret_state=False,stop=None,until=None):
                     yd =ypp*pl
                     td =yd*L['tdpy']*oT.rate(tm)*dT.rate(op)
                     to =pl*L['topp']*oO.rate(tm)*dO.rate(op)
-                    pB =pts_box(yd,td,to)
+                    pB =pts_box(yd,td,to,s)
                     pE =L['ppg']+(oE.rate(tm)+dE.rate(op))*pl
                     pS =L['ppg']+oS.rate(tm)+dS.rate(op)
                     pr[tm]=dict(yd=yd,td=td,to=to,pl=pl,pB=pB,pE=pE,pS=pS,

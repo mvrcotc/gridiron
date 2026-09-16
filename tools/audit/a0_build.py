@@ -9,7 +9,8 @@ def run(A):
     vj=os.path.join(SITE,'version.json')
     if not os.path.exists(vj):
         A.check('S0','site/ has been built',['run tools/build_site.py (refresh stage "site")']); return
-    V=json.load(open(vj)); code=hashlib.sha1(open(os.path.join(APP,'app.js'),'rb').read()+open(os.path.join(APP,'context.js'),'rb').read()).hexdigest()[:10]
+    V=json.load(open(vj)); code=hashlib.sha1(open(os.path.join(APP,'app.js'),'rb').read()+open(os.path.join(APP,'context.js'),'rb').read()
+                     +open(os.path.join(APP,'gridiron-v2.html'),'rb').read()).hexdigest()[:10]   # the shell's CSS is part of the code a browser holds
     miss=[f for f in ('index.html','.nojekyll',V.get('data'),V.get('app'),V.get('context')) if not f or not os.path.exists(os.path.join(SITE,f))]
     S=json.load(open(os.path.join(SITE,V['data']),encoding='utf-8')) if V.get('data') and os.path.exists(os.path.join(SITE,V['data'])) else {}
     meta=S.get('meta') or {}

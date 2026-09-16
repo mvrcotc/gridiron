@@ -5,14 +5,15 @@ PPR points, and the simulator.
 The formula is vectorised so the weekly review can score every candidate value on thousands of player-weeks at once;
 project.py (the live projections) runs the same function on one player at a time. Fitted tables that are not weights
 -- positional baselines, the depth-of-target touchdown curve, the game-script line and each defence's pass
-adjustment -- still come from fit1.json and fit_opp.json."""
+adjustment -- come from tables.py: each season is projected with the tables fitted on the season before it."""
 import os, sys, csv, json, math, sqlite3
 from collections import defaultdict
 import numpy as np
 HERE=os.path.dirname(os.path.abspath(__file__)); DATA=os.environ.get('GRIDIRON_DATA') or os.path.join(os.path.dirname(HERE),'data')
 CHAMP=os.path.join(HERE,'champion_players.json'); DB=os.path.join(DATA,'history','history.sqlite')
-F=json.load(open(os.path.join(HERE,'fit1.json'))); BASE=F['base']; TDC=F['tdcurve']; SLOPE=F['slope']; ICEPT=F['icept']; PLAYS=F['plays']
-DEF=json.load(open(os.path.join(HERE,'fit_opp.json')))['DEF']
+if HERE not in sys.path: sys.path.insert(0,HERE)
+import tables as TB
+_T=TB.for_season(TB.season_now()); BASE=_T['base']; TDC=_T['tdcurve']; SLOPE=_T['slope']; ICEPT=_T['icept']; PLAYS=_T['plays']; DEF=_T['DEF']   # this season's tables
 TS_PRIOR={'WR':.145,'TE':.115,'RB':.085}
 STATS=('tgt','rec','ry','rtd','ay','car','ru','rutd','att','cmp','py','ptd','pint')
 COLS=dict(tgt='targets',rec='receptions',ry='receiving_yards',rtd='receiving_tds',ay='receiving_air_yards',car='carries',ru='rushing_yards',
@@ -65,21 +66,24 @@ class Panel:
             tgt+=np.array([g[k] for k in STATS]+[t[0],t[1]])
         return cur,prev
 
-def td_per_target(adot): return np.interp(adot,[c[0] for c in TDC],[c[1] for c in TDC])
+def td_per_target(adot,tdc=None):
+    c=tdc or TDC; return np.interp(adot,[x[0] for x in c],[x[1] for x in c])
 
-def project(Acur,Aprev,spread,opp_adj,pos,P):
+def project(Acur,Aprev,spread,opp_adj,pos,P,T=None):
     """Vectorised projection. Acur/Aprev: (n,15) totals (STATS + team attempts, team carries); spread from the team's side
-    (positive = underdog); opp_adj: the opponent's pass-defence adjustment; pos: position group per row."""
+    (positive = underdog); opp_adj: the opponent's pass-defence adjustment; pos: position group per row; T: the season's tables
+    (tables.for_season), this season's when omitted."""
+    T=T or _T
     A=np.asarray(Acur,float)+P['prev_weight']*np.asarray(Aprev,float); a={k:A[:,i] for i,k in enumerate(STATS)}; tatt=A[:,13]; tcar=A[:,14]
     pos=np.asarray(pos); spread=np.asarray(spread,float); opp_adj=np.asarray(opp_adj,float)
-    b=lambda key,fb: np.array([BASE.get(p,{}).get(key,fb) for p in pos],float)
+    b=lambda key,fb: np.array([T['base'].get(p,{}).get(key,fb) for p in pos],float)
     pr_cr,pr_ypt,pr_adot=b('cr',0.65),b('ypt',7.0),b('adot',6.0); tsp=np.array([TS_PRIOR.get(p,.12) for p in pos])
-    prate=ICEPT+SLOPE*P['script_scale']*spread; team_att=PLAYS*prate
+    prate=T['icept']+T['slope']*P['script_scale']*spread; team_att=T['plays']*prate
     ts=np.where(tatt>0,(a['tgt']+P['k_ts']*tsp)/np.maximum(tatt+P['k_ts'],1e-9),tsp); tgt=team_att*ts
     cr=(a['rec']+P['k_cr']*pr_cr)/(a['tgt']+P['k_cr'])
     ypt=np.maximum(2.0,(a['ry']+P['k_ypt']*pr_ypt)/(a['tgt']+P['k_ypt'])+P['opp_scale']*opp_adj)
-    adot=np.where(a['tgt']+P['k_adot']>0,(a['ay']+P['k_adot']*pr_adot)/np.maximum(a['tgt']+P['k_adot'],1e-9),pr_adot); tdpt=td_per_target(adot)
-    cshare=np.where(tcar>0,(a['car']+P['k_cshare']*0.12)/np.maximum(tcar+P['k_cshare'],1e-9),0.0); car=PLAYS*(1-prate)*cshare
+    adot=np.where(a['tgt']+P['k_adot']>0,(a['ay']+P['k_adot']*pr_adot)/np.maximum(a['tgt']+P['k_adot'],1e-9),pr_adot); tdpt=td_per_target(adot,T['tdcurve'])
+    cshare=np.where(tcar>0,(a['car']+P['k_cshare']*0.12)/np.maximum(tcar+P['k_cshare'],1e-9),0.0); car=T['plays']*(1-prate)*cshare
     ypc=(a['ru']+P['k_ypc']*4.3)/(a['car']+P['k_ypc']); rutdpc=(a['rutd']+P['k_rutd']*0.028)/(a['car']+P['k_rutd'])
     qb=a['att']>=20
     pa=np.where(qb,team_att*np.minimum(1.0,a['att']/np.maximum(1.0,tatt)),0.0)
@@ -87,7 +91,7 @@ def project(Acur,Aprev,spread,opp_adj,pos,P):
     ypa=(a['py']+P['k_pass']*7.1)/(a['att']+P['k_pass'])
     py=np.where(qb,pa*ypa,0.0); ptd=np.where(qb,pa*(a['ptd']+P['k_pass']*.045)/(a['att']+P['k_pass']),0.0); pint=np.where(qb,pa*(a['pint']+P['k_pass']*.023)/(a['att']+P['k_pass']),0.0)
     return dict(tgt=tgt,cr=cr,ypt=ypt,tdpt=tdpt,car=car,ypc=ypc,rutdpc=rutdpc,pa=pa,pcr=pcr,py=py,ptd=ptd,pint=pint,n=a['tgt']+a['car']+a['att'],
-                known=(A[:,:13].sum(1)>0)&np.array([p in BASE for p in pos]))
+                known=(A[:,:13].sum(1)>0)&np.array([p in T['base'] for p in pos]))
 def expected_points(pj):
     return pj['tgt']*pj['cr']+0.1*pj['tgt']*pj['ypt']+6*pj['tgt']*pj['tdpt']+0.1*pj['car']*pj['ypc']+6*pj['car']*pj['rutdpc']+0.04*pj['py']+4*pj['ptd']-2*pj['pint']
 def actual_points(g): return g['rec']+0.1*g['ry']+6*g['rtd']+0.1*g['ru']+6*g['rutd']+0.04*g['py']+4*g['ptd']-2*g['pint']
@@ -95,7 +99,7 @@ def actual_points(g): return g['rec']+0.1*g['ry']+6*g['rtd']+0.1*g['ru']+6*g['ru
 def project_one(panel,pid,season,week,spread,opp,pos,P):
     """one player's projection as plain floats, or None when he has no usable history"""
     cur,prev=panel.sums(pid,season,week)
-    pj=project(cur[None,:],prev[None,:],[spread],[DEF.get(opp,0.0)],[pos],P)
+    T=TB.for_season(season); pj=project(cur[None,:],prev[None,:],[spread],[T['DEF'].get(opp,0.0)],[pos],P,T)
     if not pj['known'][0]: return None
     return {k:float(v[0]) for k,v in pj.items() if k!='known'}
 

@@ -46,7 +46,7 @@ class Rows:
                 if g['s']>=first and g['pos'] in pm.BASE and sp is not None and g['tgt']+g['car']+g['att']>=1:
                     cur,prev=run[g['s']].copy(),tot[g['s']-1].copy()
                     if cur[:13].sum()+prev[:13].sum()>0:
-                        rec.append((g['s']*100+g['w'],g['s'],pid,g['pos'],sp,pm.DEF.get(g['opp'],0.0),pm.actual_points(g),g['rec'],g['ry']+g['ru']))
+                        rec.append((g['s']*100+g['w'],g['s'],pid,g['pos'],sp,pm.TB.for_season(g['s'])['DEF'].get(g['opp'],0.0),pm.actual_points(g),g['rec'],g['ry']+g['ru']))
                         CUR.append(cur); PREV.append(prev)
                 run[g['s']]+=v
         order=sorted(range(len(rec)),key=lambda i:(rec[i][0],rec[i][2]))
@@ -57,9 +57,13 @@ class Rows:
     def before(s,w): return int(np.searchsorted(s.wk,w,'left'))
 
 def predict(R,P,i=0,j=None):
-    j=R.n if j is None else j
-    pj=pm.project(R.CUR[i:j],R.PREV[i:j],R.spread[i:j],R.adj[i:j],R.pos[i:j],P)
-    return dict(pts=pm.expected_points(pj),rec=pj['tgt']*pj['cr'],yds=pj['tgt']*pj['ypt']+pj['car']*pj['ypc'])
+    """every season in the slice is projected with the tables fitted on the season before it"""
+    j=R.n if j is None else j; out={k:np.zeros(j-i) for k in ('pts','rec','yds')}
+    for s in np.unique(R.season[i:j]):
+        m=np.where(R.season[i:j]==s)[0]+i
+        pj=pm.project(R.CUR[m],R.PREV[m],R.spread[m],R.adj[m],R.pos[m],P,pm.TB.for_season(int(s)))
+        out['pts'][m-i]=pm.expected_points(pj); out['rec'][m-i]=pj['tgt']*pj['cr']; out['yds'][m-i]=pj['tgt']*pj['ypt']+pj['car']*pj['ypc']
+    return out
 def losses(metric,R,pr,i=0,j=None):
     j=R.n if j is None else j
     return np.abs(pr[metric]-getattr(R,metric)[i:j])

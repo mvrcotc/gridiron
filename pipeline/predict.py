@@ -45,7 +45,7 @@ for g in GI['games']:
     for s,tm,op in (('h',nf(g['h']),nf(g['a'])),('a',nf(g['a']),nf(g['h']))):
         ypp=L['ypp']*ST['oY'].rate(tm)*ST['dY'].rate(op); pl=L['plays']*ST['oP'].rate(tm)*ST['dP'].rate(op)
         yd=ypp*pl; td=yd*L['tdpy']*ST['oT'].rate(tm)*ST['dT'].rate(op); to=pl*L['topp']*ST['oO'].rate(tm)*ST['dO'].rate(op)
-        pB=pts_box(yd,td,to); pE=L['ppg']+(ST['oE'].rate(tm)+ST['dE'].rate(op))*pl; pS=L['ppg']+ST['oS'].rate(tm)+ST['dS'].rate(op)
+        pB=pts_box(yd,td,to,UNTIL[0]); pE=L['ppg']+(ST['oE'].rate(tm)+ST['dE'].rate(op))*pl; pS=L['ppg']+ST['oS'].rate(tm)+ST['dS'].rate(op)
         comp[s]=(pB,pE,pS)
         pyd,men=volume(g[s],pl,(g.get(s+'_pr') or GI['lg']['pr'])/100.0)
         side[s]=dict(p0=round(P['wB']*pB+P['wE']*pE+P['wS']*pS,1),yd=round(yd),td=round(td,2),to=round(to,2),pl=round(pl,1),pB=round(pB,1),pE=round(pE,1),

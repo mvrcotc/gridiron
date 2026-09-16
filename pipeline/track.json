@@ -3,13 +3,13 @@
   "n": 1871,
   "gm": 10.27,
   "vm": 9.83,
-  "gt": 10.61,
+  "gt": 10.59,
   "vt": 10.36,
   "su": 63,
-  "ats": 49.8,
+  "ats": 50.0,
   "atsn": 1828,
-  "atsw": 910,
-  "ou": 51.0,
+  "atsw": 914,
+  "ou": 50.4,
   "oun": 1854
  },
  "by": {
@@ -19,10 +19,10 @@
    "vm": 10.21,
    "gt": 10.91,
    "vt": 10.83,
-   "su": 61,
-   "ats": 48.4,
+   "su": 60,
+   "ats": 49.2,
    "atsn": 246,
-   "atsw": 119,
+   "atsw": 121,
    "ou": 52.9,
    "oun": 255
   },
@@ -30,52 +30,52 @@
    "n": 256,
    "gm": 10.17,
    "vm": 9.83,
-   "gt": 10.61,
+   "gt": 10.59,
    "vt": 10.15,
-   "su": 66,
-   "ats": 49.6,
+   "su": 67,
+   "ats": 51.6,
    "atsn": 256,
-   "atsw": 127,
-   "ou": 52.2,
+   "atsw": 132,
+   "ou": 51.4,
    "oun": 251
   },
   "2021": {
    "n": 272,
-   "gm": 11.01,
+   "gm": 11.02,
    "vm": 10.78,
-   "gt": 11.17,
+   "gt": 11.15,
    "vt": 10.79,
    "su": 62,
    "ats": 55.2,
    "atsn": 268,
    "atsw": 148,
-   "ou": 48.0,
+   "ou": 48.3,
    "oun": 269
   },
   "2022": {
    "n": 271,
    "gm": 9.15,
    "vm": 8.74,
-   "gt": 10.6,
+   "gt": 10.57,
    "vt": 10.39,
    "su": 62,
    "ats": 47.9,
    "atsn": 261,
    "atsw": 125,
-   "ou": 48.5,
+   "ou": 47.8,
    "oun": 268
   },
   "2023": {
    "n": 272,
    "gm": 10.57,
    "vm": 9.9,
-   "gt": 10.5,
+   "gt": 10.46,
    "vt": 10.24,
    "su": 58,
-   "ats": 48.4,
+   "ats": 47.3,
    "atsn": 258,
-   "atsw": 125,
-   "ou": 51.9,
+   "atsw": 122,
+   "ou": 51.1,
    "oun": 270
   },
   "2024": {
@@ -88,12 +88,12 @@
    "ats": 49.6,
    "atsn": 268,
    "atsw": 133,
-   "ou": 53.5,
+   "ou": 52.4,
    "oun": 269
   },
   "2025": {
    "n": 272,
-   "gm": 10.32,
+   "gm": 10.31,
    "vm": 9.72,
    "gt": 10.61,
    "vt": 10.39,
@@ -101,7 +101,7 @@
    "ats": 49.1,
    "atsn": 271,
    "atsw": 133,
-   "ou": 50.0,
+   "ou": 49.3,
    "oun": 272
   }
  },
@@ -109,26 +109,26 @@
   "n": 112,
   "gm": 9.81,
   "vm": 9.67,
-  "gt": 10.38,
+  "gt": 10.35,
   "vt": 10.25,
-  "su": 56,
+  "su": 57,
   "ats": 54.1,
   "atsn": 111,
   "atsw": 60,
-  "ou": 51.8,
+  "ou": 53.6,
   "oun": 112
  },
  "held": {
   "n": 816,
   "gm": 10.27,
   "vm": 9.74,
-  "gt": 10.33,
+  "gt": 10.31,
   "vt": 10.12,
   "su": 63,
-  "ats": 49.1,
+  "ats": 48.7,
   "atsn": 797,
-  "atsw": 391,
-  "ou": 51.8,
+  "atsw": 388,
+  "ou": 50.9,
   "oun": 811
  },
  "ptsfit": {
@@ -154,7 +154,7 @@
    "v": "priced",
    "t": null,
    "n": 2895,
-   "s": "The same conditions barely move game totals, and the market prices them. GridIron adds no conditions adjustment to its totals: hand-set adjustments left held-out error unchanged (10.328 vs 10.329 with none) and adjustments fitted on 2019-22 made it worse (10.393). The learning loop re-tests this every week."
+   "s": "The same conditions barely move game totals, and the market prices them. GridIron adds no conditions adjustment to its totals: hand-set adjustments left held-out error unchanged (10.311 vs 10.313 with none) and adjustments fitted on 2019-22 made it worse (10.372). The learning loop re-tests this every week."
   },
   {
    "k": "Venue home-field edge",
@@ -162,7 +162,7 @@
    "v": "real",
    "t": 4.2,
    "n": 4038,
-   "s": "Real in raw results: a venue measured 4 points friendlier than average predicts about +1.6 points of home margin. But the team ratings already absorb it \u2014 adding per-venue edges on top barely moved held-out 2023-25 margin error (10.271 vs 10.272), far short of earning a weight, so GridIron uses one flat 1.2-point edge, and none at neutral sites. The learning loop re-tests a venue edge every week; it has to earn its weight."
+   "s": "Real in raw results: a venue measured 4 points friendlier than average predicts about +1.6 points of home margin. But the team ratings already absorb it \u2014 adding per-venue edges on top barely moved held-out 2023-25 margin error (10.268 vs 10.269), far short of earning a weight, so GridIron uses one flat 1.2-point edge, and none at neutral sites. The learning loop re-tests a venue edge every week; it has to earn its weight."
   },
   {
    "k": "Referee crew tendency",
@@ -203,13 +203,13 @@
  },
  "note_scope": "Two different questions get asked of every factor here: does it change what happens on the field, and does it beat the price. A factor can be emphatically yes on the first and no on the second.",
  "wpcal": {
-  "err": 3.78,
+  "err": 3.56,
   "bands": [
    {
     "b": 10,
-    "n": 76,
+    "n": 74,
     "p": 16.2,
-    "a": 31.6
+    "a": 32.4
    },
    {
     "b": 20,
@@ -219,44 +219,44 @@
    },
    {
     "b": 30,
-    "n": 243,
-    "p": 35.6,
-    "a": 40.5
+    "n": 240,
+    "p": 35.5,
+    "a": 40.2
    },
    {
     "b": 40,
-    "n": 366,
-    "p": 44.9,
-    "a": 45.6
+    "n": 372,
+    "p": 44.8,
+    "a": 45.2
    },
    {
     "b": 50,
-    "n": 391,
-    "p": 54.7,
-    "a": 49.2
+    "n": 393,
+    "p": 54.8,
+    "a": 49.7
    },
    {
     "b": 60,
-    "n": 293,
+    "n": 290,
     "p": 64.8,
     "a": 68.8
    },
    {
     "b": 70,
     "n": 200,
-    "p": 74.8,
-    "a": 73.5
+    "p": 74.7,
+    "a": 74.0
    },
    {
     "b": 80,
     "n": 119,
     "p": 84.1,
-    "a": 81.5
+    "a": 80.7
    },
    {
     "b": 90,
     "n": 25,
-    "p": 91.5,
+    "p": 91.4,
     "a": 96.0
    }
   ]
@@ -264,14 +264,14 @@
  "qb": {
   "k": 3.9,
   "n": 539,
-  "s": "A backup under centre is worth 3.9 points of margin, fitted on 2019-22. A starter counts as the usual one when he has the most starts so far this season \u2014 all anyone can know at kickoff. On the 245 held-out 2023-25 games that involved a backup, the term cut GridIron\u2019s margin error from 10.23 to 10.16; the learning loop re-tests its size every week. An offseason quarterback change carried no measurable direction in week 1, so GridIron applies nothing for it and simply flags it."
+  "s": "A backup under centre is worth 3.9 points of margin, fitted on 2019-22. A starter counts as the usual one when he has the most starts so far this season \u2014 all anyone can know at kickoff. On the 245 held-out 2023-25 games that involved a backup, the term cut GridIron\u2019s margin error from 10.22 to 10.15; the learning loop re-tests its size every week. An offseason quarterback change carried no measurable direction in week 1, so GridIron applies nothing for it and simply flags it."
  },
  "excluded": {
-  "margin_flat": 10.272,
-  "margin_venue": 10.271,
-  "total_none": 10.329,
-  "total_hand": 10.328,
-  "total_fitted": 10.393
+  "margin_flat": 10.269,
+  "margin_venue": 10.268,
+  "total_none": 10.313,
+  "total_hand": 10.311,
+  "total_fitted": 10.372
  },
  "asof": "Each game is predicted by the weights in force before its week (weights version 1)."
 }

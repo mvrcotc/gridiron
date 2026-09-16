@@ -148,6 +148,14 @@ of 0–1 on 2021–22). Walk-forward, on player-weeks with a target or carry:
 | This season only | 4.85 | 4.60 | 90–91% |
 | This season + last season ×0.1 / ×0.25 | **4.81** / 4.81 | — / 4.61 | **98%** |
 
+**Tables, not weights** (`tables.py`, `pipeline/tables/<season>.json`). Positional baselines, the touchdown-by-depth
+curve, the game-script line and each defence's pass adjustment are fitted on one finished season and used to project the
+next one, refitted automatically when a season ends. Pooling seasons was tested on 2023-25 player-weeks and lost: mean
+miss 4.570 pts with the previous season alone, 4.585 with three seasons, 4.598 with every season since 2016. The old
+single 2025 fit scored 4.548, but only because 2023-24 were projected with tables built from later games; removing that
+look-ahead is what the walk-forward switch costs. The rating engine does the same with its box-score points conversion,
+which moved the published record from 49.1% to **48.7%** against the spread held out (margin error unchanged at 10.27).
+
 The loop re-tests `prev_weight`, three sample-trust groups (volume, efficiency, passing), the opponent pass-defence
 strength and the game-script strength every week (`pipeline/learning/spec_players.json`, registry
 `pipeline/champion_players.json`), on expected PPR points per player-week.
@@ -241,9 +249,10 @@ Fitted once and reused, so a refresh cannot tune the model to flatter the curren
 |---|---|
 | `champion.json` | every pregame weight, versioned: ratings, home edge, backup QB, win-probability calibration, blend, and the zero-weight venue, rest, weather and referee factors. Launched from `hp2.json`, `qbfit.json`, `wpfit.json` (2019–22); changed only by the learning loop |
 | `champion_live.json` | the live model's weights, versioned: possession-value table, margin and total coefficients, uncertainty, tail calibration |
-| `ptsfit.json` | points from a box score (2025, R² 0.81): TD 5.1, 100 yds 2.3, turnover −1.2 |
+| `ptsfit.json` | points from a box score, the 2025 fit shown on the Model page (R² 0.81): TD 5.1, 100 yds 2.3, turnover −1.2. The ratings themselves convert each season's box scores with the conversion fitted on the season before (`engine2.CONV`) |
+| `tables/<season>.json` | player-model tables fitted on that season and used to project the next one: positional baselines, the touchdown-by-depth curve, the game-script line, each defence's pass adjustment (`tables.py`) |
 | `livefit.json` | the live model's held-out report, written by `livewp.py` |
-| `fit1.json`, `fit_k.json`, `fit_opp.json`, `fit_cal.json` | player model: game script, regression constants, pass-defence adjustments, simulator calibration |
+| `fit_k.json`, `fit_cal.json` | player model: regression constants and simulator calibration (`fit1.json` and `fit_opp.json` are the superseded 2025-only fits, kept for reference) |
 | `wxfit.json`, `wxcentre.json` | weather coefficients (sustained wind) and the average conditions they are centred on |
 | `qfit.json` | questionable players: share who played by practice status and role, usage when they did, and the held-out test (`fit_questionable.py --test`) |
 | `absorb.json` | teammates recover 75% of a missing starter's targets and 54% of his carries |
@@ -253,7 +262,7 @@ Fitted once and reused, so a refresh cannot tune the model to flatter the curren
 ## Track record
 
 Held out, 2023–25, 816 games the model never trained on: margin error **10.27** vs the closing line's
-**9.74**; **49.1%** against the spread. All seasons 2019–25: 10.27 vs 9.83, 49.8%. Break-even is 52.4%.
+**9.74**; **48.7%** against the spread. All seasons 2019–25: 10.27 vs 9.83, 50.0%. Break-even is 52.4%.
 Every game is predicted by the weights in force before its week, and a backup quarterback is flagged only from
 starts so far that season -- what the live site can know at kickoff. (The first published record, 10.16 and
 49.7%, flagged backups with season hindsight.) It does not beat the market. Its value is explaining why a line
@@ -268,7 +277,7 @@ games that kicked off before any snapshot are listed as missed rather than fille
 
 - The player model's simulator spread (`vol`, `yshape`) and injury absorption rates are in its registry but not
   yet re-tested by the loop; positional baselines, the touchdown curve, game-script line and defence adjustments
-  (`fit1.json`, `fit_opp.json`) are still 2025 fits.
+  are now fitted per season and used walk-forward (`tables.py`), so nothing is left on a single 2025 fit.
 
 ## Data gotchas
 

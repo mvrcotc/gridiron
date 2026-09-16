@@ -773,7 +773,9 @@ input[type=search]{width:172px}
 #gsec-match .sechd .pills{margin-left:auto}
 .tconf{margin-top:22px}
 .tconfh{margin:0 0 10px;font-size:12px;letter-spacing:.14em;color:var(--fg-3);font-weight:600}
-.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:14px}
+/* a division block only shares a row when it can show every column; otherwise it takes the full width */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,820px),1fr));gap:14px}
+#p-teams{max-width:1760px}
 .tblk{background:var(--card);border:1px solid var(--line-2);border-radius:var(--r-lg);overflow:hidden}
 .tblk h4{margin:0;padding:11px 16px 9px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--fg-3);border-bottom:1px solid var(--line-3)}
 .twrap{overflow-x:auto}

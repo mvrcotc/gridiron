@@ -146,6 +146,7 @@ def stage_stats():    run('stats.py','stats')
 def stage_results():  run('results.py','results')
 def stage_teams():    run('teams.py','teams')
 def stage_injuries(): run('injuries.py','injuries')
+def stage_tables():  run('tables.py','tables')
 def stage_project(): run('project.py','project')
 def stage_learn():   run('learn.py','learn',['review','--update-history'])
 def stage_backtest(): run('backtest.py','backtest')
@@ -207,6 +208,7 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('results', stage_results, 'finished-game stat lines and PPR points'),
         ('teams',   stage_teams,   'standings and season statistics for every team'),
         ('injuries',stage_injuries,'injury report matched by ESPN id'),
+        ('tables',  stage_tables,  'player-model tables fitted on each finished season; a season is projected with the one before it'),
         ('project', stage_project, 'player projections: model inputs -> weather -> injury fallout -> simulate'),
         ('learn',   stage_learn,   'weekly model review: re-test every weight on games it never saw; change only on strong, confirmed evidence'),
         ('backtest',stage_backtest,'track record from the exact live model'),
@@ -218,8 +220,8 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('embed',   stage_embed,   'write the dataset into the claude.ai artifact page (legacy)'),
         ('audit',   stage_audit,   'independent audit -- stops the run on any failure'),
         ('check',   stage_check,   'sanity report')]
-LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','project','predict','ledger','props','ids','site','audit'],
-       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','project','learn','backtest','predict','ledger','props','ids','site','audit']}
+LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','predict','ledger','props','ids','site','audit'],
+       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','learn','backtest','predict','ledger','props','ids','site','audit']}
 
 if __name__=='__main__':
     a=sys.argv[1:]
