@@ -554,12 +554,13 @@ var SLOT=['var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)','var(--s6)
 function VER(gid,f){ var v=(D.verify||{})[gid]; return v?v[f]:null; }
 function vbadge(gid,f){
   var r=VER(gid,f); if(!r) return '';
+  var S=(r.srcs&&r.srcs.length)?r.srcs:(r.s==='single'?['ESPN']:['ESPN','nflverse']);   /* never let a missing source list break the card */
   var tick='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>';
   var bang='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 7v7M12 17.5h.01"/></svg>';
   var dot ='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>';
-  if(r.s==='ok')     return '<span class="vbadge ok" title="Agreed by '+esc(r.srcs.join(' and '))+'">'+tick+'2 sources</span>';
-  if(r.s==='x')      return '<span class="vbadge x" title="'+esc(r.srcs[0])+' says '+esc(r.v)+', '+esc(r.srcs[1])+' says '+esc(r.o)+'. Shown value is '+esc(r.srcs[0])+'\u2019s.">'+bang+'differ</span>';
-  return '<span class="vbadge single" title="Only '+esc(r.srcs[0])+' publishes this">'+dot+'1 source</span>';
+  if(r.s==='ok')     return '<span class="vbadge ok" title="Agreed by '+esc(S.join(' and '))+'">'+tick+'2 sources</span>';
+  if(r.s==='x')      return '<span class="vbadge x" title="'+esc(S[0])+' says '+esc(r.v)+', '+esc(S[1])+' says '+esc(r.o)+'. Shown value is '+esc(S[0])+'\u2019s.">'+bang+'differ</span>';
+  return '<span class="vbadge single" title="Only '+esc(S[0])+' publishes this">'+dot+'1 source</span>';
 }
 
 /* part-to-whole: how one offence divides its targets */

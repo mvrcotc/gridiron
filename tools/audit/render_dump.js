@@ -29,7 +29,7 @@ if(MODE==='site'){
   html=rd('gridiron-v2.html').replace('<script src="context.js"></script>',()=>SHIM+'<script>'+rd('context.js')+'</script>')
     .replace('<script src="app.js"></script>',()=>'<script>'+rd('app.js')+'</script>');
 }
-const errs=[],vc=new VirtualConsole(); vc.on('jsdomError',e=>errs.push(String(e&&e.message||e)));
+const errs=[],vc=new VirtualConsole(); vc.on('jsdomError',e=>{const st=String((e&&e.detail&&e.detail.stack)||'').split('\n').find(l=>/app\.|<anonymous>|:\d+:\d+/.test(l)&&!/jsdom/.test(l)); errs.push(String(e&&e.message||e)+(st?' at '+st.trim():''));});
 const dom=new JSDOM(html,{runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc});
 const W=dom.window,d=W.document,T=el=>el?el.textContent.replace(/\s+/g,' ').trim():null,all=(r,s)=>[...r.querySelectorAll(s)];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));

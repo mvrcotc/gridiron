@@ -66,8 +66,8 @@ for g in D['games']:
                           ('total',g.get('ou'),num(nv['total_line']) if nv['total_line'] else None)):
             if val is None: continue
             x=V.setdefault(k,{}); x['v']=val
-            if oth is None: x['s']='single'; x.pop('o',None)
-            else: x['o']=oth; x['s']='ok' if abs(val-oth)<0.01 else 'x'
+            if oth is None: x['s']='single'; x.pop('o',None); x['srcs']=['ESPN']
+            else: x['o']=oth; x['s']='ok' if abs(val-oth)<0.01 else 'x'; x['srcs']=['ESPN','nflverse']   # the page names the sources in each badge
 if missing: sys.exit('no prior-season team rows for: %s'%missing)
 json.dump(D,open(os.path.join(DATA,'gi2.json'),'w'),separators=(',',':'))
 print('context rebuilt for %d games; new-QB flags: %s'%(len(D['games']),[g[s] for g in D['games'] for s in ('a','h') if g.get(s+'_qbnew')]))

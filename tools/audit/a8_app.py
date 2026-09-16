@@ -364,7 +364,17 @@ def run(A):
     RAWE=os.path.join(ROOT,'data','raw','espn')
     fin=[g for g in D['games'] if g.get('state')=='post' and os.path.exists(os.path.join(RAWE,'f_%s.json'%g['id']))]
     pre=[g for g in D['games'] if g.get('state')=='pre']; make_pre=None
+    boxes={g['id']:os.path.join(RAWE,'f_%s.json'%g['id']) for g in fin}
     if not pre and len(fin)>=3: pre=[fin[2]]; make_pre=fin[2]['id']      # every game has kicked off: stage a finished one as scheduled
+    FXB=os.path.join(os.path.dirname(__file__),'fixtures','espn_final_summary.json')
+    if not fin and len(pre)>=3 and os.path.exists(FXB):
+        # start of a week, nothing finished yet: stage scheduled games as live with a saved real ESPN final (NE@SEA, 2026 week 1),
+        # choosing one that shares a team so that team's box-score players still land on the card's matchup rows
+        tms={t.get('team',{}).get('abbreviation') for t in json.load(open(FXB)).get('boxscore',{}).get('players',[])}
+        share=[g for g in pre if g['a'] in tms or g['h'] in tms]
+        if share:
+            rest=[g for g in pre if g['id']!=share[0]['id']]
+            fin=[share[0],rest[0]]; boxes={share[0]['id']:FXB,rest[0]['id']:FXB}; pre=rest[1:]
     if not fin or not pre or not D.get('espn'):
         A.check('U8','A game in progress shows its live score, clock and box-score lines exactly',
                 ['cannot build the fixture: need a finished game with a saved box score, a scheduled game and the ESPN id map']); return
@@ -392,9 +402,9 @@ def run(A):
         habb=[x['team']['abbreviation'] for x in c['competitors'] if x['homeAway']=='home'][0]
         c['situation']={'possession':[x['team']['id'] for x in c['competitors'] if x['homeAway']=='away'][0],'shortDownDistanceText':'2nd & 7','isRedZone':False,
                         'down':2,'distance':7,'yardLine':35,'possessionText':'%s 35'%habb}
-    box=json.load(open(os.path.join(RAWE,'f_%s.json'%tg['id'])))
+    box=json.load(open(boxes[tg['id']]))
     summ={tg['id']:box}
-    if tg2: summ[tg2['id']]=json.load(open(os.path.join(RAWE,'f_%s.json'%tg2['id'])))
+    if tg2: summ[tg2['id']]=json.load(open(boxes[tg2['id']]))
     fx='/tmp/gi_live_fixture.json'; json.dump({'scoreboard':sb,'summaries':summ},open(fx,'w'))
     out2='/tmp/gi_audit_render_live.json'
     if os.path.exists(out2): os.remove(out2)
