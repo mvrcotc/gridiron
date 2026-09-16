@@ -1323,7 +1323,7 @@ function drawTeamPage(){
   render(document.getElementById('tmweek'),wk);
   var all=tSched(tmseason), games=all.filter(function(x){return x[2]===code||x[3]===code;}).map(function(x){return tGame(code,x);}), byWk={}, maxWk=0;
   games.forEach(function(o){ byWk[o.wk]=o; }); all.forEach(function(x){ maxWk=Math.max(maxWk,x[0]); });
-  var th='<tr><th scope="col">Wk</th><th scope="col">Date</th><th scope="col">Opponent</th><th scope="col">Result</th>'+
+  var th='<tr><th scope="col">Wk</th><th scope="col">Date</th><th scope="col" data-k="opp">Opponent</th><th scope="col">Result</th>'+
     '<th scope="col" title="This team\u2019s closing spread">Close</th><th scope="col" title="Against the closing spread">ATS</th><th scope="col">Total</th><th scope="col">O/U</th>'+
     (cur?'<th scope="col" title="GridIron\u2019s call frozen at kickoff, from this team\u2019s side; a check mark when its side of the closing line was right">GridIron</th>':'')+'</tr>', body='';
   for(var w=1;w<=maxWk;w++){
@@ -1354,9 +1354,9 @@ function drawTeamPage(){
   var pr=top('att',1,100).map(function(id){ var x=D.prod[id].S; return prow(id,'Passing',num(x.cmp)+'/'+num(x.att)+', '+num(x.py)+' yds, '+num(x.ptd)+' TD'); })
     .concat(top('tgt',3,20).map(function(id){ var x=D.prod[id].S; return prow(id,'Receiving',num(x.tgt)+' targets, '+num(x.rec)+' rec, '+num(x.ry)+' yds, '+num(x.rtd)+' TD'); }))
     .concat(top('car',2,40).map(function(id){ var x=D.prod[id].S; return prow(id,'Rushing',num(x.car)+' carries, '+num(x.ru)+' yds, '+num(x.rutd)+' TD'); }));
-  render(document.getElementById('tmplayers'),pr.length?'<div class="tblk"><div class="twrap"><table class="tt tmpl"><thead><tr><th scope="col">Player</th><th scope="col">Role</th>'+
-    '<th scope="col">Season</th><th scope="col" title="Games played">G</th></tr></thead><tbody>'+pr.join('')+'</tbody></table></div></div>':'<div class="nodata">No season production for this roster.</div>');
-  document.getElementById('tmplhint').textContent=(T.current-1)+' regular season, players on the current roster';
+  render(document.getElementById('tmplayers'),pr.length?'<div class="tblk"><div class="twrap"><table class="tt tmpl"><thead><tr><th scope="col">Player</th><th scope="col" data-k="role">Role</th>'+
+    '<th scope="col" data-k="line">'+(T.current-1)+' season</th><th scope="col" title="Games played">G</th></tr></thead><tbody>'+pr.join('')+'</tbody></table></div></div>':'<div class="nodata">No season production for this roster.</div>');
+  document.getElementById('tmplhint').textContent='players on the current roster, and what they did in the '+(T.current-1)+' regular season';
 }
 /* the week-by-week view on the Teams page: every game of one week with its result against the closing line */
 function weeksView(){
@@ -1387,7 +1387,7 @@ function weeksView(){
       '<td data-k="close">'+esc(close)+'</td><td data-k="total">'+(tl==null?'\u2014':fx(tl))+'</td><td data-k="ats">'+esc(ats)+'</td><td data-k="ou">'+esc(ou)+'</td>'+
       (cur?'<td data-k="gi">'+esc(gcell)+'</td>':'')+'</tr>';
   });
-  var th='<tr><th scope="col">Date</th><th scope="col">Game</th><th scope="col">Final</th><th scope="col" title="Closing spread: the favorite and the points it gave">Close</th>'+
+  var th='<tr><th scope="col">Date</th><th scope="col" data-k="game">Game</th><th scope="col">Final</th><th scope="col" title="Closing spread: the favorite and the points it gave">Close</th>'+
     '<th scope="col" title="Closing total">Total</th><th scope="col" title="The team that covered the closing spread">ATS</th><th scope="col">O/U</th>'+
     (cur?'<th scope="col" title="GridIron\u2019s call frozen at kickoff; a check mark when its side of the closing line was right">GridIron</th>':'')+'</tr>';
   var sum=[];
