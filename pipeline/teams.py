@@ -105,6 +105,14 @@ seasons=[CURRENT,CURRENT-1]
 D['teams']=dict(current=CURRENT,seasons=seasons,divisions=[dict(name=d,conf=c,teams=ts.split()) for d,c,ts in DIVS],meta=meta,
                 by={str(s):season_table(s) for s in seasons},games={str(s):schedule(s) for s in seasons},updated=time.strftime('%Y-%m-%dT%H:%MZ',time.gmtime()),
                 note='Teams are ordered by win percentage, then division record, then point differential; the NFL’s official tiebreakers go further.')
+# the slate's week, from the schedule (every game type, so playoff rounds get their names); the page labels itself with this
+ALLG={str(r.get('espn') or '').split('.')[0]:r for r in csv.DictReader(open(os.path.join(DATA,'games_all.csv'),encoding='utf-8')) if r.get('espn')}
+SW=[(int(ALLG[g['id']]['season']),int(ALLG[g['id']]['week']),ALLG[g['id']]['game_type']) for g in D['games'] if g['id'] in ALLG]
+ROUND={'WC':'Wild Card round','DIV':'Divisional round','CON':'Conference championships','SB':'Super Bowl'}
+if SW:
+    s_,w_,t_=Counter(SW).most_common(1)[0][0]
+    D['slate']=dict(season=s_,week=w_,type=t_,label=ROUND.get(t_,'Week %d'%w_))
+else: D['slate']=dict(season=CURRENT,week=None,type=None,label='%d season'%CURRENT)
 json.dump(D,open(os.path.join(DATA,'gi2.json'),'w'),separators=(',',':'))
 for s in seasons:
     b=D['teams']['by'][str(s)]

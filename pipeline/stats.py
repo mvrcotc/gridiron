@@ -4,6 +4,7 @@ import os, json, csv
 from collections import defaultdict
 HERE=os.path.dirname(os.path.abspath(__file__)); DATA=os.environ.get('GRIDIRON_DATA') or os.path.join(os.path.dirname(HERE),'data')
 D=json.load(open(os.path.join(DATA,'gi2.json'))); prev=int(D['games'][0]['date'][:4])-1
+D['prod_season']=prev      # the season the page's "last season" figures come from
 iv=lambda v:int(round(float(v or 0)))
 K={'tgt':'targets','rec':'receptions','ry':'receiving_yards','rtd':'receiving_tds','ay':'receiving_air_yards','att':'attempts',
    'cmp':'completions','py':'passing_yards','ptd':'passing_tds','car':'carries','ru':'rushing_yards','rutd':'rushing_tds'}

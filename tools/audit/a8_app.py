@@ -157,6 +157,12 @@ def run(A):
     js=open(os.path.join(APP,'app.js'),encoding='ascii').read()
     for lit in {'{:,}'.format(T['atsn']),'%.1f%%'%T['ats'],'%.2f'%T['gm'],'%.2f'%T['vm'],'1,828','49.8%','10.28'}:
         for m in re.finditer(re.escape(lit),js): bad.append('app.js hardcodes "%s" near: %s'%(lit,js[max(0,m.start()-50):m.end()+10].replace('\n',' ')))
+    for fn in ('app.js','context.js','gridiron-v2.html'):        # week and last-season labels are data, never typed into the page
+        src=open(os.path.join(APP,fn),encoding='utf-8').read()
+        src=re.sub(r'<script id="gi-data"[\s\S]*?</script>','',src)      # the embedded fallback dataset is data, not page text
+        SS=(D.get('slate') or {}).get('season') or int(D['games'][0]['date'][:4]); YRS='|'.join(str(y) for y in (SS,SS-1))   # only the seasons that roll over; historical years are facts
+        for m in re.finditer(r'(<span>|<h4>|class="bs"[^>]*>)\s*Week \d+|\b(across|in|from the|no|his own) ('+YRS+r')\b(?! *[-\u2013])',src):
+            bad.append('%s hardcodes a week or last-season label near: %s'%(fn,src[max(0,m.start()-40):m.end()+10].replace('\n',' ')))
     if 'stalebar' not in js or 'menubtn' not in js: bad.append('app.js lost the stale-data banner or the phone games menu')
     if 'reloadForNewApp()' not in js or 'routeFromHash()' not in js: bad.append('app.js no longer reloads open tabs when a new version is published, or no longer restores the view from the address')
     A.check('U7','Code regressions: ASCII-only scripts, no duplicate functions, no hardcoded paths or stale track numbers',bad)
@@ -359,6 +365,26 @@ def run(A):
         if a[1]: bad.append('%s shows %d partner link(s) outside the sidebar card'%(name,a[1]))
         if a[0]>1: bad.append('%s shows %d partner links; at most one is allowed'%(name,a[0]))
     A.check('U16','No page carries a partner link outside the one sidebar card, and never more than one',bad,len(pages))
+
+    # ---------------- week labels follow the slate, recomputed from the schedule ----------------
+    bad=[]; SL=D.get('slate') or {}; lab=SL.get('label')
+    GAX={str(r.get('espn') or '').split('.')[0]:r for r in _rows(os.path.join(_DATA,'games_all.csv')) if r.get('espn')}
+    SWX=[(int(GAX[g['id']]['season']),int(GAX[g['id']]['week']),GAX[g['id']]['game_type']) for g in D['games'] if g['id'] in GAX]
+    if SWX:
+        cnt={}
+        for x in SWX: cnt[x]=cnt.get(x,0)+1
+        s_,w_,t_=max(cnt,key=lambda x:cnt[x])
+        want={'WC':'Wild Card round','DIV':'Divisional round','CON':'Conference championships','SB':'Super Bowl'}.get(t_,'Week %d'%w_)
+        if (SL.get('season'),SL.get('week'),lab)!=(s_,w_,want): bad.append('slate block %s, the schedule gives %d week %d (%s)'%(SL,s_,w_,want))
+        if t_=='REG' and D.get('prod_season')!=s_-1: bad.append('last-season figures are labelled %s during the %d regular season'%(D.get('prod_season'),s_))
+    if not lab: bad.append('the data carries no slate label')
+    else:
+        if (R.get('brand') or '')!='%s %s %s'%(lab,chr(0xb7),SL.get('season')): bad.append('header reads %r, slate is %s'%(R.get('brand'),lab))
+        crumbs=[('Teams page',R.get('crumbTeams'))]+[('game '+c['id'],c.get('crumb')) for c in R['cards']]+\
+               [('team %s %s'%(k,s),p.get('crumb')) for k,v in (R.get('teampages') or {}).items() for s,p in v.items()]
+        for name,cr in crumbs:
+            if not (cr or '').startswith(lab): bad.append('%s breadcrumb reads %r, slate is %s'%(name,cr,lab))
+    A.check('U17','The header, every breadcrumb and last-season labels follow the slate\'s actual week, recomputed from the schedule',bad,1+len(R['cards']))
 
     # ---------------- a game in progress, rendered from a fixture built out of real ESPN payloads ----------------
     RAWE=os.path.join(ROOT,'data','raw','espn')

@@ -229,7 +229,7 @@ function contextFactors(g){
       ref:(lgt!=null?lgt.toFixed(1)+' league avg':null),
       d:(diff!=null?(diff>0?'+':'')+diff.toFixed(1)+' pts':null), dsign:(diff||0),
       sev:(diff!=null&&Math.abs(diff)>=4)?1:0,favors:'',
-      note:(diff==null?'No 2025 sample for this crew.'
+      note:(diff==null?'No sample for this crew last season.'
         :'Games under this crew averaged '+rv.toFixed(1)+' points last season against a league average of '+
          lgt.toFixed(1)+' \u2014 '+(diff>0?'+':'')+diff.toFixed(1)+' points, across '+g.ref.gp+' games. '+
          (Math.abs(diff)>=4?'Crews that call more differ measurably on totals; worth a look before betting the over or under.'
@@ -264,7 +264,7 @@ function contextFactors(g){
   ['a','h'].forEach(function(sd){
     if(g[sd+'_qbnew']){
       out.push({grp:'tend',ic:'warn',k:'New quarterback',v:g[sd],sev:1,favors:sd==='a'?'home':'away',
-        note:g[sd]+' open with a different primary passer than the one who threw most of their 2025 attempts. '+
+        note:g[sd]+' open with a different primary passer than the one who threw most of their attempts last season. '+
           'Every target share and efficiency figure here was earned with someone else throwing \u2014 discount them accordingly.'});
     }
   });

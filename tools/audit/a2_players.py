@@ -183,5 +183,5 @@ def run(A):
     A.check('PL10','Week-1 stat lines match nflverse, and PPR points equal its own fantasy_points_ppr',bad,len(D['res']))
     A.check('PL11','nflverse and ESPN box scores agree on every week-1 stat',xs,len(box))
     vc=open(os.path.join(APP,'app.js'),encoding='ascii').read().split('function verdictChip(')[1].split('\nfunction ')[0]
-    A.check('PL12','Finished-game chips say they compare with the 2025 average, not with a GridIron projection',
-            [] if 'ABOVE AVG' in vc and 'BEAT' not in vc and '2025' in vc else ['chip text reads like a grade against a projection that never existed'])
+    A.check('PL12','Finished-game chips say they compare with last season\'s per-game average (named by its season), not with a GridIron projection',
+            [] if 'ABOVE AVG' in vc and 'BEAT' not in vc and 'per-game average across' in vc and 'prodYear()' in vc else ['chip text reads like a grade against a projection that never existed'])

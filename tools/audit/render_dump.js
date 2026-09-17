@@ -42,6 +42,7 @@ setTimeout(async()=>{
   out.ad={hidden:!slot||slot.hidden,count:all(d,'#sidead .side-ad').length,tag:T(d.querySelector('#sidead .sa-tag')),fine:T(d.querySelector('#sidead .sa-fine')),
     links:all(d,'#sidead a').map(a=>({href:a.getAttribute('href'),rel:a.getAttribute('rel'),target:a.getAttribute('target'),text:T(a)}))};
   out.adsTeams=adsNow();
+  out.brand=T(d.getElementById('brandsub')); out.crumbTeams=T(d.getElementById('crumb'));
   if(PF){ out.errors=errs; fs.writeFileSync(process.argv[2]||'/dev/stdout',JSON.stringify(out)); W.close(); return; }
   out.teams={};
   for(const season of all(d,'#tseason button[data-season]').map(b=>b.dataset.season)){
@@ -88,7 +89,7 @@ setTimeout(async()=>{
   for(const nav of all(d,'.navitem[data-go]').filter(n=>/^\d+$/.test(n.dataset.go))){
     const gi=+nav.dataset.go, g=D.games[gi]; nav.click(); await sleep(15);
     const call=d.getElementById('gcall');
-    out.cards.push({id:g.id,gi,ads:adsNow(),meta:T(d.getElementById('gsub')),metrics:all(d,'#gmetrics .mtile').map(x=>[T(x.querySelector('dt')),T(x.querySelector('dd'))]),
+    out.cards.push({id:g.id,gi,ads:adsNow(),crumb:T(d.getElementById('crumb')),meta:T(d.getElementById('gsub')),metrics:all(d,'#gmetrics .mtile').map(x=>[T(x.querySelector('dt')),T(x.querySelector('dd'))]),
       score:T(d.getElementById('gscore')),live:T(call.querySelector('.pr-live')),conf:T(call.querySelector('.pr-conf')),
       pred:all(call,'.pr-col').map(c=>({lab:T(c.querySelector('.pr-lab')),rows:all(c,'.pr-r').map(r=>[T(r.querySelector('span')),T(r.querySelector('b'))]),
         lean:T(c.querySelector('.pr-d')),wpl:all(c,'.wpl span').map(T)})),

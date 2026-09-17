@@ -50,7 +50,7 @@ function verdictChip(e){
   if(!e||!e.v) return '';
   var t=e.v==='beat'?'ABOVE AVG':e.v==='miss'?'BELOW AVG':'NEAR AVG';
   return '<span class="vd '+esc(e.v)+'" title="'+num(e.pts).toFixed(1)+
-    ' PPR points against a '+num(e.exp).toFixed(1)+' per-game average across 2025">'+t+'</span>';
+    ' PPR points against a '+num(e.exp).toFixed(1)+' per-game average across '+prodYear()+'">'+t+'</span>';
 }
 function outFor(ret){
   if(!ret) return null;
@@ -290,7 +290,7 @@ function shareInline(id){
   var ts=num(pr.S.ts); if(ts<=0) return '';
   var w=Math.min(100, ts/32*100);          /* 32% is about the league ceiling */
   return '<span class="tshare" title="'+esc(PL(id).n)+' took '+ts.toFixed(1)+
-    '% of his offence\u2019s targets in 2025">'+
+    '% of his offence\u2019s targets in '+prodYear()+'">'+
     '<span class="tsb"><i style="width:'+w.toFixed(0)+'%"></i></span>'+
     '<span class="tsv">'+ts.toFixed(0)+'%</span></span>';
 }
@@ -582,7 +582,7 @@ function shareChart(team, label){
     var c = r.id? SLOT[i%6] : 'var(--line)';
     var wide = r.ts>=9;
     segs+='<div class="shareseg" style="flex:'+r.ts.toFixed(2)+';background:'+c+'" '+
-      'title="'+esc(r.n)+' \u2014 '+r.ts.toFixed(1)+'% of targets in 2025">'+
+      'title="'+esc(r.n)+' \u2014 '+r.ts.toFixed(1)+'% of targets in '+prodYear()+'">'+
       (wide?'<span>'+r.ts.toFixed(0)+'%</span>':'')+'</div>';
     key+='<div><i style="background:'+c+'"></i>'+esc(r.n.split(' ').slice(-1)[0])+
       ' <b>'+r.ts.toFixed(1)+'%</b></div>';
@@ -651,7 +651,7 @@ function trendChart(vals,label,unit){
 function drawViz(gidx){
   var g=D.games[gidx];
   var h=rangeChart(gidx);
-  render(document.getElementById('vizrow'), h||'<div class="nodata">Not enough 2025 history to chart this game.</div>');
+  render(document.getElementById('vizrow'), h||'<div class="nodata">Not enough '+prodYear()+' history to chart this game.</div>');
 }
 
 /* ============================ compare tray ============================ */
@@ -828,7 +828,7 @@ function token(o){
      'stroke-linejoin:round">'+esc(o.name)+'</text>';
   g+='<text x="'+o.x+'" y="'+(o.y+r+33)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" '+
      'fill="#D4D4D8" pointer-events="none" style="paint-order:stroke;stroke:#040A07;stroke-width:3.5px;stroke-linejoin:round">'+
-     (o.snap!=null?Math.round(o.snap)+'% snaps':'no 2025 snaps')+'</text>';
+     (o.snap!=null?Math.round(o.snap)+'% snaps':'no '+prodYear()+' snaps')+'</text>';
   g+='<circle class="hit" cx="'+o.x+'" cy="'+o.y+'" r="'+(r+14)+'"/></g></g>';
   return g;
 }
@@ -1401,13 +1401,23 @@ function weeksView(){
       (cur?' GridIron\u2019s column shows only calls frozen at kickoff since launch.':'')};
 }
 
+/* labels that change with the slate: the week (or playoff round) and the season last season's figures come from */
+function slateLabel(){ var s=D.slate||{}; return s.label||('Week '+(((D.cal||{}).history||{}).week||'')); }
+function prodYear(){ return D.prod_season||(((D.slate||{}).season||new Date().getFullYear())-1); }
+function tablesYear(){ return (D.cal&&D.cal.tables)||prodYear(); }
+function drawSlateLabels(){ var el=document.getElementById('brandsub'); if(el) el.textContent=slateLabel()+' \u00b7 '+((D.slate||{}).season||''); }
+function earlySampleRow(){
+  var s=(D.slate||{}).season, t=(((D.teams||{}).by||{})[String(s)]||{}).through||0, pw=((D.cal||{}).history||{}).prev_weight;
+  return '<div><span class="kk">Early-season samples<small>'+(t?s+' is through week '+t:'no '+s+' games yet')+
+    '; '+(s-1)+' games still count'+(pw==null?'':' at \u00d7'+pw)+'</small></span><span class="kv2">\u2014</span></div>';
+}
 function crumbFor(){
   var el=document.getElementById('crumb');
-  if(route==='teams') return render(el,'<span>Week 1</span><span class="cs">/</span><b>Teams</b>');
-  if(route==='model') return render(el,'<span>Week 1</span><span class="cs">/</span><b>Model</b>');
-  if(String(route).indexOf('team:')===0) return render(el,'<span>Week 1</span><span class="cs">/</span><span>Teams</span><span class="cs">/</span><b>'+esc((((TD()||{}).meta||{})[tcode]||{}).name||tcode)+'</b>');
+  if(route==='teams') return render(el,'<span>'+esc(slateLabel())+'</span><span class="cs">/</span><b>Teams</b>');
+  if(route==='model') return render(el,'<span>'+esc(slateLabel())+'</span><span class="cs">/</span><b>Model</b>');
+  if(String(route).indexOf('team:')===0) return render(el,'<span>'+esc(slateLabel())+'</span><span class="cs">/</span><span>Teams</span><span class="cs">/</span><b>'+esc((((TD()||{}).meta||{})[tcode]||{}).name||tcode)+'</b>');
   var g=D.games[gi];
-  render(el,'<span>Week 1</span><span class="cs">/</span><span>'+esc(g.a)+' at '+esc(g.h)+'</span>'+
+  render(el,'<span>'+esc(slateLabel())+'</span><span class="cs">/</span><span>'+esc(g.a)+' at '+esc(g.h)+'</span>'+
     '<span class="cs">/</span><b>'+esc(g.state==='post'?'Final':g.state==='in'?'Live':'Preview')+'</b>');
 }
 function go(target){
@@ -1553,11 +1563,11 @@ function openPlayer(id,color,team){
   if(rs){
     var vv=rs.v?('<span class="vd '+esc(rs.v)+'" style="font-size:10px">'+
       (rs.v==='beat'?'BEAT PROJECTION':rs.v==='miss'?'UNDER PROJECTION':'MET PROJECTION')+'</span>'):'';
-    h+='<div class="grp"><h4>Week 1 result</h4><div class="resbox">'+
+    h+='<div class="grp"><h4>'+esc(slateLabel())+' result</h4><div class="resbox">'+
       '<div class="big"><span class="pts">'+num(rs.pts).toFixed(1)+'</span>'+
       '<span class="exp">PPR pts \u00B7 expected '+(rs.exp!=null?num(rs.exp).toFixed(1):'\u2014')+'</span>'+vv+'</div>'+
       '<div class="sl">'+esc(statLine(rs)||'Did not record a statistic')+'</div></div>'+
-      '<div class="nodata">Expected is his own 2025 per-game average, not a projection service. '+
+      '<div class="nodata">Expected is his own '+prodYear()+' per-game average, not a projection service. '+
       'Single-game output is right-skewed, so the median week lands below a season mean \u2014 '+
       'read UNDER as \u201cbelow his own average\u201d, not \u201cbad\u201d.</div></div>';
   }
@@ -1621,10 +1631,10 @@ function openPlayer(id,color,team){
       kv('Edge',(m.edge==null?'\u2014':(m.edge>0?'+':'')+m.edge.toFixed(0)))+
       kv('Implied team total',m.implied==null?'\u2014':m.implied.toFixed(1))+'</div>';
   }
-  if(!u&&!pr&&!cv) h+='<div class="grp"><h4>2025</h4><div class="nodata">No box-score or snap sample. '+
+  if(!u&&!pr&&!cv) h+='<div class="grp"><h4>'+prodYear()+'</h4><div class="nodata">No box-score or snap sample. '+
     'Expected for linemen and for rookies who did not play last season.</div></div>';
   h+='<div class="src">Keyed by gsis_id; usage, production, coverage and injuries all joined by id, never by name. '+
-    'Season and last-3 figures from the 2025 weekly files. Depth chart '+esc(String(D.dt).slice(0,10))+'.</div></div>';
+    'Season and last-3 figures from the '+prodYear()+' weekly files. Depth chart '+esc(String(D.dt).slice(0,10))+'.</div></div>';
   var d=document.getElementById('drawer');
   render(d,h); d.classList.add('on');
   document.getElementById('scrim').classList.add('on');
@@ -1890,7 +1900,7 @@ function drawModel(){
 
   /* game script */
   h+='<div class="mcard"><h3>Game <em>script</em></h3>'+
-    '<p class="sub3">Fitted on all 272 games of 2025: how a team\u2019s pass rate moves with the spread. '+
+    '<p class="sub3">Fitted on the '+tablesYear()+' regular season: how a team\u2019s pass rate moves with the spread. '+
     'The effect is real but modest \u2014 worth including, not worth leaning on.</p><div class="ktab">'+
     '<div><span class="kk">Pass rate at a pick-em</span><span class="kv2">'+(num(C.script.icept)*100).toFixed(1)+'%</span></div>'+
     '<div><span class="kk">Per point of underdog</span><span class="kv2">+'+(num(C.script.slope)*100).toFixed(2)+' pts</span></div>'+
@@ -1918,7 +1928,7 @@ function drawModel(){
 
   /* baselines */
   h+='<div class="mcard"><h3>Positional <em>baselines</em></h3>'+
-    '<p class="sub3">The 2025 league averages every player is regressed toward, and the depth-of-target curve '+
+    '<p class="sub3">The '+tablesYear()+' league averages every player is regressed toward, and the depth-of-target curve '+
     'that sets touchdown rate.</p><div class="ktab">';
   ['WR','TE','RB'].forEach(function(k){
     var b=C.base[k]; if(!b) return;
@@ -1974,7 +1984,7 @@ function drawModel(){
     '<div><span class="kk">Routes run<small>the best volume denominator is not free data</small></span><span class="kv2">\u2014</span></div>'+
     '<div><span class="kk">Red-zone opportunity<small>TD rate uses depth of target as a proxy</small></span><span class="kv2">\u2014</span></div>'+
     '<div><span class="kk">Shadow coverage<small>never published; matchups are alignment-inferred</small></span><span class="kv2">\u2014</span></div>'+
-    '<div><span class="kk">This season\u2019s form<small>2026 has barely started; priors are 2025</small></span><span class="kv2">\u2014</span></div>'+
+    earlySampleRow()+
     '<div><span class="kk">Injury severity<small>status is known, snap impact is not modelled</small></span><span class="kv2">\u2014</span></div>'+
     '</div></div>';
   var grid=document.getElementById('modelgrid');
@@ -2289,7 +2299,7 @@ function applyData(nd){
   D=nd; SP=D.sprite||null; if(LIVE.sb) applyScoreboard(LIVE.sb); MATCHUPS=buildMatchups();
   var ni=D.games.findIndex(function(g){return g.id===gid;}); gi=ni<0?0:ni;
   if(typeof setLeague==='function') setLeague(D.lg||null);
-  buildSidebar(); drawPartner();
+  buildSidebar(); drawPartner(); drawSlateLabels();
   go(typeof route==='number'?gi:route);
   if(sc) sc.scrollTop=top;
   if(open&&D.players[open[0]]) openPlayer(open[0],open[1],open[2]);
@@ -2322,7 +2332,7 @@ function pollVersion(){
   }).catch(function(){}).then(stampFresh);
 }
 if(typeof setLeague==='function') setLeague(D.lg||null);
-buildSidebar(); drawPartner(); go(routeFromHash());
+buildSidebar(); drawPartner(); drawSlateLabels(); go(routeFromHash());
 stampFresh();
 if(LIVE.on){
   pollScores();
