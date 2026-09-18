@@ -86,6 +86,18 @@ def run(A):
             bad.append('band %d%%: shown n=%d %.1f/%.1f, recompute n=%d'%(b['b'],b['n'],b['p'],b['a'],len(v)))
     A.check('T2','Win-probability calibration bands and error recompute',bad,len(T['wpcal']['bands']))
 
+    bad=[]; B=T.get('blend') or {}
+    HBX=[x for x in G if x['s']>=2023 and x['vt'] is not None]
+    if not B: bad.append('track has no blend block')
+    elif not HBX: bad.append('no held-out games with a closing total to measure the blend on')
+    else:
+        blx=lambda w: statistics.mean((abs(w*x['m']+(1-w)*x['vs']-x['am'])+abs(w*x['t']+(1-w)*x['vt']-x['at']))/2 for x in HBX)
+        w=num(B.get('w'))/100.0
+        for k,v in (('n',len(HBX)),('err',blx(w)),('market',blx(0.0)),('gi',blx(1.0))):
+            if abs(num(B.get(k))-v)>(0 if k=='n' else 0.006): bad.append('blend %s shown %s, recompute %.3f'%(k,B.get(k),v))
+        if num(B.get('err'))<num(B.get('market'))-0.005: bad.append('the blend is presented as no better than the line, but it measures better (%.2f vs %.2f)'%(num(B.get('err')),num(B.get('market'))))
+    A.check('T4','What the Vegas blend is worth recomputes, and the page never claims it beats the closing line',bad,len(HBX))
+
     js=open(os.path.join(APP,'app.js'),encoding='ascii').read()
     A.check('T3','Model page headline figures come from held-out 2023-25, not the years the calibration and QB term were fitted on',
             [] if 'T.held||T.all' in js and T.get('held') else ['headline tiles read the all-seasons block, which includes the 2019-22 fitting years'])

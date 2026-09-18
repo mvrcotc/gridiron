@@ -199,7 +199,11 @@
  ],
  "blend": {
   "w": 15,
-  "note": "GridIron gets 15% of the blended line; the learning loop re-tests that share every week against the closing line alone."
+  "n": 816,
+  "err": 9.95,
+  "market": 9.93,
+  "gi": 10.29,
+  "note": "GridIron gets 15% of the blended line. On 816 held-out games the blend misses the margin and total by 9.95 points on average, against 9.93 for the closing line alone and 10.29 for GridIron alone: blending does not beat the line. The learning loop re-tests the share every week."
  },
  "note_scope": "Two different questions get asked of every factor here: does it change what happens on the field, and does it beat the price. A factor can be emphatically yes on the first and no on the second.",
  "wpcal": {

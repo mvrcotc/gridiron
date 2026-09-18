@@ -38,8 +38,14 @@ T['qb']=dict(k=K,n=sum(1 for x in X if x['qb']),s=('A backup under centre is wor
   'this season — all anyone can know at kickoff. On the %d held-out 2023-25 games that involved a backup, the term %s GridIron’s margin error from %.2f to %.2f; '
   'the learning loop re-tests its size every week. An offseason quarterback change carried no measurable direction in week 1, so GridIron applies nothing for it '
   'and simply flags it.')%(K,src,len(bk),'cut' if e1<e0 else 'raised',e0,e1))
-T['blend']=dict(T.get('blend') or {},w=round(100*CUR['blend']))
-T['blend']['note']='GridIron gets %d%% of the blended line; the learning loop re-tests that share every week against the closing line alone.'%round(100*CUR['blend'])
+# what the blend is actually worth: the loop's own metric (margin and total error averaged) at the current share,
+# at the closing line alone, and at GridIron alone -- measured on the held-out seasons
+HB=[x for x in HO if x['vt'] is not None]; BW=CUR['blend']
+bl=lambda w: statistics.mean((abs(w*x['m']+(1-w)*x['vs']-x['am'])+abs(w*x['t']+(1-w)*x['vt']-x['at']))/2 for x in HB)
+T['blend']=dict(w=round(100*BW),n=len(HB),err=round(bl(BW),2),market=round(bl(0.0),2),gi=round(bl(1.0),2))
+T['blend']['note']=('GridIron gets %d%% of the blended line. On %d held-out games the blend misses the margin and total by %.2f points '
+                    'on average, against %.2f for the closing line alone and %.2f for GridIron alone: blending does not beat the line. '
+                    'The learning loop re-tests the share every week.')%(T['blend']['w'],len(HB),T['blend']['err'],T['blend']['market'],T['blend']['gi'])
 T['asof']='Each game is predicted by the weights in force before its week (weights version %s).'%('1' if C['current']==1 else '1 to %d'%C['current'])
 # ---- ingredients the launch model left out, measured on held-out seasons ----
 REL={'STL':'LA','SD':'LAC','OAK':'LV'}; H=defaultdict(list); R=defaultdict(list); ah=[]; ar=[]

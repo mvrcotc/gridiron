@@ -315,11 +315,18 @@ function leanTot(p){
   if(Math.abs(d)<0.25) return 'agrees with the market';
   return fx(Math.abs(d))+' pts toward the '+(d>0?'over':'under');
 }
+/* the blended line is a mix, not an improvement: say so wherever it appears */
+function blendTip(){
+  var b=((D.track||{}).blend)||{};
+  if(b.err==null||b.market==null) return 'A mix of GridIron\u2019s number and the closing line.';
+  return b.w+'% GridIron, '+(100-b.w)+'% the closing line \u2014 no more accurate than the line alone ('+
+    num(b.err).toFixed(2)+' vs '+num(b.market).toFixed(2)+' points of error on '+num(b.n)+' games the model never saw).';
+}
 function predRows(g,p,k){
   var a=k==='sp', gi=a?p.sp:p.tot, bl=a?p.bsp:p.btot, ve=a?g.spread:g.ou;
   function cell(v){ return a?spLab(g,v):(v==null?'\u2014':fx(v)); }
   return '<div class="pr-r gi"><span>GridIron</span><b>'+cell(gi)+'</b></div>'+
-         '<div class="pr-r"><span>Blended</span><b>'+cell(bl)+'</b></div>'+
+         '<div class="pr-r" title="'+esc(blendTip())+'"><span>Blended</span><b>'+cell(bl)+'</b></div>'+
          '<div class="pr-r"><span>Vegas</span><b>'+cell(ve)+'</b></div>';
 }
 function volLine(g,side,tc){
@@ -432,7 +439,7 @@ function predBlock(g){
       '<div class="wf tot"><span class="wk">Projected score</span><span class="wd">'+grade(g,p)+'</span>'+
       '<span class="wv">'+esc(g.a)+' '+num(p.pa).toFixed(1)+' \u00b7 '+esc(g.h)+' '+num(p.ph).toFixed(1)+'</span></div></div>'+
     ledgerNote(g)+
-    '<div class="pr-foot">'+esc((p.notes||[]).join(' \u00b7 '))+((p.notes||[]).length?'. ':'')+
+    '<div class="pr-foot">'+esc(blendTip())+' '+esc((p.notes||[]).join(' \u00b7 '))+((p.notes||[]).length?'. ':'')+
       'On '+num(HO.atsn).toLocaleString()+' games from 2023\u201325 that the model never trained on, GridIron picked <b>'+
       num(HO.ats).toFixed(1)+'%</b> against the spread \u2014 short of the 52.4% needed to profit. '+
       'Read a disagreement as a reason to look closer, not as an edge.</div>'+
@@ -1407,7 +1414,9 @@ function prodYear(){ return D.prod_season||(((D.slate||{}).season||new Date().ge
 function tablesYear(){ return (D.cal&&D.cal.tables)||prodYear(); }
 function drawSlateLabels(){ var el=document.getElementById('brandsub'); if(el) el.textContent=slateLabel()+' \u00b7 '+((D.slate||{}).season||''); }
 function earlySampleRow(){
-  var s=(D.slate||{}).season, t=(((D.teams||{}).by||{})[String(s)]||{}).through||0, pw=((D.cal||{}).history||{}).prev_weight;
+  var s=(D.slate||{}).season||((D.cal||{}).history||{}).season||(D.teams||{}).current;
+  if(!s) return '<div><span class="kk">Early-season samples<small>a young season is a small sample; last season still counts</small></span><span class="kv2">\u2014</span></div>';
+  var t=(((D.teams||{}).by||{})[String(s)]||{}).through||0, pw=((D.cal||{}).history||{}).prev_weight;
   return '<div><span class="kk">Early-season samples<small>'+(t?s+' is through week '+t:'no '+s+' games yet')+
     '; '+(s-1)+' games still count'+(pw==null?'':' at \u00d7'+pw)+'</small></span><span class="kv2">\u2014</span></div>';
 }
@@ -1863,7 +1872,9 @@ function trackCard(){
     num(F.yds*100).toFixed(1)+', and a turnover costs '+num(Math.abs(F.to)).toFixed(1)+'. That conversion '+
     'explains '+Math.round(num(F.r2)*100)+'% of team scoring, so even a perfect box-score forecast would '+
     'still miss by about '+num(F.rmse).toFixed(1)+' points a side. GridIron gets '+
-    num(T.blend.w)+'% of the blended line; the learning loop re-tests that share every week.</div></div>';
+    num(T.blend.w)+'% of the blended line. On '+num(T.blend.n)+' games the model never saw, that blend misses the margin '+
+    'and total by '+num(T.blend.err).toFixed(2)+' points on average, against '+num(T.blend.market).toFixed(2)+' for the closing '+
+    'line alone: blending does not beat the line, and the loop re-tests the share every week.</div></div>';
   return h;
 }
 
