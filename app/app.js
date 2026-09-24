@@ -860,10 +860,12 @@ function buildField(){
    '<linearGradient id="tkD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+shade(defC,1.5)+'"/>'+
    '<stop offset="50%" stop-color="'+col(defC)+'"/><stop offset="100%" stop-color="'+shade(defC,.56)+'"/></linearGradient></defs>'+
    '<rect width="'+VW+'" height="'+VH+'" fill="#061009"/>'+turf();
+  /* each end zone carries the name of the team that defends it: the offence starts on the left and
+     drives right, so the end zone it is attacking is the defence's */
   s+='<text x="'+(FX+FW*5/120)+'" y="'+CY+'" transform="rotate(-90 '+(FX+FW*5/120)+' '+CY+')" text-anchor="middle" '+
-     'font-family="Archivo,sans-serif" font-weight="800" font-size="40" letter-spacing="10" fill="#FFF" fill-opacity=".32">'+esc(defT)+'</text>'+
+     'font-family="Archivo,sans-serif" font-weight="800" font-size="40" letter-spacing="10" fill="#FFF" fill-opacity=".32">'+esc(offT)+'</text>'+
      '<text x="'+(GR+FW*5/120)+'" y="'+CY+'" transform="rotate(90 '+(GR+FW*5/120)+' '+CY+')" text-anchor="middle" '+
-     'font-family="Archivo,sans-serif" font-weight="800" font-size="40" letter-spacing="10" fill="#FFF" fill-opacity=".32">'+esc(offT)+'</text>';
+     'font-family="Archivo,sans-serif" font-weight="800" font-size="40" letter-spacing="10" fill="#FFF" fill-opacity=".32">'+esc(defT)+'</text>';
   var yd=(GR-GL)/100;
   s+='<line x1="'+LOS+'" y1="'+FY+'" x2="'+LOS+'" y2="'+(FY+FH)+'" stroke="#60A5FA" stroke-width="4" opacity=".95"/>'+
      '<line x1="'+(LOS+10*yd)+'" y1="'+FY+'" x2="'+(LOS+10*yd)+'" y2="'+(FY+FH)+'" stroke="#FBBF24" stroke-width="4" opacity=".95"/>';
