@@ -11,7 +11,7 @@ to apply twice to the same projections. Nothing here is hand-tuned per week:
 the fitted constants in pipeline/*.json were fitted once on historical seasons and are
 reused, so a refresh cannot quietly re-tune the model to flatter the current slate.
 """
-import os,sys,json,subprocess,time,urllib.request,datetime,shutil,re,glob
+import os,sys,json,subprocess,time,urllib.request,datetime,shutil,re,glob,unicodedata
 LANE=None
 
 ROOT=os.path.dirname(os.path.abspath(__file__))
@@ -97,7 +97,17 @@ def stage_weather():
     already played. A kickoff hour outside the forecast window is reported, never silently replaced by another hour."""
     src=open(os.path.join(APP,'context.js'),encoding='utf-8').read()
     STAD={m.group(1):(float(m.group(2)),float(m.group(3))) for m in re.finditer(r"([A-Z]{2,3}):\{v:'[^']*',la:(-?[\d.]+),lo:(-?[\d.]+)",src)}
-    NEU={m.group(1):(float(m.group(2)),float(m.group(3))) for m in re.finditer(r"'([^']+)':\{la:(-?[\d.]+),lo:(-?[\d.]+)",src)}
+    # A neutral venue is indexed under its own name and every alias in al[], folded the same way
+    # context.js folds them, so a sponsor rename or an accent in ESPN's name still finds the ground.
+    # context.js is ASCII, so its \uXXXX escapes are decoded before folding.
+    unesc=lambda s: re.sub(r'\\u([0-9a-fA-F]{4})',lambda m:chr(int(m.group(1),16)),s)
+    vkey=lambda s: re.sub(r'[^a-z0-9]+',' ',
+        unicodedata.normalize('NFKD',s or '').encode('ascii','ignore').decode().lower()).strip()
+    NEU={}
+    for m in re.finditer(r"'([^']+)':\{la:(-?[\d.]+),lo:(-?[\d.]+)([^}]*)\}",src):
+        site=(float(m.group(2)),float(m.group(3))); al=re.search(r"al:\[(.*?)\]",m.group(4),re.S)
+        for n in [m.group(1)]+(re.findall(r"'([^']*)'",al.group(1)) if al else []):
+            NEU[vkey(unesc(n))]=site
     def wmo(c):
         try: c=int(float(c or 0))
         except (TypeError,ValueError): return 'cloud','Cloudy'
@@ -109,7 +119,7 @@ def stage_weather():
     D=json.load(open(GI)); n=rec=0; missing=[]
     for g in D['games']:
         name='%s@%s'%(g['a'],g['h'])
-        site=NEU.get(g.get('venue')) if g.get('neutral') else STAD.get(g['h'])
+        site=NEU.get(vkey(g.get('venue'))) if g.get('neutral') else STAD.get(g['h'])
         if not site: missing.append('%s: no coordinates for %s'%(name,g.get('venue'))); continue
         kick=datetime.datetime.fromisoformat(g['date'].replace('Z','+00:00'))
         u=('https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&hourly=wind_speed_10m,wind_gusts_10m,temperature_2m,precipitation,weather_code'

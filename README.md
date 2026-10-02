@@ -320,3 +320,11 @@ games that kicked off before any snapshot are listed as missed rather than fille
 - DraftKings props via ESPN's core API carry current and opening lines, no prices.
 - GitHub Pages caches for up to 10 minutes and ignores query strings: version file names, never `?v=`.
 - `app/app.js` must stay pure ASCII. Write typographic characters as `\uXXXX` escapes and check with the audit.
+- A neutral-site game needs its ground in `NEUTRAL_VENUES` (`app/context.js`), under the name **ESPN** sends it
+  or one of its `al` aliases -- ESPN and nflverse disagree (`FC Bayern Munich Stadium` vs `Allianz Arena`), and
+  sponsors rename grounds mid-season (`Estadio Banorte`). A miss leaves the game with no wind reading, and the
+  page silently falls back to the home team's own stadium, so a London game reads 200 ft and a 500-mile trip.
+- An audit check that reads "the slate's week" must take it from `slate_week()`; a hardcoded week number goes on
+  passing until some later week has a finished game, then compares one week's results against another's.
+- ESPN omits `address.state` outside the US. Store what it sends rather than `''`, or the audit's rebuild of the
+  same field will not match.
