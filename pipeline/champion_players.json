@@ -1,6 +1,6 @@
 {
  "model": "players",
- "current": 2,
+ "current": 3,
  "versions": [
   {
    "v": 1,
@@ -49,6 +49,35 @@
     "k_adot": 40,
     "k_ypc": 40,
     "k_rutd": 40,
+    "k_pcmp": 60,
+    "k_pass": 120,
+    "opp_scale": 1.0,
+    "script_scale": 1.0,
+    "vol": 2.3,
+    "yshape": 0.45,
+    "absorb_tgt": 0.746,
+    "absorb_car": 0.538
+   }
+  },
+  {
+   "v": 3,
+   "date": "2026-10-02",
+   "cutoff": [
+    2026,
+    3
+   ],
+   "how": "auto",
+   "note": "Efficiency trust ×1.00 of launch values → ×0.80 of launch values: expected PPR points error 4.586 → 4.583; 99.5% confidence after correcting for 10 ideas tested (need 95%); better in 4 of 4 seasons with 500+ player-weeks",
+   "decision": "R2026-03:players:pl_efficiency_trust",
+   "params": {
+    "prev_weight": 0.1,
+    "k_ts": 12.0,
+    "k_cshare": 16.0,
+    "k_cr": 48.0,
+    "k_ypt": 96.0,
+    "k_adot": 32.0,
+    "k_ypc": 32.0,
+    "k_rutd": 32.0,
     "k_pcmp": 60,
     "k_pass": 120,
     "opp_scale": 1.0,

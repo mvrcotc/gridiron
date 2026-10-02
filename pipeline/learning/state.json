@@ -5,9 +5,9 @@
    "changes": {},
    "last_cutoff": [
     2026,
-    1
+    3
    ],
-   "last_games": 1887
+   "last_games": 1919
   },
   "live": {
    "pending": {
@@ -28,12 +28,15 @@
      "games": 1887
     }
    },
-   "changes": {},
+   "changes": {
+    "live_market": [],
+    "live_market_total": []
+   },
    "last_cutoff": [
     2026,
-    1
+    3
    ],
-   "last_games": 1873
+   "last_games": 1919
   },
   "players": {
    "pending": {
@@ -80,13 +83,21 @@
       "version": 2
      }
     ],
-    "pl_efficiency_trust": []
+    "pl_efficiency_trust": [
+     {
+      "seq": 36471,
+      "season": 2026,
+      "steps": 1.0,
+      "how": "auto",
+      "version": 3
+     }
+    ]
    },
    "last_cutoff": [
     2026,
-    1
+    3
    ],
-   "last_games": 27196
+   "last_games": 27934
   }
  }
 }
