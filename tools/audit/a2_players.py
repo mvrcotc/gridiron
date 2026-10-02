@@ -1,7 +1,7 @@
-"""Players, depth charts, usage, production, coverage, injuries and week-1 actuals -- every number
-rebuilt from the raw nflverse files, with injuries and box scores cross-checked against ESPN by ID."""
+"""Players, depth charts, usage, production, coverage, injuries and the slate week's actuals -- every
+number rebuilt from the raw nflverse files, with injuries and box scores cross-checked against ESPN by ID."""
 import os, json, glob, statistics
-from common import num, rows, DATA, RAW, APP, nfl, roster_rows
+from common import num, rows, DATA, RAW, APP, nfl, roster_rows, slate_week
 
 STATUS={'Out':'O','Questionable':'Q','Doubtful':'D','Injured Reserve':'IR','Physically Unable to Perform':'PUP',
         'Suspension':'SUSP','Non-Football Injury':'NFI'}
@@ -154,8 +154,13 @@ def run(A):
     if byname_only: A.warn('PL8b','Injuries verified by name and team only (these players have no ESPN ID in the crosswalk)',byname_only,len(byname_only))
     A.check('PL9','No injured player on the slate is missing from the app',miss,len(src))
 
-    # ---- week-1 actuals: nflverse vs ESPN box score ----
-    W1={r['player_id']:r for r in rows(os.path.join(DATA,'stw26.csv')) if r['week']=='1' and r['season_type']=='REG'}
+    # ---- the slate week's actuals: nflverse vs ESPN box score ----
+    # D['res'] holds the current week's stat lines and data/raw/espn/f_*.json the current week's box
+    # scores, so both sides must be read for the slate's own week -- pinning either to week 1 compares
+    # one week's results against another's.
+    season,week=slate_week(D)
+    WK={r['player_id']:r for r in rows(os.path.join(DATA,'stw%02d.csv'%(season%100)))
+        if r['week']==str(week) and r['season_type']=='REG'}
     box={}
     for p in glob.glob(os.path.join(RAW,'espn','f_*.json')):
         for tm in json.load(open(p)).get('boxscore',{}).get('players',[]):
@@ -172,16 +177,16 @@ def run(A):
     bad=[]; xs=[]
     col={'tgt':'targets','rec':'receptions','ry':'receiving_yards','car':'carries','ru':'rushing_yards','att':'attempts','cmp':'completions','py':'passing_yards'}
     for g,e in D['res'].items():
-        r=W1.get(g); nm=PL.get(g,{}).get('n',g)
-        if not r: bad.append('%s has a week-1 line but no nflverse row'%nm); continue
+        r=WK.get(g); nm=PL.get(g,{}).get('n',g)
+        if not r: bad.append('%s has a week-%d line but no nflverse row'%(nm,week)); continue
         for k,c in col.items():
             if int(e.get(k,0))!=round(num(r[c])): bad.append('%s %s shown %s, nflverse %s'%(nm,k,e.get(k,0),r[c]))
             if g in box and k in box[g] and round(num(r[c]))!=round(box[g][k]):
                 xs.append('%s %s: nflverse %s, ESPN box score %s'%(nm,k,round(num(r[c])),round(box[g][k])))
         ppr=num(r['fantasy_points_ppr'])
         if abs(num(e.get('pts'))-ppr)>0.051: bad.append('%s PPR shown %.1f, nflverse fantasy_points_ppr %.1f'%(nm,num(e.get('pts')),ppr))
-    A.check('PL10','Week-1 stat lines match nflverse, and PPR points equal its own fantasy_points_ppr',bad,len(D['res']))
-    A.check('PL11','nflverse and ESPN box scores agree on every week-1 stat',xs,len(box))
+    A.check('PL10','Week-%d stat lines match nflverse, and PPR points equal its own fantasy_points_ppr'%week,bad,len(D['res']))
+    A.check('PL11','nflverse and ESPN box scores agree on every week-%d stat'%week,xs,len(box))
     vc=open(os.path.join(APP,'app.js'),encoding='ascii').read().split('function verdictChip(')[1].split('\nfunction ')[0]
     A.check('PL12','Finished-game chips say they compare with last season\'s per-game average (named by its season), not with a GridIron projection',
             [] if 'ABOVE AVG' in vc and 'BEAT' not in vc and 'per-game average across' in vc and 'prodYear()' in vc else ['chip text reads like a grade against a projection that never existed'])

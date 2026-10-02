@@ -59,8 +59,34 @@ var STAD={
  SF:{v:'Levi\u2019s Stadium',la:37.403,lo:-121.970,el:10,tz:'America/Los_Angeles',roof:'open'},
  SEA:{v:'Lumen Field',la:47.595,lo:-122.332,el:20,tz:'America/Los_Angeles',roof:'open'}
 };
-/* venues that are not a team's home park */
-var NEUTRAL_VENUES={'Melbourne Cricket Ground':{la:-37.820,lo:144.983,el:100,tz:'Australia/Melbourne'}};
+/* Venues that are not a team's home park. Keyed on the name ESPN sends; al[] carries the other names
+   the same ground goes by (nflverse's schedule, sponsor renames, accented spellings), because a miss
+   here leaves the game with no coordinates and so no wind reading. Elevation is in feet. */
+var NEUTRAL_VENUES={
+ 'Melbourne Cricket Ground':{la:-37.820,lo:144.983,el:100,tz:'Australia/Melbourne',al:['MCG']},
+ 'Maracana Stadium':{la:-22.912,lo:-43.230,el:30,tz:'America/Sao_Paulo',
+   al:['Maracan\u00e3','Est\u00e1dio do Maracan\u00e3','Est\u00e1dio Jornalista M\u00e1rio Filho','Estadio do Maracana']},
+ 'Tottenham Hotspur Stadium':{la:51.604,lo:-0.067,el:100,tz:'Europe/London',al:['Tottenham Stadium']},
+ 'Wembley Stadium':{la:51.556,lo:-0.280,el:165,tz:'Europe/London',al:['Wembley']},
+ 'Stade de France':{la:48.924,lo:2.360,el:100,tz:'Europe/Paris',al:['Stade de France, Saint-Denis']},
+ 'Estadio Santiago Bernabeu':{la:40.453,lo:-3.688,el:2130,tz:'Europe/Madrid',
+   al:['Bernabeu','Bernab\u00e9u','Santiago Bernab\u00e9u','Estadio Santiago Bernab\u00e9u']},
+ 'Allianz Arena':{la:48.219,lo:11.625,el:1610,tz:'Europe/Berlin',al:['FC Bayern Munich Stadium','Munich Football Arena']},
+ 'Estadio Azteca':{la:19.303,lo:-99.150,el:7200,tz:'America/Mexico_City',
+   al:['Estadio Banorte','Est\u00e1dio Azteca','Mexico City']}
+};
+/* fold case, accents and punctuation so 'Bernab\u00e9u' and 'Bernabeu' are the same ground */
+function venueKey(s){
+  return String(s||'').normalize?String(s).normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase().replace(/[^a-z0-9]+/g,' ').trim():String(s||'').toLowerCase();
+}
+var NEUTRAL_BY_KEY={};
+(function(){
+  for(var n in NEUTRAL_VENUES){
+    var v=NEUTRAL_VENUES[n]; NEUTRAL_BY_KEY[venueKey(n)]=v;
+    for(var i=0;i<(v.al||[]).length;i++) NEUTRAL_BY_KEY[venueKey(v.al[i])]=v;
+  }
+})();
 
 function haversine(a,b){
   var R=3958.8, t=Math.PI/180;
@@ -70,7 +96,7 @@ function haversine(a,b){
   return Math.round(2*R*Math.asin(Math.sqrt(h)));
 }
 function venueOf(g){
-  if(g.venue && NEUTRAL_VENUES[g.venue]) return NEUTRAL_VENUES[g.venue];
+  if(g.venue){ var v=NEUTRAL_BY_KEY[venueKey(g.venue)]; if(v) return v; }
   return STAD[g.h]||null;
 }
 function localHour(iso,tz){

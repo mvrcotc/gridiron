@@ -18,7 +18,9 @@ for e in ev:
           'ac':'#'+(at.get('color') or '666666').lower(),'hc':'#'+(ht.get('color') or '666666').lower(),
           'aa':'#'+(at.get('alternateColor') or 'ffffff').lower(),'ha':'#'+(ht.get('alternateColor') or 'ffffff').lower(),
           'date':e['date'],'net':((c.get('broadcasts') or [{}])[0].get('names') or ['TBD'])[0],'venue':v.get('fullName',''),
-          'city':ad.get('city',''),'st':ad.get('state',''),'indoor':bool(v.get('indoor')),'neutral':bool(c.get('neutralSite')),
+          # kept exactly as ESPN sends them: an international venue has no state, and '' in place of
+          # None is a value ESPN never sent (the page joins city and state with filter(Boolean) either way)
+          'city':ad.get('city'),'st':ad.get('state'),'indoor':bool(v.get('indoor')),'neutral':bool(c.get('neutralSite')),
           'state':st['state'],'sdesc':st.get('description'),'div':int(DIV.get(nf(at['abbreviation']),1)==DIV.get(nf(ht['abbreviation']),2))}
     nv=NV.get(e['id'])
     if nv:
