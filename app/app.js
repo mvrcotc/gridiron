@@ -1886,8 +1886,11 @@ function reviewHTML(r){
     (c.bsp!=null?'<li><b>Blend with Vegas:</b> GridIron is '+Math.round(num(c.blend)*100)+'% of the blended line, '+esc(byLab(-c.bsp,H,A))+'</li>':'')+
     ((c.zero||[]).length?'<li><b>Tested, given no weight:</b> '+(c.zero||[]).map(function(z){ return ZEROLAB[z]||z; }).join(', ')+' \u2014 none helped on games it had not seen</li>':'');
   var fl=rvFlags(r), so=fl.starters_out, bsc=((D.blindspots||{}).candidates||[]).filter(function(x){ return x.id==='starters_out'; })[0];
-  if(so) cons+='<li class="flag"><b>Not in the model:</b> '+esc(so>0?A:H)+' had '+Math.abs(so).toFixed(1)+' more starters out (snap-weighted, quarterbacks aside)'+
-    (so*r.miss>0?' \u2014 and it pointed the way the game went':'')+'.</li>';
+  /* sized at the rate fitted on past seasons, so a fraction of a starter is not presented as the reason a game turned */
+  var soPts=so&&bsc?Math.abs(so*num(bsc.beta)):0, soMatters=soPts>=0.5&&so*r.miss>0;
+  if(so) cons+='<li'+(soMatters?' class="flag"':'')+'><b>Not in the model:</b> '+esc(so>0?A:H)+' had '+Math.abs(so).toFixed(1)+' more starters out (snap-weighted, quarterbacks aside)'+
+    (bsc?', worth about '+soPts.toFixed(1)+' points at the rate fitted on past seasons':'')+
+    (soMatters?' \u2014 and it pointed the way the game went':soPts<0.5?' \u2014 too small to matter here':'')+'.</li>';
   /* learned and next */
   var lt='<p>Rematch tomorrow: GridIron\u2019s ratings would now say <b>'+esc(byLab(L.after,H,A))+'</b>, where before this game they said '+esc(byLab(L.before,H,A))+
     ' \u2014 they moved '+Math.abs(num(L.shift)).toFixed(1)+' points toward '+esc(L.shift>0?H:A)+'.</p>'+
@@ -1896,7 +1899,7 @@ function reviewHTML(r){
   if(r.right===false&&r.verdict==='chance') nx='<p><b>Nothing to change.</b> What swung this game does not carry over, so it is not something to learn from.</p>';
   else if(r.right===false) nx='<p><b>Already done:</b> the ratings above have absorbed the game. No weight moves on one result \u2014 the learning loop re-tests every weight each week on whole seasons and changes one only when the gain holds up on games it never saw.</p>';
   else nx='<p><b>Right for the right reasons?</b> '+(push.length&&Math.abs(r.miss)>=7?'The side was right but the margin was off by '+Math.abs(r.miss).toFixed(1)+', mostly in '+names[0]+'.':'The side and roughly the margin held up.')+'</p>';
-  if(so&&so*r.miss>0&&bsc&&bsc.verdict!=='blind_spot') nx+='<p class="flag"><b>What it cannot weigh yet:</b> injuries beyond the quarterback. That idea is on '+(bsc.verdict==='watch'?'watch':'the list')+
+  if(soMatters&&bsc.verdict!=='blind_spot') nx+='<p class="flag"><b>What it cannot weigh yet:</b> injuries beyond the quarterback. That idea is on '+(bsc.verdict==='watch'?'watch':'the list')+
     ' \u2014 better in '+bsc.pos+' of '+Object.keys(bsc.by_season||{}).length+' past seasons, not yet proven \u2014 and goes to the owner as a proposal the day it clears the bar.</p>';
   h+=(why?'<div class="verdict'+(r.verdict==='chance'?' ok':'')+'"><b>'+esc(RVVERD[r.verdict])+'.</b> '+why+'</div>':'')+
     '<div class="rv-cols"><div class="rv-box"><h4>What GridIron considered</h4><ul>'+cons+'</ul></div>'+
