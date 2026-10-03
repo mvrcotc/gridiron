@@ -75,6 +75,36 @@ def update(E,D,now,source):
             e['final']=dict(a=int(g['sc']['a']),h=int(g['sc']['h']),src='espn')
         E[gid]=e
 
+def kickoff_utc(r):
+    """an nflverse schedule row's kickoff in UTC; gameday and gametime are US Eastern"""
+    try:
+        from zoneinfo import ZoneInfo
+        t=datetime.datetime.strptime('%s %s'%(r['gameday'],r.get('gametime') or '13:00'),'%Y-%m-%d %H:%M')
+        return t.replace(tzinfo=ZoneInfo('America/New_York')).astimezone(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ')
+    except (KeyError,ValueError): return None
+
+def sweep(E,now):
+    """Every game since launch, whether or not the current slate still lists it.
+
+    update() only sees the slate, and the slate moves on a week at a time. A game whose kickoff passed while no refresh
+    succeeded was never frozen even though its call was recorded before kickoff, and a week the refresh never saw never
+    entered the ledger at all -- both vanished from the record instead of counting. The rule here is update()'s own:
+    a call recorded before kickoff is frozen, a game that kicked off with none is missed. Games come from the nflverse
+    schedule for every regular-season week from the first one in the ledger, so a skipped week counts as missed."""
+    seasons=[e['season'] for e in E.values() if e.get('season')]
+    if not seasons: return
+    s0=min(seasons); w0=min(e['week'] for e in E.values() if e.get('season')==s0 and e.get('week'))
+    for r in csv.DictReader(open(os.path.join(DATA,'games_all.csv'),encoding='utf-8')):
+        gid=str(r.get('espn') or '').split('.')[0]
+        if not gid or r.get('game_type')!='REG' or int(r['season'])!=s0 or int(r['week'])<w0 or gid in E: continue
+        ko=kickoff_utc(r); espn=lambda t:{'LA':'LAR','WAS':'WSH'}.get(t,t)     # the ledger keeps ESPN's team codes
+        if ko and ts(ko)<=now: E[gid]=dict(id=gid,frozen=False,a=espn(r['away_team']),h=espn(r['home_team']),kickoff=ko)
+    for gid,e in E.items():
+        if e.get('frozen') or not e.get('kickoff') or ts(e['kickoff'])>now: continue
+        if e.get('call') and ts(e['call']['at'])<ts(e['kickoff']):
+            e['frozen']=True; e['frozen_at']=iso(now); e.pop('missed',None)
+        else: e['missed']='no GridIron call was recorded before kickoff'
+
 def settle(E):
     """season, week, the closing line and the final score from the nflverse schedule"""
     rows={str(r.get('espn') or '').split('.')[0]:r for r in csv.DictReader(open(os.path.join(DATA,'games_all.csv'),encoding='utf-8')) if r.get('espn')}
@@ -94,7 +124,7 @@ def record(E):
     out=dict(frozen=len(fr),settled=len(X),pending=sum(1 for e in fr if not (e.get('final') and e.get('close'))),
              missed=sum(1 for e in E.values() if e.get('missed') and not e.get('frozen')))
     if not X: return out
-    gm_e=[]; cm_e=[]; gt_e=[]; ct_e=[]; ats=[0,0,0]; ou=[0,0,0]; su=[0,0]; brier=[]; clv=[]; clvt=[]
+    gm_e=[]; cm_e=[]; gt_e=[]; ct_e=[]; ats=[0,0,0]; ou=[0,0,0]; su=[0,0]; fav=[0,0,0]; brier=[]; clv=[]; clvt=[]
     for e in X:
         am=e['final']['h']-e['final']['a']; at=e['final']['h']+e['final']['a']
         gm=e['call']['ph']-e['call']['pa']; gt=e['call']['ph']+e['call']['pa']; cm=-e['close']['spread']; ct=e['close']['ou']
@@ -106,6 +136,8 @@ def record(E):
             pick,res=sign(gt-ct),sign(at-ct)
             if pick: ou[2 if res==0 else (0 if pick==res else 1)]+=1
         if am: su[0 if sign(gm)==sign(am) else 1]+=1
+        # the baseline a straight-up record has to beat: take the closing favourite (a pick'em counts as neither)
+        if am: fav[2 if not cm else (0 if sign(cm)==sign(am) else 1)]+=1
         if e['call'].get('wp') is not None and am: brier.append((e['call']['wp']/100.0-(1.0 if am>0 else 0.0))**2)
         f=e.get('first') or {}
         if f.get('spread') is not None:
@@ -116,7 +148,7 @@ def record(E):
             if move and dis: clvt.append(move*sign(dis))
     r=lambda v,d=2:round(v,d)
     out.update(gm=r(statistics.mean(gm_e)),vm=r(statistics.mean(cm_e)),gt=r(statistics.mean(gt_e)) if gt_e else None,vt=r(statistics.mean(ct_e)) if ct_e else None,
-               ats=ats,ou=ou,su=su,brier=r(statistics.mean(brier),4) if brier else None,brier_n=len(brier),
+               ats=ats,ou=ou,su=su,fav=fav,brier=r(statistics.mean(brier),4) if brier else None,brier_n=len(brier),
                clv=dict(n=len(clv),toward=sum(1 for x in clv if x>0),pts=r(statistics.mean(clv)) if clv else None),
                clv_total=dict(n=len(clvt),toward=sum(1 for x in clvt if x>0),pts=r(statistics.mean(clvt)) if clvt else None))
     return out
@@ -136,7 +168,7 @@ if __name__=='__main__':
     D=json.load(open(os.path.join(DATA,'gi2.json'),encoding='utf-8')); now=time.time()
     E=merge(load_local(),load_site())
     if '--backfill' in sys.argv: backfill(E)
-    update(E,D,now,'refresh'); settle(E); R=record(E)
+    update(E,D,now,'refresh'); settle(E); sweep(E,now); settle(E); R=record(E)
     L=dict(updated=iso(now),record=R,entries=dict(sorted(E.items(),key=lambda kv:(kv[1].get('kickoff',''),kv[0]))),
            note='Each call is the last GridIron prediction recorded before kickoff; the first line is the first one GridIron saw, not necessarily the opening line. Closing lines and scores come from nflverse.')
     json.dump(L,open(LEDGER+'.part','w',encoding='utf-8'),indent=1,ensure_ascii=False); os.replace(LEDGER+'.part',LEDGER)

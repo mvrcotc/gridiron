@@ -48,6 +48,8 @@ python3 refresh.py --stage props
 | `backtest` | (daily) track record from the exact live model, plus held-out tests of excluded ingredients |
 | `predict` | game predictions from that same model; carries the live model's constants into the data |
 | `ledger` | freezes GridIron's last pre-kickoff call for each game at kickoff, beside the first line it saw, the closing line and the final score -- the since-launch record (`pipeline/ledger.json`, also published with the data so refreshes that do not commit keep it) |
+| `review` | post-game review of every settled frozen call: the miss split into yardage, finishing, turnovers, other scores and blend (they add up exactly), each part classed chance or team trait by measured repeatability, and how far the game moved the ratings (`pipeline/review.py`) |
+| `blindspots` | the blind-spot scan: factors the model leaves out, each tested on seasons it never saw; a proven one is filed for the owner, once, by the daily lane only (`pipeline/blindspots.py`, results and memory in `pipeline/learning/blindspots.json`) |
 | `props` | DraftKings lines, de-duplicated, fetch time stamped |
 | `ids` | ESPN athlete id -> gsis_id map the browser uses for live box scores |
 | `partners` | validates `partners.json` and publishes the partner ad card; off unless switched on with real links |
@@ -77,8 +79,12 @@ totals were tested on held-out seasons, did not help, and are not used.
   line, total and implied points; GridIron's own call and injury fallout; both teams' seasons side by side;
   conditions; charts; every matchup with projections or results; and the field (formation or depth chart).
   Section links stay at the top as you scroll.
-- **Model**: the since-launch record (real calls frozen at kickoff, scored against the closing line), the backtest,
-  and how GridIron learns. Each game's call card also shows its frozen call, the close and the result.
+- **Model**: the since-launch record (real calls frozen at kickoff, scored against the closing line), every wrong
+  call taken apart, the blind-spot scan, the backtest, and how GridIron learns. Each game's call card also shows its
+  frozen call, the close and the result, and a finished game with a frozen call gets a **post-game review** section.
+- **The badge** in the top right, on every page: how often GridIron has picked the winner since launch, beside how
+  often simply taking the closing Vegas favourite did on the same games. A winner-picking rate means nothing without
+  that baseline -- and at the time of writing GridIron trails it (18-12 against 22-8). Click it for the full record.
 
 Search filters the games in the sidebar (by team or player) and the teams on the Teams page. On a phone the
 sidebar folds into a menu at the top that names the page you are on.
@@ -161,6 +167,48 @@ followed the rules, the review's arithmetic, and recomputes that evidence from r
 First reviews (games through 2025): nothing met the bar. Closest: backup-QB weight 3.9 -> 2.9 (58% confidence
 after correcting for 14 ideas), win-probability calibration (79%). Expect few changes: NFL results are noisy, and
 the loop is built to ignore noise.
+
+## Post-game reviews and blind spots
+
+The learning loop above changes weights. These two stages explain games and look for what the model is missing; neither
+changes a weight.
+
+**Reviews** (`pipeline/review.py`). For every frozen call with a final score, the miss -- actual margin minus the call --
+is split into five parts that add up exactly, using the model's own per-side expected yards, touchdowns and turnovers
+(`engine2.run`) and its own walk-forward points conversion:
+
+| Part | What it is |
+|---|---|
+| yardage | yards beyond or short of expectation, including the touchdowns those yards normally bring at that side's expected rate |
+| finishing | touchdowns beyond what the yards implied |
+| turnovers | giveaways and takeaways beyond expectation |
+| other scores | points the box score does not explain: field goals, return and defensive scores, safeties |
+| blend | how far the full rating blend sat from its yardage path alone -- a property of the model, not of the game |
+
+Each part is classed by **measured repeatability**: the correlation between a team's average on it in odd and even games
+of the same season, over every team-season 2019-25. Yardage (r 0.51) and finishing (0.46) repeat -- a miss there means
+GridIron rated a team wrong. Turnovers (0.18) and other scores (0.17) barely do -- a miss there is chance, and chasing it
+would make the next call worse. A wrong call is "mostly chance" when 60% or more of the parts that pushed the result away
+from the call are chance, "misjudged" at 40% or less, "both" in between. **What it learned** is the same matchup
+re-predicted on the ratings after that week against the ratings before it.
+
+**Blind spots** (`pipeline/blindspots.py`). Every completed game since 2019, predicted walk-forward (the published
+record's own predictions), gives a residual. Each candidate -- something knowable before kickoff the model ignores -- is
+fitted on earlier seasons only and scored on later seasons it never saw. A blind spot must cut the margin miss by at
+least 0.02 points a game, help in at least 60% of the held-out seasons, and stay significant (week-blocked bootstrap)
+after a Holm correction for the number of candidates. Short of that it is "watch" (p < 0.10 uncorrected) or "clear".
+
+At the time of writing, 9 candidates: **none is a blind spot**. Starters ruled out (snap-weighted, quarterbacks aside) is
+on watch -- better in 5 of 6 unseen seasons, about +0.6 points per missing starter, p = 0.55 after correction -- and the
+closing line already prices about half of it. Early-season overreaction, suspected because one game sets about 98% of
+the yardage ratings, tested clear: the final margin leans on the well-shrunk points ratings. A candidate that passes is
+written to `pipeline/learning/new_proposals/` (the daily workflow turns it into an issue) and remembered so it is filed
+once; approving it means adding it to the model as a zero-weight factor the learning loop then sizes.
+
+```bash
+python3 pipeline/review.py
+python3 pipeline/blindspots.py [--propose]
+```
 
 ## Player projections
 
@@ -268,6 +316,13 @@ model that differs from its backtest; breakdown rows that do not add up; non-ASC
 function definitions; hardcoded paths and stale track numbers; ESPN values that change type on game day;
 field position read from the wrong goal line.
 
+Brain checks (`tools/audit/a13_brain.py`): RV1 every settled frozen call is reviewed from exactly its frozen call;
+RV2 the five parts rebuilt from nflverse's raw box score and a conversion refitted in the audit; RV3 repeatability
+recomputed; RV4 verdicts follow the rule; RV5 "what it learned" starts from the engine's own margin; BS1 blind-spot
+verdicts and the Holm correction recompute; BS2 the starters-out feature rebuilt from raw injury and snap files; BS3 the
+held-out test rebuilt from fresh walk-forward residuals; U18-U20 the badge, the review card and the blind-spot card show
+exactly the data.
+
 ## Fitted constants
 
 Fitted once and reused, so a refresh cannot tune the model to flatter the current slate.
@@ -300,6 +355,13 @@ frozen at kickoff and scored against the closing line, plus how often the line m
 between the first line it saw and the close. The week-1 calls were recovered from committed data snapshots;
 games that kicked off before any snapshot are listed as missed rather than filled in.
 
+The ledger is judged by the clock, not by the slate. `ledger.update()` sees only the current week's games, so when the
+refresh failed from late September the slate moved on and week 2's calls -- recorded before kickoff -- were never frozen,
+and week 3 never entered the ledger at all. `sweep()` applies the same rule to every game since launch from the nflverse
+schedule: a call recorded before kickoff is frozen, a game that kicked off without one is counted as missed. That
+recovered 15 week-2 calls and counts week 3's 16 games as missed; the record went from 11-4 to 18-12 straight up. Audit
+K6 fails if any game since launch is missing from the ledger.
+
 ## Not yet done
 
 - The player model's simulator spread (`vol`, `yshape`) and injury absorption rates are in its registry but not
@@ -319,6 +381,10 @@ games that kicked off before any snapshot are listed as missed rather than fille
 - Join players on `gsis_id`; ESPN athlete ids map through `espn_id`. Several players have no ESPN id.
 - DraftKings props via ESPN's core API carry current and opening lines, no prices.
 - GitHub Pages caches for up to 10 minutes and ignores query strings: version file names, never `?v=`.
+- nflverse's team-week files use today's team codes; the schedule uses the codes of the day (the 2019 Raiders are LV
+  in one, OAK in the other). Map with `gamemodel.REL` before joining a team-week row to a schedule row. `engine2.py`
+  does not yet, which credits the 2019 Raiders with their opponents' score at home (8 team-games); `review.py` and the
+  audit take points from the schedule with the mapping.
 - `app/app.js` must stay pure ASCII. Write typographic characters as `\uXXXX` escapes and check with the audit.
 - A neutral-site game needs its ground in `NEUTRAL_VENUES` (`app/context.js`), under the name **ESPN** sends it
   or one of its `al` aliases -- ESPN and nflverse disagree (`FC Bayern Munich Stadium` vs `Allianz Arena`), and

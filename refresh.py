@@ -54,7 +54,11 @@ def SOURCES(S):
              ('stats_player/stats_player_week_%d.csv'%(S-1),'stw%02d.csv'%((S-1)%100)),
              ('officials/officials.csv','officials.csv'),
              ('players_components/players.csv','players_all.csv'),
-             ('pfr_advstats/advstats_season_def.csv','raw/cov.csv')])
+             ('pfr_advstats/advstats_season_def.csv','raw/cov.csv')]+
+            # history for the blind-spot scan: injury reports and snap shares back as far as the team stats go, so a
+            # starter ruled out can be weighed by how much he was actually playing (the current seasons are listed above)
+            [('injuries/injuries_%d.csv'%y,'injuries%02d.csv'%(y%100)) for y in range(S-7,S)]+
+            [('snap_counts/snap_counts_%d.csv'%y,'snaps%02d.csv'%(y%100)) for y in range(S-7,S-1)])
 
 def stage_sources():
     """nflverse releases; every file is required, validated and written atomically"""
@@ -162,6 +166,11 @@ def stage_learn():   run('learn.py','learn',['review','--update-history'])
 def stage_backtest(): run('backtest.py','backtest')
 def stage_predict(): run('predict.py','predict')
 def stage_ledger():  run('ledger.py','ledger')
+def stage_review():  run('review.py','review')
+def stage_blindspots():
+    """every lane rebuilds the scan (the audit checks it against current data), but only the daily lane -- which commits
+    pipeline/learning and opens the issues -- may file a blind spot as a proposal for the owner"""
+    run('blindspots.py','blind spots',('--propose',) if LANE=='daily' else ())
 def stage_props():   run('props.py','props')
 
 def stage_embed():
@@ -225,6 +234,8 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('backtest',stage_backtest,'track record from the exact live model'),
         ('predict', stage_predict, 'game predictions from the backtested model'),
         ('ledger',  stage_ledger,  'freeze each GridIron call at kickoff; closing lines, results and the since-launch record'),
+        ('review',  stage_review,  'post-game review of every settled call: what it considered, what swung the game, chance or misjudgement, what it learned'),
+        ('blindspots', stage_blindspots, 'blind-spot scan: factors the model leaves out, tested on seasons it never saw; a proven one becomes a proposal'),
         ('props',   stage_props,   'DraftKings prop lines'),
         ('ids',     stage_ids,     'ESPN athlete id -> gsis map for live box scores'),
         ('partners',stage_partners,'partner ad card: validates partners.json; off unless switched on with real links'),
@@ -232,8 +243,8 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('embed',   stage_embed,   'write the dataset into the claude.ai artifact page (legacy)'),
         ('audit',   stage_audit,   'independent audit -- stops the run on any failure'),
         ('check',   stage_check,   'sanity report')]
-LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','predict','ledger','props','ids','partners','site','audit'],
-       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','learn','backtest','predict','ledger','props','ids','partners','site','audit']}
+LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','predict','ledger','review','blindspots','props','ids','partners','site','audit'],
+       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','learn','backtest','predict','ledger','review','blindspots','props','ids','partners','site','audit']}
 
 if __name__=='__main__':
     a=sys.argv[1:]

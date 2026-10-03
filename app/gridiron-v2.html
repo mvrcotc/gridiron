@@ -665,6 +665,88 @@ input[type=search]{width:172px}
 @media (max-width:700px){
   .frow{grid-template-columns:1fr;gap:5px}
 }
+/* accuracy badge: the since-launch straight-up record beside the baseline it has to beat */
+.acc{display:grid;gap:1px;text-align:left;background:var(--elev);border:1px solid var(--line-2);border-radius:var(--r-sm);
+  padding:5px 11px 6px;cursor:pointer;color:inherit;font:inherit;transition:border-color var(--t2) var(--e)}
+.acc:hover,.acc:focus-visible{border-color:var(--line);outline:none}
+.acc[hidden]{display:none}
+.acc-k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-4);font-weight:500;white-space:nowrap}
+.acc-v{display:flex;align-items:baseline;gap:7px;white-space:nowrap;font-size:11px;color:var(--fg-4)}
+.acc-v b{font-family:var(--mono);font-feature-settings:"tnum" 1;font-size:15px;font-weight:500;color:var(--fg)}
+.acc-v .mono{font-family:var(--mono);font-feature-settings:"tnum" 1;color:var(--fg-3)}
+.acc.ahead .acc-v b{color:var(--good)}
+/* post-game review */
+.rv-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.rv-chip{font-size:10px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:var(--pill);
+  padding:2px 9px;color:var(--fg-3);white-space:nowrap}
+.rv-chip.wrong{color:var(--bad);border-color:rgba(248,113,113,.3)}
+.rv-chip.right{color:var(--good);border-color:rgba(74,222,128,.3)}
+.rv-chip.chance{color:var(--info);border-color:rgba(96,165,250,.3)}
+.rv-chip.misjudged{color:var(--warn);border-color:rgba(251,191,36,.3)}
+.rv-sum{font-size:14px;color:var(--fg);line-height:1.55;margin:0 0 14px}
+.rv-axis{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr) 92px;gap:12px;padding:0 14px 6px;
+  font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-4)}
+.rv-axis span:nth-child(2){display:flex;justify-content:space-between}
+.rv-parts{border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;margin:0 0 16px}
+.rv-part{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr) 92px;gap:6px 12px;align-items:center;
+  padding:10px 14px;border-top:1px solid var(--line-3)}
+.rv-part:first-child{border-top:none}
+.rv-part .pk{font-size:12.5px;color:var(--fg);font-weight:500}
+.rv-part .pk small{display:block;font-size:10px;font-weight:400;color:var(--fg-4);margin-top:2px}
+.rv-bar{position:relative;height:8px;background:var(--line-3);border-radius:var(--pill)}
+.rv-bar i{position:absolute;top:0;bottom:0;border-radius:var(--pill);background:var(--fg-3)}
+.rv-bar b{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--fg-4)}
+.rv-part .pv{font-family:var(--mono);font-feature-settings:"tnum" 1;font-size:11.5px;color:var(--fg-2);text-align:right;white-space:nowrap}
+.rv-part .pd{grid-column:1/-1;font-size:11.5px;color:var(--fg-4);line-height:1.5}
+.rv-part.chance .rv-bar i{background:var(--info)}
+.rv-part.trait .rv-bar i{background:var(--warn)}
+.rv-part.mixed .rv-bar i{background:var(--fg-2)}
+.rv-part.model{opacity:.7}
+.rv-part.total{background:var(--elev)}
+.rv-part.total .pk,.rv-part.total .pv{color:var(--fg)}
+.rv-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:0 0 14px}
+.rv-box{border:1px solid var(--line-2);border-radius:var(--r);padding:13px 15px}
+.rv-box h4{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-4);font-weight:500;margin:0 0 8px}
+.rv-box ul{margin:0;padding:0;list-style:none}
+.rv-box li{font-size:12.5px;color:var(--fg-2);line-height:1.55;padding:3px 0}
+.rv-box li b,.rv-box p b{color:var(--fg);font-weight:500}
+.rv-box p{font-size:12.5px;color:var(--fg-2);line-height:1.6;margin:0 0 8px}
+.rv-box p:last-child{margin-bottom:0}
+.rv-box .flag{color:var(--warn)}
+.rvlist{border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;margin:12px 0 16px}
+details.rvg{border-top:1px solid var(--line-3)}
+details.rvg:first-child{border-top:none}
+details.rvg>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(0,150px) 150px minmax(0,1fr) 70px;
+  gap:12px;align-items:baseline;padding:11px 14px;font-size:12.5px;color:var(--fg-3)}
+details.rvg>summary::-webkit-details-marker{display:none}
+details.rvg>summary:hover,details.rvg[open]>summary{background:var(--elev)}
+details.rvg>summary .gk{color:var(--fg);font-weight:500}
+details.rvg>summary .gk small{display:block;font-size:10px;font-weight:400;color:var(--fg-4);margin-top:2px}
+details.rvg>summary .gl{font-family:var(--mono);font-feature-settings:"tnum" 1;text-align:right;color:var(--fg-2)}
+details.rvg .rv-in{padding:16px 14px 4px;border-top:1px solid var(--line-3)}
+.frow.v-trait .fv{color:var(--warn);border-color:rgba(251,191,36,.3)}
+.frow.v-chance .fv{color:var(--info);border-color:rgba(96,165,250,.3)}
+.frow.v-blind_spot .fv{color:var(--bad);border-color:rgba(248,113,113,.3)}
+.frow.v-watch .fv{color:var(--warn);border-color:rgba(251,191,36,.3)}
+.frow.v-clear .fv{color:var(--fg-4)}
+details.bsr>summary{list-style:none;cursor:pointer}
+details.bsr>summary::-webkit-details-marker{display:none}
+details.bsr>summary.frow:hover,details.bsr[open]>summary.frow{background:var(--elev)}
+details.bsr .bs-in{padding:4px 14px 14px;font-size:12px;color:var(--fg-3);line-height:1.6}
+details.bsr .bs-in p{margin:0 0 7px}
+details.bsr .bs-in b{color:var(--fg-2);font-weight:500}
+.bs-yrs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.bs-yrs span{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line-2);border-radius:var(--r-xs);padding:2px 7px;color:var(--fg-4)}
+.bs-yrs span.up{color:var(--good);border-color:rgba(74,222,128,.25)}
+.bs-yrs span.dn{color:var(--bad);border-color:rgba(248,113,113,.22)}
+@media (max-width:700px){
+  .rv-axis{display:none}
+  .rv-part{grid-template-columns:1fr auto}
+  .rv-part .rv-bar{grid-column:1/-1;order:3}
+  .rv-part .pd{order:4}
+  details.rvg>summary{grid-template-columns:1fr auto}
+  details.rvg>summary .gm,details.rvg>summary .gl{display:none}
+}
 
 /* --------------------------------------------------- ruled out / redistribution */
 .ijpanel{padding:13px 20px 15px;border-bottom:1px solid var(--line-3);
@@ -910,6 +992,7 @@ tr.tbyer td{color:var(--fg-4)}
     <header class="bar">
       <div class="crumb" id="crumb"></div>
       <div class="bar-r">
+        <button class="acc" id="acc" type="button" hidden></button>
         <span class="stamp"><span class="pulse"></span><span id="stamp"></span></span>
       </div>
     </header>
@@ -946,6 +1029,7 @@ tr.tbyer td{color:var(--fg-4)}
         <div class="gmetrics" id="gmetrics"></div>
         <nav class="gjump" id="gjump" aria-label="Sections of this game">
           <button data-jump="gsec-call">GridIron&rsquo;s call</button>
+          <button data-jump="gsec-review" id="gjreview" hidden>Post-game review</button>
           <button data-jump="gsec-season">Season so far</button>
           <button data-jump="gsec-cond">Conditions</button>
           <button data-jump="gsec-glance">At a glance</button>
@@ -954,6 +1038,11 @@ tr.tbyer td{color:var(--fg-4)}
         </nav>
 
         <div class="sec" id="gsec-call"><div class="gcard gcall" id="gcall"></div></div>
+
+        <div class="sec" id="gsec-review" hidden>
+          <div class="sechd"><h3>Post-game review</h3><span class="sechint">what GridIron considered, what swung it, what it learned</span></div>
+          <div class="gcard rvcard" id="greview"></div>
+        </div>
 
         <div class="sec" id="gsec-season">
           <div class="sechd"><h3>Season so far</h3><span class="sechint" id="grechint"></span></div>
