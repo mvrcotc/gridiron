@@ -1052,6 +1052,7 @@ function drawGameInfo(){
   var g=D.games[gi];
   header();
   render(document.getElementById('gcall'), predBlock(g)+injPanel(g));
+  drawReview(g);
   drawRecords(g);
   var f=contextFactors(g);
   render(document.getElementById('gctx'), conditionsGrid(f));
@@ -1799,6 +1800,179 @@ function ledgerNote(g){
   }
   return '<div class="pr-ledger">'+bits.join(' \u00b7 ')+'</div>';
 }
+/* ------------------------- accuracy badge: GridIron's straight-up record since launch, beside the baseline it has to beat -------------------------
+   Every call counted was frozen before kickoff (ledger.py). The closing favourite's record on the same games sits next to it, because
+   "picks the winner 60%" means nothing without the number anyone gets by simply taking the favourite. */
+function pctOf(a){ var d=a?(a[0]||0)+(a[1]||0):0; return d?100*a[0]/d:null; }
+function drawAcc(){
+  var el=document.getElementById('acc'); if(!el) return;
+  var R=(D.ledger||{}).record||{}, su=R.su, fav=R.fav, ats=R.ats||[0,0];
+  if(!su||!(su[0]+su[1])){ el.hidden=true; return; }
+  var p=pctOf(su), pf=pctOf(fav), n=su[0]+su[1];
+  el.hidden=false; el.classList.toggle('ahead',pf!=null&&p>pf);
+  render(el,'<span class="acc-k">Picks the winner \u00b7 since launch</span>'+
+    '<span class="acc-v"><b>'+p.toFixed(0)+'%</b><span class="mono">'+su[0]+'\u2013'+su[1]+'</span>'+
+    (pf!=null?'<span>Vegas favourite '+pf.toFixed(0)+'%</span>':'')+'</span>');
+  var t='GridIron picked the winner in '+su[0]+' of '+n+' games since launch, every call frozen before kickoff. '+
+    (pf!=null?'Simply taking the closing Vegas favourite won '+fav[0]+' of '+(fav[0]+fav[1])+' of the same games. ':'')+
+    'Against the spread: '+ats[0]+'\u2013'+ats[1]+'. Click for the full record and a review of every wrong call.';
+  el.setAttribute('title',t); el.setAttribute('aria-label',t);
+}
+
+/* ------------------------- post-game review (review.py) -------------------------
+   The miss is split into parts that add up exactly. Each part is classed by how much it repeats over a season (split-half r over
+   every team-season since 2019): a part that barely repeats is chance, one that repeats is a team trait GridIron misjudged. */
+var RVPART={yards:'Yardage',finish:'Finishing drives',turnovers:'Turnovers',nonoff:'Special teams & other scores',blend:'GridIron\u2019s own blend'};
+var RVCLS={trait:'team trait \u00b7 repeats',chance:'chance \u00b7 barely repeats',mixed:'partly repeats',model:'how the model is built'};
+var RVVERD={chance:'Mostly chance',misjudged:'Misjudged a team',both:'Part chance, part misjudgement',right:'Right call',tie:'Tie'};
+var RVSHORT={chance:'Mostly chance',misjudged:'Misjudged',both:'Part of each',right:'Right call',tie:'Tie'};
+function plural(n,one,many){ return n+' '+(Math.round(n)===1?one:(many||one+'s')); }
+var ZEROLAB={venue:'venue edge',rest:'rest days',wx_dome:'roof',wx_wind:'wind',wx_cold:'cold',ref:'referee crew'};
+function tnm(ab){ var T=TD(), k=teamOf(ab); return ((T&&T.meta&&T.meta[k])||{}).name||ab; }
+function byLab(m,h,a,dp){ dp=dp==null?1:dp; return Math.abs(m)<0.05?'even':(m>0?h:a)+' by '+Math.abs(m).toFixed(dp); }
+function rvFlags(r){ return (((D.blindspots||{}).flags)||{})[r.gid]||{}; }
+function rvPart(k,v,r,scale){
+  var P=(D.review||{}).persist||{}, cls=k==='blend'?'model':((P[k]||{}).cls||'mixed'), s=r.stats, H=r.h, A=r.a;
+  var w=Math.min(50,Math.abs(v)/scale*50), left=v>=0?50:50-w;
+  var d='';
+  if(k==='yards') d=esc(H)+' gained '+num(s.h.act.yd).toFixed(0)+' yards (expected '+num(s.h.exp.yd).toFixed(0)+'); '+
+    esc(A)+' '+num(s.a.act.yd).toFixed(0)+' (expected '+num(s.a.exp.yd).toFixed(0)+'). Includes the touchdowns those yards normally bring.';
+  else if(k==='finish'){
+    var xh=s.h.exp.yd?s.h.act.yd*s.h.exp.td/s.h.exp.yd:0, xa=s.a.exp.yd?s.a.act.yd*s.a.exp.td/s.a.exp.yd:0;
+    d=esc(H)+' scored '+plural(num(s.h.act.td),'offensive touchdown')+' where its yards usually bring '+xh.toFixed(1)+'; '+
+      esc(A)+' '+num(s.a.act.td).toFixed(0)+' where '+xa.toFixed(1)+'.';
+  }
+  else if(k==='turnovers') d=esc(H)+' gave the ball away '+plural(num(s.h.act.to),'time')+' (expected '+num(s.h.exp.to).toFixed(1)+'); '+
+    esc(A)+' '+num(s.a.act.to).toFixed(0)+' (expected '+num(s.a.exp.to).toFixed(1)+').';
+  else if(k==='nonoff') d='Field goals, return and defensive touchdowns, safeties: points the two offences\u2019 box scores do not explain.';
+  else d='How far GridIron\u2019s full rating blend sat from its yardage ratings alone. A property of the model, not something that happened on the field.';
+  var rr=(P[k]||{}).r;
+  return '<div class="rv-part '+cls+'"><span class="pk">'+esc(RVPART[k])+'<small>'+esc(RVCLS[cls])+(rr!=null?' (r\u00a0=\u00a0'+num(rr).toFixed(2)+')':'')+'</small></span>'+
+    '<span class="rv-bar"><b></b><i style="left:'+left.toFixed(1)+'%;width:'+w.toFixed(1)+'%"></i></span>'+
+    '<span class="pv">'+(Math.abs(v)<0.05?'0.0':Math.abs(v).toFixed(1)+' \u2192 '+esc(v>0?H:A))+'</span>'+
+    '<span class="pd">'+d+'</span></div>';
+}
+function reviewHTML(r){
+  var RV=D.review||{}, P=RV.persist||{}, S=RV.summary||{}, H=r.h, A=r.a, c=r.considered||{}, L=r.learned||{};
+  var am=r.final, win=am>0?H:A, keys=['yards','finish','turnovers','nonoff','blend'];
+  var scale=Math.max(5,Math.abs(r.miss)); keys.forEach(function(k){ scale=Math.max(scale,Math.abs(r.parts[k]||0)); });
+  var chip=r.right?'<span class="rv-chip right">Right call</span>':r.right===false?'<span class="rv-chip wrong">Wrong call</span>':'';
+  var vchip=r.right===false?'<span class="rv-chip '+esc(r.verdict)+'">'+esc(RVVERD[r.verdict]||r.verdict)+'</span>':'';
+  var h='<div class="rv-head">'+chip+vchip+(r.close?'<span class="rv-chip">Decided by 3 or fewer</span>':'')+'</div>'+
+    '<p class="rv-sum">GridIron had <b>'+esc(byLab(r.call,H,A))+'</b>; '+(am?esc(win)+' won by '+Math.abs(am):'it ended level')+
+    (r.right?' \u2014 the right side, '+Math.abs(r.miss).toFixed(1)+' points off.':' \u2014 a '+Math.abs(r.miss).toFixed(1)+'-point miss. Here is where it went.')+'</p>';
+  h+='<div class="rv-axis"><span>What moved the result</span><span><span>\u2190 toward '+esc(A)+'</span><span>toward '+esc(H)+' \u2192</span></span><span style="text-align:right">points</span></div>'+
+    '<div class="rv-parts">';
+  keys.forEach(function(k){ h+=rvPart(k,r.parts[k]||0,r,scale); });
+  h+='<div class="rv-part total"><span class="pk">The miss</span><span class="rv-bar"><b></b><i style="left:'+(r.miss>=0?50:50-Math.min(50,Math.abs(r.miss)/scale*50)).toFixed(1)+
+    '%;width:'+Math.min(50,Math.abs(r.miss)/scale*50).toFixed(1)+'%;background:var(--fg)"></i></span><span class="pv">'+Math.abs(r.miss).toFixed(1)+' \u2192 '+esc(r.miss>0?H:A)+'</span></div></div>';
+  /* why: chance or misjudgement */
+  var push=keys.filter(function(k){ return k!=='blend'&&(r.parts[k]||0)*r.miss>0; }).sort(function(x,y){ return Math.abs(r.parts[y])-Math.abs(r.parts[x]); });
+  var names=push.map(function(k){ return RVPART[k].toLowerCase(); });
+  var why='';
+  if(r.right===false){
+    var tp=P[r.top]||{};
+    if(r.verdict==='chance') why='Most of what pulled this game away from GridIron\u2019s call \u2014 '+names.join(', ')+' \u2014 barely repeats from one half of a season to the other (turnovers r\u00a0=\u00a0'+
+      num((P.turnovers||{}).r).toFixed(2)+', special teams and other scores r\u00a0=\u00a0'+num((P.nonoff||{}).r).toFixed(2)+', over '+num(tp.n||(P.yards||{}).n)+' team-seasons). No model sees that coming, and one that chased it would be worse next week.';
+    else if(r.verdict==='misjudged') why='The game turned on '+(names[0]||'yardage')+', a team trait that does repeat over a season (r\u00a0=\u00a0'+num(tp.r).toFixed(2)+'). '+
+      'The two teams played differently from how GridIron rated them going in \u2014 the kind of miss its ratings exist to learn from.';
+    else why='Roughly half chance and half misjudgement: '+names.join(', ')+'.';
+  }
+  /* considered */
+  var cons='<li><b>'+esc(A)+' offence:</b> '+num(r.stats.a.exp.yd).toFixed(0)+' yards, '+num(r.stats.a.exp.td).toFixed(1)+' touchdowns, '+num(r.stats.a.exp.to).toFixed(1)+' turnovers expected</li>'+
+    '<li><b>'+esc(H)+' offence:</b> '+num(r.stats.h.exp.yd).toFixed(0)+' yards, '+num(r.stats.h.exp.td).toFixed(1)+' touchdowns, '+num(r.stats.h.exp.to).toFixed(1)+' turnovers expected</li>'+
+    '<li><b>Home edge:</b> '+(r.neutral?'none, neutral site':signedPts(c.hfa)+' to '+esc(H))+'</li>'+
+    '<li><b>Backup quarterback:</b> '+(c.qb?esc(c.qb>0?A:H)+' started one, worth '+signedPts(Math.abs(c.qb))+' to '+esc(c.qb>0?H:A):'neither side')+'</li>'+
+    (c.bsp!=null?'<li><b>Blend with Vegas:</b> GridIron is '+Math.round(num(c.blend)*100)+'% of the blended line, '+esc(byLab(-c.bsp,H,A))+'</li>':'')+
+    ((c.zero||[]).length?'<li><b>Tested, given no weight:</b> '+(c.zero||[]).map(function(z){ return ZEROLAB[z]||z; }).join(', ')+' \u2014 none helped on games it had not seen</li>':'');
+  var fl=rvFlags(r), so=fl.starters_out, bsc=((D.blindspots||{}).candidates||[]).filter(function(x){ return x.id==='starters_out'; })[0];
+  if(so) cons+='<li class="flag"><b>Not in the model:</b> '+esc(so>0?A:H)+' had '+Math.abs(so).toFixed(1)+' more starters out (snap-weighted, quarterbacks aside)'+
+    (so*r.miss>0?' \u2014 and it pointed the way the game went':'')+'.</li>';
+  /* learned and next */
+  var lt='<p>Rematch tomorrow: GridIron\u2019s ratings would now say <b>'+esc(byLab(L.after,H,A))+'</b>, where before this game they said '+esc(byLab(L.before,H,A))+
+    ' \u2014 they moved '+Math.abs(num(L.shift)).toFixed(1)+' points toward '+esc(L.shift>0?H:A)+'.</p>'+
+    '<p>Ratings move on yardage, scoring and efficiency and only a little on turnovers, by design. Across every reviewed game they moved '+num(S.shift).toFixed(1)+' points on average.</p>';
+  var nx='';
+  if(r.right===false&&r.verdict==='chance') nx='<p><b>Nothing to change.</b> What swung this game does not carry over, so it is not something to learn from.</p>';
+  else if(r.right===false) nx='<p><b>Already done:</b> the ratings above have absorbed the game. No weight moves on one result \u2014 the learning loop re-tests every weight each week on whole seasons and changes one only when the gain holds up on games it never saw.</p>';
+  else nx='<p><b>Right for the right reasons?</b> '+(push.length&&Math.abs(r.miss)>=7?'The side was right but the margin was off by '+Math.abs(r.miss).toFixed(1)+', mostly in '+names[0]+'.':'The side and roughly the margin held up.')+'</p>';
+  if(so&&so*r.miss>0&&bsc&&bsc.verdict!=='blind_spot') nx+='<p class="flag"><b>What it cannot weigh yet:</b> injuries beyond the quarterback. That idea is on '+(bsc.verdict==='watch'?'watch':'the list')+
+    ' \u2014 better in '+bsc.pos+' of '+Object.keys(bsc.by_season||{}).length+' past seasons, not yet proven \u2014 and goes to the owner as a proposal the day it clears the bar.</p>';
+  h+=(why?'<div class="verdict'+(r.verdict==='chance'?' ok':'')+'"><b>'+esc(RVVERD[r.verdict])+'.</b> '+why+'</div>':'')+
+    '<div class="rv-cols"><div class="rv-box"><h4>What GridIron considered</h4><ul>'+cons+'</ul></div>'+
+    '<div class="rv-box"><h4>What it learned</h4>'+lt+'</div>'+
+    '<div class="rv-box"><h4>What it will do with it</h4>'+nx+'</div></div>';
+  return h;
+}
+function drawReview(g){
+  var sec=document.getElementById('gsec-review'), jb=document.getElementById('gjreview'), r=(((D.review||{}).games)||{})[g.id];
+  if(sec) sec.hidden=!r; if(jb) jb.hidden=!r;
+  if(r) render(document.getElementById('greview'),reviewHTML(r));
+}
+function reviewCard(){
+  var RV=D.review; if(!RV||!RV.summary||!RV.summary.reviewed) return '';
+  var S=RV.summary, P=RV.persist||{}, G=RV.games||{};
+  function tile(k,v,s){ return '<div class="ttile"><span class="tk">'+esc(k)+'</span><span class="tv">'+esc(v)+'</span><span class="ts2">'+esc(s)+'</span></div>'; }
+  var h='<div class="mcard wide" id="reviews"><h3>Every wrong call, <em>taken apart</em></h3>'+
+    '<p class="sub3">Each frozen call with a final score is reviewed against nflverse\u2019s box score. The miss is split into parts that add up exactly, using the model\u2019s own expected '+
+    'yards, touchdowns and turnovers for each side and its own points-per-yard conversion. Each part is then classed by how much it repeats: if a team\u2019s average on it in one half of a '+
+    'season barely predicts the other half, a miss there is chance; if it does, GridIron misjudged a team.</p>'+
+    '<div class="ttiles">'+tile('Reviewed',S.reviewed+' calls',S.right+' right \u00b7 '+S.wrong+' wrong')+
+      tile('Mostly chance',String(S.verdicts.chance),'turnovers, special teams')+tile('Misjudged a team',String(S.verdicts.misjudged),'yardage, finishing')+
+      tile('Part of each',String(S.verdicts.both),S.close+' decided by 3 or fewer')+tile('Ratings move',num(S.shift).toFixed(1)+' pts','per game, on average')+'</div>';
+  h+='<h4 class="fh">What repeats and what does not</h4><div class="ftab">';
+  [['yards','Yardage margin'],['finish','Finishing (touchdowns per 100 yards)'],['turnovers','Turnover margin'],['nonoff','Special teams & other scores']].forEach(function(x){
+    var p=P[x[0]]||{}, v=p.cls||'mixed';
+    h+='<div class="frow v-'+v+'"><span class="fk">'+esc(x[1])+'</span><span class="fv">'+(p.cls==='trait'?'Team trait':p.cls==='chance'?'Chance':'Mixed')+'</span>'+
+      '<span class="fs">split-half r\u00a0=\u00a0'+num(p.r).toFixed(2)+' over '+num(p.n)+' team-seasons, 2019\u201325</span></div>';
+  });
+  h+='</div>';
+  var W=Object.keys(G).map(function(k){ return G[k]; }).filter(function(r){ return r.right===false; })
+    .sort(function(x,y){ return y.w-x.w||Math.abs(y.miss)-Math.abs(x.miss); });
+  h+='<h4 class="fh">The '+W.length+' wrong calls</h4><div class="rvlist">';
+  W.forEach(function(r){
+    h+='<details class="rvg"><summary><span class="gk">'+esc(r.a)+' at '+esc(r.h)+'<small>week '+r.w+' \u00b7 '+esc(byLab(r.call,r.h,r.a))+' \u2192 '+esc(r.final>0?r.h:r.a)+' won by '+Math.abs(r.final)+'</small></span>'+
+      '<span><span class="rv-chip '+esc(r.verdict)+'">'+esc(RVSHORT[r.verdict])+'</span></span>'+
+      '<span class="gm">'+(r.top?'mostly '+esc(RVPART[r.top].toLowerCase()):'')+'</span>'+
+      '<span class="gl">'+Math.abs(r.miss).toFixed(1)+'</span></summary><div class="rv-in">'+reviewHTML(r)+'</div></details>';
+  });
+  h+='</div>';
+  var mis=S.verdicts.misjudged||0;
+  h+='<div class="verdict"><b>The honest read.</b> '+(S.wrong?mis+' of the '+S.wrong+' wrong calls turned mostly on yardage or finishing \u2014 team traits, which is what the ratings learn from and what early-season ratings, '+
+    'resting on last season and a game or two, get wrong most. '+(S.verdicts.chance||0)+' turned mostly on turnovers and special teams, which nothing predicts. ':'')+
+    'A review explains a game; it does not change a weight. Weights move only through the weekly learning loop, on whole seasons of evidence.</div>';
+  return h+'</div>';
+}
+function blindCard(){
+  var B=D.blindspots; if(!B||!B.candidates) return '';
+  var K=B.counts||{}, n=B.candidates.length;
+  function tile(k,v,s){ return '<div class="ttile"><span class="tk">'+esc(k)+'</span><span class="tv">'+esc(v)+'</span><span class="ts2">'+esc(s)+'</span></div>'; }
+  var VL={blind_spot:'Blind spot',watch:'Watch',clear:'Clear'};
+  var h='<div class="mcard wide" id="blind"><h3>Blind spots, <em>checked every week</em></h3>'+
+    '<p class="sub3">The learning loop re-tunes what the model already has; this looks outside it. Each candidate is something knowable before kickoff that GridIron ignores, tested on '+
+    num(B.n).toLocaleString()+' games since '+B.seasons[0]+': fitted on earlier seasons only, then scored on later seasons it never saw ('+B.test_seasons[0]+'\u2013'+B.test_seasons[B.test_seasons.length-1]+'). '+
+    'A blind spot must cut the margin miss in most of those seasons, by a significance that survives a correction for testing '+n+' ideas at once. Most ideas fail that test, and the scan says so.</p>'+
+    '<div class="ttiles">'+tile('Candidates',String(n),'re-tested every daily run')+tile('Blind spots',String(K.blind_spot||0),'proven on unseen games')+
+      tile('On watch',String(K.watch||0),'a hint, not proof')+tile('Clear',String(K.clear||0),'no measurable effect')+'</div><div class="ftab">';
+  B.candidates.slice().sort(function(x,y){ return x.p-y.p; }).forEach(function(c){
+    var ns=Object.keys(c.by_season||{}).length;
+    h+='<details class="bsr"><summary class="frow v-'+esc(c.verdict)+'"><span class="fk">'+esc(c.name)+'</span><span class="fv">'+esc(VL[c.verdict]||c.verdict)+'</span>'+
+      '<span class="fs">'+(Math.abs(c.gain)<0.0005?'no change to the miss':(c.gain>0?'cuts':'adds to')+' the miss by '+Math.abs(c.gain).toFixed(3)+' pts a game')+' on unseen seasons \u00b7 better in '+c.pos+' of '+ns+' \u00b7 corrected p\u00a0=\u00a0'+num(c.p_adj).toFixed(2)+'</span></summary>'+
+      '<div class="bs-in"><p><b>What.</b> '+esc(c.what)+'</p><p><b>Why it might matter.</b> '+esc(c.why)+'</p>'+
+      '<p><b>Evidence.</b> Fitted on 2019\u201325 it is worth '+signedPts(c.beta)+(c.form==='scale'?' per point of GridIron margin':' per unit')+'; the closing line already moves '+signedPts(c.market)+
+      ' per unit toward it. It touched '+num(c.n_touched).toLocaleString()+' of '+num(c.n_test).toLocaleString()+' held-out games. Uncorrected p\u00a0=\u00a0'+num(c.p).toFixed(3)+'.</p>'+
+      '<p><b>Where it stands.</b> '+esc(c.rel)+(c.proposed?' Proposed to the owner on '+esc(c.proposed)+'.':'')+'</p>'+
+      '<div class="bs-yrs">'+Object.keys(c.by_season||{}).sort().map(function(y){ var g=c.by_season[y]; return '<span class="'+(g>0?'up':g<0?'dn':'')+'">'+y+' '+(g>0?'+':'')+num(g).toFixed(3)+'</span>'; }).join('')+'</div></div></details>';
+  });
+  h+='</div>';
+  var w=B.candidates.filter(function(c){ return c.verdict==='watch'; }), bsp=B.candidates.filter(function(c){ return c.verdict==='blind_spot'; });
+  h+='<div class="verdict'+(bsp.length?'':' ok')+'"><b>'+(bsp.length?bsp.length+' blind spot'+(bsp.length>1?'s':'')+' found.':'No proven blind spot.')+'</b> '+
+    (bsp.length?bsp.map(function(c){ return c.name; }).join(', ')+' passed every check and '+(bsp.length>1?'have':'has')+' gone to the owner as a proposal. ':'')+
+    (w.length?w.map(function(c,i){ return i?c.name.toLowerCase():c.name; }).join(' and ')+' '+(w.length>1?'are':'is')+' worth watching: '+w.map(function(c){ return 'better in '+c.pos+' of '+Object.keys(c.by_season).length+' unseen seasons, but p\u00a0=\u00a0'+num(c.p_adj).toFixed(2)+' after correction'; }).join('; ')+
+      '. The scan re-runs daily and proposes it the day it clears the bar. ':'')+
+    'An idea the closing line already prices is one reason the market beats GridIron; adding it would move GridIron toward the line, not past it.</div>';
+  return h+'</div>';
+}
 function ledgerCard(){
   var LG=D.ledger; if(!LG||!LG.record) return '';
   var R=LG.record, n=R.settled||0;
@@ -1811,7 +1985,9 @@ function ledgerCard(){
     (R.missed?', '+R.missed+' games kicked off before GridIron recorded a call':'')+'.')+'</p>';
   if(!n) return h+'<div class="verdict">No settled games yet.</div></div>';
   var clv=R.clv||{}, clt=R.clv_total||{};
+  var pf=pctOf(R.fav);
   h+='<div class="ttiles">'+
+    tile('Picks the winner',(pctOf(R.su)||0).toFixed(1)+'%',rec(R.su)+(pf!=null?' \u00b7 Vegas favourite '+pf.toFixed(1)+'% ('+R.fav[0]+'-'+R.fav[1]+')':''))+
     tile('Margin error',num(R.gm).toFixed(2)+' pts','closing line '+num(R.vm).toFixed(2))+
     tile('Total error',R.gt==null?'\u2014':num(R.gt).toFixed(2)+' pts',R.vt==null?'no closing totals':'closing line '+num(R.vt).toFixed(2))+
     tile('Against the close',pct(R.ats),rec(R.ats)+' \u00b7 break-even is 52.4%')+
@@ -1880,7 +2056,7 @@ function trackCard(){
 
 function drawModel(){
   var C=D.cal; if(!C) return;
-  var h=trackCard()+ledgerCard()+learnCard();
+  var h=trackCard()+ledgerCard()+reviewCard()+blindCard()+learnCard();
   /* calibration */
   var worst=Math.max.apply(null,C.pit.map(function(v){return Math.abs(v-0.1);}));
   h+='<div class="mcard"><h3>Calibration</h3>'+
@@ -2266,6 +2442,7 @@ function ago(iso){
 var LIVE={on:!!(window.GRIDIRON_LIVE||window.GRIDIRON_FIXTURE), box:{}, sb:null, timer:null, version:(D.meta&&D.meta.version)||null,
   code:window.GRIDIRON_CODE||null, codeStale:false, scoresAt:null};
 function stampFresh(){
+  drawAcc();
   var el=document.getElementById('stamp'); if(!el) return;
   var meta=D.meta||{}, bits=[];
   if(LIVE.codeStale){ el.textContent='app updated \u00b7 click to reload'; el.classList.add('stale'); return; }
@@ -2345,6 +2522,9 @@ function pollVersion(){
 if(typeof setLeague==='function') setLeague(D.lg||null);
 buildSidebar(); drawPartner(); drawSlateLabels(); go(routeFromHash());
 stampFresh();
+(function(){ var a=document.getElementById('acc'); if(a) a.addEventListener('click',function(){
+  go('model'); var t=document.getElementById('since'), sc=document.getElementById('scroller');
+  if(t&&sc) sc.scrollTop=t.getBoundingClientRect().top-sc.getBoundingClientRect().top+sc.scrollTop-12; }); })();
 if(LIVE.on){
   pollScores();
   setInterval(pollVersion,120000); setInterval(stampFresh,30000);
