@@ -115,10 +115,14 @@ setTimeout(async()=>{
     const sc=d.getElementById('scrim'); if(sc) sc.click(); await sleep(40); }
   d.querySelector('.navitem[data-go="model"]').click(); await sleep(150);
   out.adsModel=adsNow();
-  out.model={learn:{rows:all(d,'.ltab .lrow').map(r=>({k:T(r.querySelector('.fk')),st:T(r.querySelector('.fv')),v:T(r.querySelector('.lval'))})),rev:T(d.querySelector('.lrev')),dec:all(d,'.ldec').length},since:all(d,'#since .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),sinceText:T(d.getElementById('since')),tiles:all(d,'.mcard:not(#since):not(#reviews):not(#blind) .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),
-    frows:all(d,'.mcard:not(#reviews):not(#blind) .ftab:not(.ltab) .frow').map(T),wprows:all(d,'.wprow').map(T),text:T(d.getElementById('modelgrid'))};
+  out.model={learn:{rows:all(d,'.ltab .lrow').map(r=>({k:T(r.querySelector('.fk')),st:T(r.querySelector('.fv')),v:T(r.querySelector('.lval'))})),rev:T(d.querySelector('.lrev')),dec:all(d,'.ldec').length},since:all(d,'#since .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),sinceText:T(d.getElementById('since')),tiles:all(d,'.mcard:not(#since):not(#reviews):not(#blind):not(#moves) .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),
+    frows:all(d,'.mcard:not(#reviews):not(#blind):not(#moves) .ftab:not(.ltab) .frow').map(T),wprows:all(d,'.wprow').map(T),text:T(d.getElementById('modelgrid'))};
   // the brain: post-game reviews and the blind-spot scan, each in its own card, kept out of the generic selectors above
   out.model.reviews={tiles:all(d,'#reviews .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),repeat:all(d,'#reviews .ftab .frow').map(T),rows:all(d,'#reviews details.rvg').map(x=>({head:T(x.querySelector('summary')),sum:T(x.querySelector('.rv-sum')),parts:all(x,'.rv-part').map(p=>[T(p.querySelector('.pk')),T(p.querySelector('.pv'))]),learned:T(x.querySelectorAll('.rv-box')[1])}))};
   out.model.blind={tiles:all(d,'#blind .ttile').map(x=>[T(x.querySelector('.tk')),T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),rows:all(d,'#blind details.bsr').map(x=>({head:T(x.querySelector('summary')),verdict:T(x.querySelector('.fv'))})),text:T(d.getElementById('blind'))};
+  // line movement: tiles keyed by data-k, the disagreement buckets and the season chips
+  out.model.moves={tiles:all(d,'#moves .ttile').map(x=>[x.dataset.k,T(x.querySelector('.tv')),T(x.querySelector('.ts2'))]),
+    buckets:all(d,'#moves .frow').map(x=>[x.dataset.b,T(x.querySelector('.fk')),T(x.querySelector('.fv')),T(x.querySelector('.fs'))]),
+    seasons:all(d,'#moves .bs-yrs span').map(x=>[x.dataset.s,T(x)]),verdict:T(d.querySelector('#moves .verdict')),text:T(d.getElementById('moves'))};
   out.errors=errs; fs.writeFileSync(process.argv[2]||'/dev/stdout',JSON.stringify(out)); W.close();
 },700);

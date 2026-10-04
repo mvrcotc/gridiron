@@ -34,7 +34,8 @@ def load_site():
 
 def merge(a,b):
     """frozen beats unfrozen; two frozen copies keep the earlier freeze; otherwise the later pre-kickoff record wins.
-    The first line is the earliest either copy saw; closing lines and final scores are taken from whichever has them."""
+    The first line and the early call are the earliest either copy saw; closing lines and final scores are taken from
+    whichever has them."""
     out=dict(a)
     for gid,e in b.items():
         o=out.get(gid)
@@ -47,6 +48,8 @@ def merge(a,b):
             if keep.get(k) is None and (o.get(k) is not None or e.get(k) is not None): keep[k]=o.get(k) if o.get(k) is not None else e.get(k)
         firsts=[x for x in (o.get('first'),e.get('first')) if x]
         if firsts: keep['first']=min(firsts,key=lambda x:x['at'])
+        entries=[x for x in (o.get('entry'),e.get('entry')) if x]
+        if entries: keep['entry']=min(entries,key=lambda x:x['at'])
         out[gid]=keep
     return out
 
@@ -67,6 +70,10 @@ def update(E,D,now,source):
                     e['call']=dict(at=iso(now),v=versions,sp=p.get('sp'),tot=p.get('tot'),wp=p.get('wp'),ph=p.get('ph'),pa=p.get('pa'),
                                    bsp=p.get('bsp'),btot=p.get('btot'))
                     e['source']=source; e.pop('missed',None)
+                    # GridIron's early call: its first call made beside a line, kept for good. The kickoff call above has
+                    # seen whatever news moved the line since; this one is what lines.py tests line movement against.
+                    if not e.get('entry') and p.get('ph') is not None and (g.get('spread') is not None or g.get('ou') is not None):
+                        e['entry']=dict(at=iso(now),spread=g.get('spread'),ou=g.get('ou'),ph=p.get('ph'),pa=p.get('pa'))
             elif e.get('call') and ts(e['call']['at'])<ts(e['kickoff']):
                 e['frozen']=True; e['frozen_at']=iso(now)
             else:
@@ -170,7 +177,8 @@ if __name__=='__main__':
     if '--backfill' in sys.argv: backfill(E)
     update(E,D,now,'refresh'); settle(E); sweep(E,now); settle(E); R=record(E)
     L=dict(updated=iso(now),record=R,entries=dict(sorted(E.items(),key=lambda kv:(kv[1].get('kickoff',''),kv[0]))),
-           note='Each call is the last GridIron prediction recorded before kickoff; the first line is the first one GridIron saw, not necessarily the opening line. Closing lines and scores come from nflverse.')
+           note='Each call is the last GridIron prediction recorded before kickoff; the first line is the first one GridIron saw, not necessarily the opening line; '
+                'the entry is GridIron\'s first call made beside a line, kept for good. Closing lines and scores come from nflverse.')
     json.dump(L,open(LEDGER+'.part','w',encoding='utf-8'),indent=1,ensure_ascii=False); os.replace(LEDGER+'.part',LEDGER)
     D['ledger']=L; json.dump(D,open(os.path.join(DATA,'gi2.json'),'w'),separators=(',',':'))
     print('ledger: %d games, %d frozen at kickoff, %d settled, %d without a pre-kickoff call | since launch %s'%(

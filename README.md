@@ -48,6 +48,7 @@ python3 refresh.py --stage props
 | `backtest` | (daily) track record from the exact live model, plus held-out tests of excluded ingredients |
 | `predict` | game predictions from that same model; carries the live model's constants into the data |
 | `ledger` | freezes GridIron's last pre-kickoff call for each game at kickoff, beside the first line it saw, the closing line and the final score -- the since-launch record (`pipeline/ledger.json`, also published with the data so refreshes that do not commit keep it) |
+| `lines` | line movement: each finished game's opening and closing line from one book (ESPN's game summary), stored once in `pipeline/learning/lines.json`; does the line move toward GridIron? The daily lane also fetches up to 150 not-yet-stored games a run, newest first, back to 2023 (`pipeline/lines.py`) |
 | `review` | post-game review of every settled frozen call: the miss split into yardage, finishing, turnovers, other scores and blend (they add up exactly), each part classed chance or team trait by measured repeatability, and how far the game moved the ratings (`pipeline/review.py`) |
 | `blindspots` | the blind-spot scan: factors the model leaves out, each tested on seasons it never saw; a proven one is filed for the owner, once, by the daily lane only (`pipeline/blindspots.py`, results and memory in `pipeline/learning/blindspots.json`) |
 | `props` | DraftKings lines, de-duplicated, fetch time stamped |
@@ -210,6 +211,45 @@ python3 pipeline/review.py
 python3 pipeline/blindspots.py [--propose]
 ```
 
+## Line movement
+
+The closing line beats GridIron. The quicker question is whether GridIron knows where the line is *going*: when it
+disagrees with the opening line, does the line move its way by kickoff? If so, GridIron's side taken early gets a better
+number than the close -- the edge bettors chase -- even though the close remains the better forecast of the score.
+
+**Lines** (`pipeline/lines.py`). ESPN's game summary keeps a finished game's opening and closing line from one book
+(`pickcenter[].pointSpread.home.open/close`, `total.over.open/close`; DraftKings today), so a move is that book changing
+its own price. Each finished game is stored once in `pipeline/learning/lines.json` and never rewritten; games whose
+summary has no line are listed under `none` so they are not fetched again. The current slate's finished games come from
+the summaries the `espn` stage already saved; the daily lane fetches older ones in batches of 150, newest first, back to
+2023. ESPN does not say when the opener was posted.
+
+**GridIron's opinion**, two ways:
+
+- *Rebuilt*: the ratings as they stood a week before kickoff (after week w-2 for a week-w game; weeks 1 and 2 use last
+  season's), plus home field, venue and rest. The lag exists because look-ahead lines go up a week early and the opener's
+  time is not recorded: with week w-1's results in, GridIron would be credited with knowing what the opener had not
+  seen. The backup-QB flag, weather and referee arrive after the open and are left out. Spreads only, because a past
+  season's league scoring averages are that season's full ones (an engine-wide simplification that barely touches a
+  margin but would flatter a total).
+- *Real*: from this change on, the ledger keeps each game's `entry` -- GridIron's first call made beside a line, with that
+  line, before kickoff -- and never changes it. Scored against the same book's close; spreads and totals.
+
+Disagreement = GridIron's margin minus the line's; a game counts toward GridIron when the move has that sign. Reported:
+the share of moves toward GridIron with an exact binomial p, the average move its way, the slope (points the line moves
+per point of disagreement), the same by size of disagreement and by season, and the money question -- GridIron's side at
+the opener and at the close, settled on the final score. **Benchmark**: a guess that knows nothing about the teams (home
+field alone). An opener set too far from the middle drifts back, and any opinion nearer the middle gets credit for it;
+a significant lean the benchmark matches is reported as reversion, not skill. No verdict before 50 moves.
+
+The kickoff ledger's own "line moved toward GridIron" count compares the first line GridIron saw with its *kickoff*
+call, which had already seen the news that moved the line; it stays for continuity, and the Model page says so.
+
+```bash
+python3 pipeline/lines.py              # measure from what is stored
+python3 pipeline/lines.py --fetch 150  # first fetch up to 150 finished games not yet stored
+```
+
 ## Player projections
 
 `pipeline/playermodel.py` holds the panel, the projection formula (vectorised), expected PPR points and the
@@ -322,6 +362,13 @@ recomputed; RV4 verdicts follow the rule; RV5 "what it learned" starts from the 
 verdicts and the Holm correction recompute; BS2 the starters-out feature rebuilt from raw injury and snap files; BS3 the
 held-out test rebuilt from fresh walk-forward residuals; U18-U20 the badge, the review card and the blind-spot card show
 exactly the data.
+
+Line-movement checks (`tools/audit/a14_lines.py`): LM1 stored lines are half-point numbers tied to their schedule row,
+close within 3.5 points of nflverse's close (a swapped side fails), and match the raw ESPN summary for this slate's
+finished games; LM2 a stored line never changes against the committed file; LM3 the rebuilt test -- ratings a week early
+from engine2's own snapshots, venue, rest and home field recomputed here, benchmark, buckets, seasons, records against
+the opener and close, and the verdict rule; LM4 every early call was recorded before kickoff beside a line, never
+changes against the committed ledger, and the real-call figures recompute; U21 the Model page card shows exactly that.
 
 ## Fitted constants
 
