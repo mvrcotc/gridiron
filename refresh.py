@@ -178,6 +178,12 @@ def stage_blindspots():
     if LANE=='daily': run('pbp.py','play-by-play',('--fetch',))
     run('blindspots.py','blind spots',('--propose',) if LANE=='daily' else ())
 def stage_props():   run('props.py','props')
+def stage_propsarc():
+    """every lane settles and summarises the prop archive; only the daily lane, which commits it, records lines"""
+    run('propsarc.py','prop archive',('--record',) if LANE=='daily' else ())
+def stage_odds():
+    """multi-book lines; the daily lane takes the snapshot (when ODDS_API_KEY is set), every lane publishes the best numbers"""
+    run('odds.py','odds',('--fetch',) if LANE=='daily' else ())
 
 def stage_embed():
     """drop the fresh dataset into the page"""
@@ -244,14 +250,16 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('review',  stage_review,  'post-game review of every settled call: what it considered, what swung the game, chance or misjudgement, what it learned'),
         ('blindspots', stage_blindspots, 'blind-spot scan: factors the model leaves out, tested on seasons it never saw; a proven one becomes a proposal'),
         ('props',   stage_props,   'DraftKings prop lines'),
+        ('propsarc',stage_propsarc,'prop-line archive: each line before kickoff with GridIron\'s call, settled on the real stat line'),
+        ('odds',    stage_odds,    'every US book\'s line from The Odds API (off without ODDS_API_KEY); best number on each side'),
         ('ids',     stage_ids,     'ESPN athlete id -> gsis map for live box scores'),
         ('partners',stage_partners,'partner ad card: validates partners.json; off unless switched on with real links'),
         ('site',    stage_site,    'build site/ for GitHub Pages'),
         ('embed',   stage_embed,   'write the dataset into the claude.ai artifact page (legacy)'),
         ('audit',   stage_audit,   'independent audit -- stops the run on any failure'),
         ('check',   stage_check,   'sanity report')]
-LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','predict','ledger','lines','review','blindspots','props','ids','partners','site','audit'],
-       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','learn','backtest','predict','ledger','lines','review','blindspots','props','ids','partners','site','audit']}
+LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','predict','ledger','lines','review','blindspots','props','propsarc','odds','ids','partners','site','audit'],
+       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','learn','backtest','predict','ledger','lines','review','blindspots','props','propsarc','odds','ids','partners','site','audit']}
 
 if __name__=='__main__':
     a=sys.argv[1:]
