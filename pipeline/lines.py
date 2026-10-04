@@ -63,19 +63,46 @@ def total_of(x):
     t=str(x).strip().lower()
     return num(t[1:] if t[:1] in ('o','u') else t)
 
+PARSER=2          # a game listed as having no line under an older parser is fetched again
+
+def _odds_side(x):
+    """a line from the older pickcenter layout (homeTeamOdds.open / .close): a dict with american, line or value"""
+    if isinstance(x,dict):
+        for k in ('line','american','value','alternateDisplayValue'):
+            if x.get(k) is not None: return x[k]
+        return None
+    return x
+
 def parse(s):
-    """(book, open, close, home, final) from an ESPN game summary; open/close are dicts of spread (home) and ou"""
+    """(book, open, close, home, final, diag) from an ESPN game summary; open/close are dicts of spread (home) and ou.
+
+    Two layouts: DraftKings-era summaries carry pointSpread.home.open/close and total.over.open/close; earlier ones
+    (ESPN BET, to late 2025) may carry homeTeamOdds.open/close and open/close.total instead. When neither yields an
+    opening spread, diag keeps a short excerpt of the first pickcenter entry so the stored record shows the layout."""
     c=((s.get('header') or {}).get('competitions') or [{}])[0] or {}
     st=((c.get('status') or {}).get('type') or {})
     home=next((x.get('team',{}).get('abbreviation') for x in (c.get('competitors') or []) if x.get('homeAway')=='home'),None)
     final=bool(st.get('completed')) or st.get('state')=='post'
+    base=dict(home=ESPN2NFL.get(home,home),final=final)
     for pc in (s.get('pickcenter') or []):
+        book=(pc.get('provider') or {}).get('name')
         ps=(pc.get('pointSpread') or {}).get('home') or {}; tt=(pc.get('total') or {}).get('over') or {}
         o=dict(spread=spread_of((ps.get('open') or {}).get('line')),ou=total_of((tt.get('open') or {}).get('line')))
-        if o['spread'] is None and o['ou'] is None: continue
-        cl=dict(spread=spread_of((ps.get('close') or {}).get('line')),ou=total_of((tt.get('close') or {}).get('line')))
-        return dict(book=(pc.get('provider') or {}).get('name'),open=o,close=cl,home=ESPN2NFL.get(home,home),final=final)
-    return dict(book=None,open=None,close=None,home=ESPN2NFL.get(home,home),final=final)
+        if o['spread'] is not None or o['ou'] is not None:
+            cl=dict(spread=spread_of((ps.get('close') or {}).get('line')),ou=total_of((tt.get('close') or {}).get('line')))
+            return dict(base,book=book,open=o,close=cl)
+        ho=pc.get('homeTeamOdds') or {}
+        def side(when):
+            h=ho.get(when) or {}; t=(pc.get(when) or {}).get('total') if isinstance(pc.get(when),dict) else None
+            return dict(spread=spread_of(_odds_side(h.get('pointSpread') if isinstance(h,dict) else None)),ou=total_of(_odds_side(t)))
+        o=side('open')
+        if o['spread'] is not None:
+            cl=side('close')
+            if cl['spread'] is None: cl=side('current')
+            return dict(base,book=book,open=o,close=cl)
+    pcs=s.get('pickcenter') or []
+    diag=json.dumps(pcs[0],separators=(',',':'),sort_keys=True)[:600] if pcs else 'no pickcenter; keys: '+','.join(sorted(s))[:300]
+    return dict(base,book=None,open=None,close=None,diag=diag)
 
 # ------------------------------------------------------------------ the store
 def load():
@@ -110,10 +137,10 @@ def add(S,gid,r,s,src):
     if src=='slate' and not s['final']: return 'not final'
     base=dict(s=int(r['season']),w=int(r['week']),h=r['home_team'],a=r['away_team'],at=iso(),src=src)
     if s['home'] and s['home']!=r['home_team']:
-        if src!='slate': S['none'][gid]=dict(base,why='summary home team %s, schedule %s'%(s['home'],r['home_team']))
+        if src!='slate': S['none'][gid]=dict(base,why='summary home team %s, schedule %s'%(s['home'],r['home_team']),v=PARSER)
         return 'home team mismatch'
     if not s['open'] or s['open']['spread'] is None or not s['close'] or s['close']['spread'] is None:
-        S['none'][gid]=dict(base,why='no opening and closing spread in the summary'); return 'none'
+        S['none'][gid]=dict(base,why='no opening and closing spread in the summary',v=PARSER,diag=s.get('diag')); return 'none'
     S['games'][gid]=dict(base,book=s['book'],open=s['open'],close=s['close']); S['none'].pop(gid,None); return 'added'
 
 def from_slate(S,SC,D):
@@ -130,7 +157,7 @@ def from_slate(S,SC,D):
 def fetch_missing(S,SC,cap):
     """finished games from FIRST on that are neither stored nor known to have no line, newest first"""
     todo=sorted((gid for gid,r in SC.items() if int(r['season'])>=FIRST and r['home_score'] not in ('',None)
-                 and gid not in S['games'] and gid not in S['none']),
+                 and gid not in S['games'] and (S['none'].get(gid) or {}).get('v')!=PARSER),
                 key=lambda g:(-int(SC[g]['season']),-int(SC[g]['week']),g))
     n=Counter(); fails=0
     for gid in todo[:cap]:
