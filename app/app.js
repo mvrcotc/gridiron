@@ -1994,12 +1994,58 @@ function ledgerCard(){
     tile('Margin error',num(R.gm).toFixed(2)+' pts','closing line '+num(R.vm).toFixed(2))+
     tile('Total error',R.gt==null?'\u2014':num(R.gt).toFixed(2)+' pts',R.vt==null?'no closing totals':'closing line '+num(R.vt).toFixed(2))+
     tile('Against the close',pct(R.ats),rec(R.ats)+' \u00b7 break-even is 52.4%')+
-    tile('Line moved toward GridIron',clv.n?clv.toward+' of '+clv.n:'\u2014',clv.n?'average '+signedPts(clv.pts)+' from the first line it saw':'no line moves yet')+
+    tile('Line moved toward GridIron',clv.n?clv.toward+' of '+clv.n:'\u2014',clv.n?'kickoff call, from the first line it saw \u00b7 see Line movement':'no line moves yet')+
   '</div>'+
   '<div class="verdict"><b>Read this with care.</b> '+n+' games cannot separate skill from luck; against-the-spread results need hundreds. '+
-    'Whether the line moves toward GridIron\u2019s number before kickoff is the quicker signal bettors watch, and that too is only '+(clv.n||0)+' games so far. '+
+    'The line-movement count here sets the first line GridIron saw against its kickoff call, which had already seen the news that moved the line; Line movement below tests it properly. '+
     'Straight up '+rec(R.su)+(R.brier!=null?' \u00b7 win-probability Brier score '+num(R.brier).toFixed(3)+' over '+R.brier_n+' games':'')+
     ' \u00b7 totals '+rec(R.ou)+' against the close'+(clt.n?', '+clt.toward+' of '+clt.n+' totals moved toward GridIron':'')+'.</div>';
+  return h+'</div>';
+}
+function movesCard(){
+  var M=D.moves; if(!M||!M.rebuilt) return '';
+  var R=M.rebuilt, B=R.base||{}, RL=M.real||{}, RS=RL.spread||{}, RT=RL.total||{};
+  function tile(id,k,v,s){ return '<div class="ttile" data-k="'+id+'"><span class="tk">'+esc(k)+'</span><span class="tv">'+esc(v)+'</span><span class="ts2">'+esc(s)+'</span></div>'; }
+  function share(x){ return x&&x.moved?(100*x.toward/x.moved).toFixed(1)+'%':'\u2014'; }
+  function pts2(v){ return (v>0?'+':v<0?'\u2212':'')+Math.abs(num(v)).toFixed(2)+' pts'; }
+  function rec(a){ return a[0]+'-'+a[1]+(a[2]?'-'+a[2]:''); }
+  function pct(a){ var d=a[0]+a[1]; return d?(100*a[0]/d).toFixed(1)+'%':'\u2014'; }
+  function pv(p){ return p==null?'p\u00a0\u2014':p<0.001?'p\u00a0<\u00a00.001':'p\u00a0=\u00a0'+num(p).toFixed(3); }
+  var h='<div class="mcard wide" id="moves"><h3>Line movement, <em>does the market move GridIron\u2019s way?</em></h3>'+
+    '<p class="sub3">The closing line beats GridIron. The quicker question is whether GridIron knows where the line is going: when it disagrees with the opening line, '+
+    'does the line later move toward it? If it does, GridIron\u2019s side taken early gets a better number than the close \u2014 the edge professional bettors chase. '+
+    'Opening and closing lines are '+esc(M.book||'one book')+'\u2019s own, from ESPN, so a move is the book changing its price. GridIron\u2019s opinion here is rebuilt from the ratings it had '+
+    esc(M.lag||'a week')+' before kickoff, plus home field, venue and rest: when the book posted its opener is not recorded, and that lag keeps GridIron from being credited with results the opener had not seen.</p>';
+  if(!R.n) return h+'<div class="verdict">Collecting. No finished game\u2019s opening line is stored yet; the daily refresh fetches them in batches, newest first, back to '+esc(M.first)+'.</div></div>';
+  h+='<div class="ttiles">'+
+    tile('toward','Moved toward GridIron',share(R),R.toward+' of '+R.moved+' moves \u00b7 a coin flip is 50%')+
+    tile('pts','Average move its way',pts2(R.pts),'per game it disagreed with the opener')+
+    tile('base','Team-blind guess',share(B),'home field only \u00b7 the bar to clear')+
+    tile('open','Its side at the opener',pct(R.ats_open),rec(R.ats_open)+' on the final score \u00b7 break-even 52.4%')+
+    tile('close','Same side at the close',pct(R.ats_close),rec(R.ats_close)+' on the final score')+
+  '</div>';
+  h+='<h4 class="fh">By how far GridIron disagreed with the opener</h4><div class="ftab">';
+  (R.buckets||[]).forEach(function(b){
+    h+='<div class="frow" data-b="'+b.lo+'"><span class="fk">'+(b.hi==null?b.lo+'+ pts':b.lo+'\u2013'+b.hi+' pts')+'<small>'+plural(b.n,'game')+'</small></span>'+
+      '<span class="fv">'+share(b)+'</span><span class="fs">'+(b.moved?b.toward+' of '+b.moved+' moves went its way, '+pts2(b.pts)+' a game on average':'no line moved')+'</span></div>';
+  });
+  h+='</div><div class="bs-yrs">'+Object.keys(R.seasons||{}).sort().map(function(y){ var x=R.seasons[y], r=x.moved?x.toward/x.moved:0.5;
+    return '<span data-s="'+y+'" class="'+(r>0.5?'up':r<0.5?'dn':'')+'">'+y+' '+share(x)+' of '+x.moved+'</span>'; }).join('')+'</div>';
+  var VD={early:'<b>Too early to say.</b> '+R.moved+' line moves so far; a verdict waits for '+M.need+', because until then the share can swing on chance alone.',
+    signal:'<b>The line does move toward GridIron.</b> '+share(R)+' of '+R.moved+' moves went its way ('+pv(R.p)+'), more than the '+share(B)+' that went toward a guess knowing nothing about the teams.',
+    reversion:'<b>Toward GridIron, but no more than toward a guess.</b> '+share(R)+' of moves went its way and '+share(B)+' toward a guess that knows nothing about the teams: openers set too far out drifting back, not something GridIron knows.',
+    against:'<b>The line moves away from GridIron.</b> Only '+share(R)+' of '+R.moved+' moves went its way ('+pv(R.p)+'): what the market learns after the open points the other way.',
+    none:'<b>No sign GridIron knows where the line is going.</b> '+share(R)+' of '+R.moved+' moves went its way, within what chance gives ('+pv(R.p)+').'};
+  h+='<div class="verdict'+(R.verdict==='signal'?' ok':'')+'">'+(VD[R.verdict]||'')+
+    (R.slope!=null?' For each point GridIron disagrees with the opener, the line moves '+pts2(R.slope)+' its way by kickoff (\u00b1'+num(2*R.se).toFixed(2)+').':'')+
+    (pct(R.ats_open)!=='\u2014'?' Taken at the opener, GridIron\u2019s side went '+rec(R.ats_open)+' ('+pct(R.ats_open)+') on the final score; at the close, '+rec(R.ats_close)+' ('+pct(R.ats_close)+'). 52.4% is break-even after the vig.':'')+
+    (R.err?' The opener misses the final margin by '+num(R.err.open).toFixed(2)+' points on average, the close by '+num(R.err.close).toFixed(2)+', GridIron a week early by '+num(R.err.gi).toFixed(2)+'.':'')+'</div>';
+  h+='<h4 class="fh">Real calls, recorded at the time</h4><p class="sub3">From now on each game keeps GridIron\u2019s first call made beside a line, with that line, before kickoff. '+
+    'Scored against the same book\u2019s close, it needs no rebuilding and no lag \u2014 but it starts empty and fills a week at a time.</p><div class="ttiles">'+
+    tile('rspread','Spreads moved its way',RS.moved?RS.toward+' of '+RS.moved:'\u2014',RS.moved?share(RS)+' \u00b7 '+pts2(RS.pts)+' a game':'none settled yet')+
+    tile('rtotal','Totals moved its way',RT.moved?RT.toward+' of '+RT.moved:'\u2014',RT.moved?share(RT)+' \u00b7 '+pts2(RT.pts)+' a game':'none settled yet')+
+    tile('rpend','Early calls recorded',String(RL.recorded||0),(RL.pending||0)+' waiting on a closing line')+
+  '</div>';
   return h+'</div>';
 }
 function trackCard(){
@@ -2059,7 +2105,7 @@ function trackCard(){
 
 function drawModel(){
   var C=D.cal; if(!C) return;
-  var h=trackCard()+ledgerCard()+reviewCard()+blindCard()+learnCard();
+  var h=trackCard()+ledgerCard()+movesCard()+reviewCard()+blindCard()+learnCard();
   /* calibration */
   var worst=Math.max.apply(null,C.pit.map(function(v){return Math.abs(v-0.1);}));
   h+='<div class="mcard"><h3>Calibration</h3>'+

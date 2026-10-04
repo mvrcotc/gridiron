@@ -166,6 +166,10 @@ def stage_learn():   run('learn.py','learn',['review','--update-history'])
 def stage_backtest(): run('backtest.py','backtest')
 def stage_predict(): run('predict.py','predict')
 def stage_ledger():  run('ledger.py','ledger')
+def stage_lines():
+    """every lane measures line movement from the stored lines; only the daily lane, which commits pipeline/learning,
+    fetches the summaries of finished games not yet stored"""
+    run('lines.py','lines',('--fetch','150') if LANE=='daily' else ())
 def stage_review():  run('review.py','review')
 def stage_blindspots():
     """every lane rebuilds the scan (the audit checks it against current data), but only the daily lane -- which commits
@@ -234,6 +238,7 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('backtest',stage_backtest,'track record from the exact live model'),
         ('predict', stage_predict, 'game predictions from the backtested model'),
         ('ledger',  stage_ledger,  'freeze each GridIron call at kickoff; closing lines, results and the since-launch record'),
+        ('lines',   stage_lines,   'line movement: opening and closing lines of finished games; does the line move toward GridIron?'),
         ('review',  stage_review,  'post-game review of every settled call: what it considered, what swung the game, chance or misjudgement, what it learned'),
         ('blindspots', stage_blindspots, 'blind-spot scan: factors the model leaves out, tested on seasons it never saw; a proven one becomes a proposal'),
         ('props',   stage_props,   'DraftKings prop lines'),
@@ -243,8 +248,8 @@ STAGES=[('sources', stage_sources, 'nflverse releases: schedule, rosters, depth 
         ('embed',   stage_embed,   'write the dataset into the claude.ai artifact page (legacy)'),
         ('audit',   stage_audit,   'independent audit -- stops the run on any failure'),
         ('check',   stage_check,   'sanity report')]
-LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','predict','ledger','review','blindspots','props','ids','partners','site','audit'],
-       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','learn','backtest','predict','ledger','review','blindspots','props','ids','partners','site','audit']}
+LANES={'live': ['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','predict','ledger','lines','review','blindspots','props','ids','partners','site','audit'],
+       'daily':['sources','espn','slate','roster','weather','games','context','stats','results','teams','injuries','tables','project','learn','backtest','predict','ledger','lines','review','blindspots','props','ids','partners','site','audit']}
 
 if __name__=='__main__':
     a=sys.argv[1:]
