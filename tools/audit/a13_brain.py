@@ -28,6 +28,61 @@ def box_rows():
                 plays=num(r['attempts'])+num(r['carries'])+num(r['sacks_suffered']))
     return out
 
+def pbp_rebuild(GA):
+    """game_id -> (play-by-play edge, quarterback-value edge), rebuilt from the play-by-play season files with running
+    decayed sums -- a different construction from the pipeline's, which re-weights every past game each week"""
+    src=open(os.path.join(PIPE,'blindspots.py'),encoding='utf-8').read()
+    m=re.search(r"PBP=dict\(decay=([\d.]+),trust=([\d.]+),carry=([\d.]+),qb_trust=([\d.]+),qb_carry=([\d.]+)\)",src)
+    d=os.path.join(PIPE,'learning','pbp')
+    if not m or not os.path.isdir(d): return {}
+    lam,k,carry,qk,qc=(float(x) for x in m.groups())
+    SR=defaultdict(dict); QB=defaultdict(list); first=None
+    for f in sorted(os.listdir(d)):
+        if not f.endswith('.csv'): continue
+        first=int(f[:4]) if first is None else min(first,int(f[:4]))
+        for r in rows(os.path.join(d,f)):
+            if r['kind']=='T': SR[r['game_id']][r['team']]=float(r['sr'])
+            else: QB[(r['game_id'],r['team'])].append((r['qb'],float(r['epa']),float(r['w'])))
+    o=defaultdict(lambda:[0.0,0.0]); df=defaultdict(lambda:[0.0,0.0]); po=defaultdict(float); pdf=defaultdict(float)
+    qs=defaultdict(lambda:[0.0,0.0]); tw=defaultdict(lambda:defaultdict(float)); past=[]; out={}
+    rt=lambda acc,pr:(k*pr+acc[0])/(k+acc[1])
+    def qr(q): return qs[q][0]/(qs[q][1]+qk) if q in qs else 0.0
+    def tq(tm):
+        W=tw.get(tm); den=sum(W.values()) if W else 0.0
+        return sum(w*qr(q) for q,w in W.items())/den if den else None
+    wk=defaultdict(list)
+    for r in GA.values():
+        if int(r['season'])>=first: wk[(int(r['season']),int(r['week']))].append(r)
+    cur=None
+    for (s,w) in sorted(wk):
+        if s!=cur:
+            if cur is not None:
+                for tm in set(o)|set(po): po[tm]=carry*rt(o[tm],po[tm]); pdf[tm]=carry*rt(df[tm],pdf[tm])
+                for q in qs: qs[q][0]*=qc; qs[q][1]*=qc
+            o.clear(); df.clear(); tw.clear(); cur=s
+            prev=[v for ss,v in past if ss<s]
+            base=statistics.mean(prev) if prev else statistics.mean([v for g,dd in SR.items() if g.startswith('%d_'%s) for v in dd.values()] or [0.0])
+        for r in wk[(s,w)]:
+            h,a=REL.get(r['home_team'],r['home_team']),REL.get(r['away_team'],r['away_team'])
+            qv=[]
+            for side,tm in (('home',h),('away',a)):
+                st=r.get(side+'_qb_id'); t0=tq(tm); qv.append(qr(st)-t0 if st and t0 is not None else 0.0)
+            out[r['game_id']]=((rt(o[h],po[h])+rt(df[a],pdf[a]))-(rt(o[a],po[a])+rt(df[h],pdf[h])),qv[0]-qv[1])
+        upd=[]
+        for r in wk[(s,w)]:
+            g=SR.get(r['game_id']) or {}; h,a=REL.get(r['home_team'],r['home_team']),REL.get(r['away_team'],r['away_team'])
+            if h not in g or a not in g: continue
+            past.extend([(s,g[h]),(s,g[a])])
+            oh,dh,oa,da=rt(o[h],po[h]),rt(df[h],pdf[h]),rt(o[a],po[a]),rt(df[a],pdf[a])
+            upd.append((o[h],g[h]-base-da)); upd.append((df[a],g[h]-base-oh)); upd.append((o[a],g[a]-base-dh)); upd.append((df[h],g[a]-base-oa))
+            for tm in (h,a):
+                for q,e,ww in QB.get((r['game_id'],tm),[]): qs[q][0]+=e; qs[q][1]+=ww; tw[tm][q]+=ww
+        for acc,v in upd: acc[0]+=v; acc[1]+=1.0
+        for acc in list(o.values())+list(df.values()): acc[0]*=lam; acc[1]*=lam      # a week passes
+        for W in tw.values():
+            for q in W: W[q]*=lam
+    return out
+
 def run(A):
     A.section('the brain: reviews, blind spots, accuracy badge'); D=A.D
     RV=D.get('review'); BS=D.get('blindspots'); LG=D.get('ledger') or {}; E=LG.get('entries') or {}
@@ -203,12 +258,19 @@ def run(A):
             if not r['home_score']: continue
             if r['home_qb_id']: starts[(s,r['home_team'])][r['home_qb_id']]+=1
             if r['away_qb_id']: starts[(s,r['away_team'])][r['away_qb_id']]+=1
+    PBF=pbp_rebuild(GA)
     feats={'starters_out':lambda x:OUT.get((x['s'],x['w'],x['r']['away_team']),0.0)-OUT.get((x['s'],x['w'],x['r']['home_team']),0.0),
+           'pbp':lambda x:PBF.get(x['gid'],(0.0,0.0))[0],
+           'qb_value':lambda x:PBF.get(x['gid'],(0.0,0.0))[1],
            'early':lambda x:x['m'] if 2<=x['w']<=4 else 0.0,
            'divisional':lambda x:x['m'] if x['r'].get('div_game')=='1' else 0.0,
            'short_week':lambda x:x['m'] if num(x['r'].get('home_rest'),9)<=5 and num(x['r'].get('away_rest'),9)<=5 else 0.0,
            'primetime':lambda x:1.0 if x['r']['location']=='Home' and (x['r'].get('gametime') or '')>='19:00' else 0.0}
     bad=[] if zero_ok else ['a weight version in force has a non-zero venue/rest/weather/referee weight; this rebuild models only home edge and backup QB']
+    for gidx,f in (BS.get('flags') or {}).items():          # the play-by-play values carried into each reviewed game
+        for i,cid in ((0,'pbp'),(1,'qb_value')):
+            want=round(PBF.get(gidx,(0.0,0.0))[i],2)
+            if abs(num(f.get(cid,0.0))-want)>0.011: bad.append('%s %s %s, rebuilt %+.2f'%(gidx,cid,f.get(cid,0.0),want))
     Ss=np.array([x['s'] for x in G2]); Rs=np.array([x['res'] for x in G2]); nchk=0
     for c in C:
         if c['id'] not in feats:

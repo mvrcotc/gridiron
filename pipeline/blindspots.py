@@ -69,6 +69,18 @@ CANDIDATES=[
  dict(id='divisional',name='Division games',
       what='In a division game, does GridIron need to pull its margin toward even?',
       why='Division rivals meet twice a year and know each other; favourites may win by less.',form='scale',rel='Shown on the page, not in the model.'),
+ dict(id='pbp',name='Play-by-play team ratings',
+      what='Each side\'s success rate per play from play-by-play, opponent-adjusted and carried walk-forward (garbage time counts a quarter): '
+           'the home side\'s expected edge minus the away side\'s.',
+      why='Box-score ratings see totals; play-by-play sees every down, so a team that moves the ball steadily but lost on a few big plays '
+          'is rated on how it played, not on the scoreboard. It is what sharper models are built on.',
+      form='shift',rel='GridIron\'s ratings use weekly team box scores, team EPA included; play-by-play is not in the model.'),
+ dict(id='qb_value',name='Quarterback value',
+      what="The starter's career dropback EPA (shrunk toward average) minus that of the quarterbacks whose dropbacks built the team's "
+           'ratings this season: the home side\'s difference minus the away side\'s.',
+      why='The model knows only whether a backup is starting, as a flat penalty. A good backup and a bad one, or a starter returning '
+          'from injury to ratings his stand-in built, all look the same to it.',
+      form='shift',rel='Only the flat backup-quarterback term is in the model.'),
  dict(id='to_luck',name='Recent turnover luck',
       what="Each team's turnover margin over its previous three games this season.",
       why='Turnover margin barely repeats; if recent luck leaks into the ratings, lucky teams are overrated next week.',
@@ -111,8 +123,65 @@ def starters_out(sched):
             if p: out[k[:3]]+=share(p,k[0],k[1])
     return out
 
+# Play-by-play settings: chosen once by fitting on 2019-20 and scoring 2021-22, then frozen. Those two seasons are also
+# test seasons here, which can only flatter the two candidates; both still tested clear when this was written.
+PBP=dict(decay=0.97,trust=4.0,carry=0.7,qb_trust=100.0,qb_carry=0.8)
+
+def pbp_features(GA):
+    """game_id -> (play-by-play net edge, quarterback-value net edge), each from games before its week only"""
+    import pbp
+    L=pbp.load()
+    if not L['T']: return {}
+    lam,k,carry,qk,qcarry=(PBP[x] for x in ('decay','trust','carry','qb_trust','qb_carry'))
+    tg=defaultdict(dict); qg=defaultdict(list)
+    for r in L['T']: tg[r['game_id']][r['team']]=r['sr']
+    for r in L['Q']: qg[(r['game_id'],r['team'])].append((r['qb'],r['epa'],r['w']))
+    off=defaultdict(list); dfn=defaultdict(list); po=defaultdict(float); pd_=defaultdict(float)
+    qe=defaultdict(float); qw=defaultdict(float); recent=defaultdict(list); t=0; cur=None; out={}
+    def rating(Lst,prior):
+        num=k*prior; den=k
+        for tt,v in Lst: g=lam**(t-tt); num+=g*v; den+=g
+        return num/den
+    def qrate(q): return qe[q]/(qw[q]+qk) if q else 0.0
+    def team_q(tm):
+        num=den=0.0
+        for tt,q,w in recent[tm]: g=lam**(t-tt)*w; num+=g*qrate(q); den+=g
+        return num/den if den else None
+    weeks=defaultdict(list)
+    for r in GA.values():
+        if int(r['season'])>=pbp.FIRST: weeks[(int(r['season']),int(r['week']))].append(r)
+    lg=defaultdict(list)
+    for (s,w) in sorted(weeks):
+        if s!=cur:
+            if cur is not None:
+                for tm in set(list(off)+list(po)): po[tm]=carry*rating(off[tm],po[tm]); pd_[tm]=carry*rating(dfn[tm],pd_[tm])
+                for q in qe: qe[q]*=qcarry; qw[q]*=qcarry
+            off.clear(); dfn.clear(); recent.clear(); cur=s
+            # success rate is centred on its league average from the seasons before (the first season on file uses its own)
+            prevs=[v for (ss,_),v in lg.items() if ss<s]; base=statistics.mean(x for L2 in prevs for x in L2) if prevs else None
+            if base is None:
+                own=[v for g,d in tg.items() for v in d.values() if g.startswith('%d_'%s)]; base=statistics.mean(own) if own else 0.0
+        games=weeks[(s,w)]
+        for r in games:
+            h,a=rel(r['home_team']),rel(r['away_team'])
+            oh,dh,oa,da=rating(off[h],po[h]),rating(dfn[h],pd_[h]),rating(off[a],po[a]),rating(dfn[a],pd_[a])
+            qv={}
+            for side,tm in (('home',h),('away',a)):
+                st=r.get(side+'_qb_id'); tq=team_q(tm); qv[side]=(qrate(st)-tq) if (st and tq is not None) else 0.0
+            out[r['game_id']]=((oh+da)-(oa+dh),qv['home']-qv['away'])
+        for r in games:                                      # only now does this week become history
+            d=tg.get(r['game_id']); h,a=rel(r['home_team']),rel(r['away_team'])
+            if not d or h not in d or a not in d: continue
+            eh,ea=d[h]-base,d[a]-base; lg[(s,w)].extend([d[h],d[a]])
+            oh,dh,oa,da=rating(off[h],po[h]),rating(dfn[h],pd_[h]),rating(off[a],po[a]),rating(dfn[a],pd_[a])
+            off[h].append((t,eh-da)); dfn[a].append((t,eh-oh)); off[a].append((t,ea-dh)); dfn[h].append((t,ea-oa))
+            for tm in (h,a):
+                for q,e,ww in qg.get((r['game_id'],tm),[]): qe[q]+=e; qw[q]+=ww; recent[tm].append((t,q,ww))
+        t+=1
+    return out
+
 def build(rows,GA):
-    tz=team_tz(); OUTS=starters_out(GA)
+    tz=team_tz(); OUTS=starters_out(GA); PB=pbp_features(GA)
     # last season's coach and most frequent starter per team, from the schedule
     coach={}; qbs=defaultdict(Counter)
     for r in sorted(GA.values(),key=lambda r:(int(r['season']),int(r['week']))):
@@ -148,6 +217,7 @@ def build(rows,GA):
         X['primetime'].append(1.0 if not neutral and (r.get('gametime') or '')>='19:00' else 0.0)
         X['divisional'].append(x['m'] if r.get('div_game')=='1' else 0.0)
         X['to_luck'].append(recent_to(s,A,w)-recent_to(s,H,w))
+        pb=PB.get(x['gid'],(0.0,0.0)); X['pbp'].append(pb[0]); X['qb_value'].append(pb[1])
     return {k:np.array(v,dtype=float) for k,v in X.items()}
 
 # ------------------------------------------------------------------ the held-out test
