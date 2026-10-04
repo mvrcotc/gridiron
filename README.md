@@ -49,7 +49,7 @@ python3 refresh.py --stage props
 | `predict` | game predictions from that same model; carries the live model's constants into the data |
 | `ledger` | freezes GridIron's last pre-kickoff call for each game at kickoff, beside the first line it saw, the closing line and the final score -- the since-launch record (`pipeline/ledger.json`, also published with the data so refreshes that do not commit keep it) |
 | `review` | post-game review of every settled frozen call: the miss split into yardage, finishing, turnovers, other scores and blend (they add up exactly), each part classed chance or team trait by measured repeatability, and how far the game moved the ratings (`pipeline/review.py`) |
-| `blindspots` | the blind-spot scan: factors the model leaves out, each tested on seasons it never saw; a proven one is filed for the owner, once, by the daily lane only (`pipeline/blindspots.py`, results and memory in `pipeline/learning/blindspots.json`) |
+| `blindspots` | the blind-spot scan: factors the model leaves out, each tested on seasons it never saw; a proven one is filed for the owner, once, by the daily lane only (`pipeline/blindspots.py`, results and memory in `pipeline/learning/blindspots.json`). The daily lane first refreshes the play-by-play season files two candidates use (`pipeline/pbp.py`) |
 | `props` | DraftKings lines, de-duplicated, fetch time stamped |
 | `ids` | ESPN athlete id -> gsis_id map the browser uses for live box scores |
 | `partners` | validates `partners.json` and publishes the partner ad card; off unless switched on with real links |
@@ -198,12 +198,23 @@ fitted on earlier seasons only and scored on later seasons it never saw. A blind
 least 0.02 points a game, help in at least 60% of the held-out seasons, and stay significant (week-blocked bootstrap)
 after a Holm correction for the number of candidates. Short of that it is "watch" (p < 0.10 uncorrected) or "clear".
 
-At the time of writing, 9 candidates: **none is a blind spot**. Starters ruled out (snap-weighted, quarterbacks aside) is
+At the time of writing, 11 candidates: **none is a blind spot**. Starters ruled out (snap-weighted, quarterbacks aside) is
 on watch -- better in 5 of 6 unseen seasons, about +0.6 points per missing starter, p = 0.55 after correction -- and the
 closing line already prices about half of it. Early-season overreaction, suspected because one game sets about 98% of
 the yardage ratings, tested clear: the final margin leans on the well-shrunk points ratings. A candidate that passes is
 written to `pipeline/learning/new_proposals/` (the daily workflow turns it into an issue) and remembered so it is filed
 once; approving it means adding it to the model as a zero-weight factor the learning loop then sizes.
+
+Two candidates come from **play-by-play** (`pipeline/pbp.py`, which boils nflverse's play-by-play down to each team's
+success rate per game and each quarterback's dropback EPA per game, in `pipeline/learning/pbp/<season>.csv`; the daily
+lane refreshes the current season and fetches any season missing). *Play-by-play team ratings*: opponent-adjusted
+success rate carried walk-forward, garbage time counted a quarter. *Quarterback value*: the starter's career dropback EPA,
+shrunk toward average, against the quarterbacks whose dropbacks built the team's ratings this season. Their settings were
+chosen once (fit 2019-20, score 2021-22) and frozen in `blindspots.PBP`. Both tested clear when added: play-by-play made
+the margin miss worse (-0.028 points a game, better in 1 of 6 held-out seasons) and quarterback value was flat (+0.002, 3
+of 6). The closing line moves most of the way toward each of them, so the market already prices what they know; GridIron's
+ratings already carry team EPA from the weekly team stats. The audit rebuilds both features with its own decayed-sum
+construction from the season files (BS3) and checks the values carried into each reviewed game.
 
 ```bash
 python3 pipeline/review.py

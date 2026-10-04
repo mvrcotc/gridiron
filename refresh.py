@@ -169,7 +169,9 @@ def stage_ledger():  run('ledger.py','ledger')
 def stage_review():  run('review.py','review')
 def stage_blindspots():
     """every lane rebuilds the scan (the audit checks it against current data), but only the daily lane -- which commits
-    pipeline/learning and opens the issues -- may file a blind spot as a proposal for the owner"""
+    pipeline/learning and opens the issues -- may file a blind spot as a proposal for the owner. The daily lane also
+    refreshes the play-by-play files two candidates are built from (committed with pipeline/learning)"""
+    if LANE=='daily': run('pbp.py','play-by-play',('--fetch',))
     run('blindspots.py','blind spots',('--propose',) if LANE=='daily' else ())
 def stage_props():   run('props.py','props')
 
