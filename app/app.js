@@ -972,6 +972,14 @@ function weather(g){
   function tile(l,v){h+='<dl class="mtile"><dt>'+l+'</dt><dd>'+v+'</dd></dl>';}
   if(g.det) tile('Line',esc(g.det)+vbadge(g.id,'spread'));
   if(g.ou!=null) tile('Total',num(g.ou)+vbadge(g.id,'total'));
+  var OB=((D.odds||{}).games||{})[g.id];
+  if(OB&&g.state==='pre'){
+    var sp=OB.spreads||{}, tt=OB.totals||{};
+    function pr(x){ return (x>0?'+':'')+x; }
+    function pt(x){ return (x>0?'+':x<0?'\u2212':'')+Math.abs(x); }
+    if(sp.home&&sp.away) tile('Best spread','<span data-best="spread">'+esc(g.h)+' '+pt(sp.home.point)+' '+pr(sp.home.price)+' <small>'+esc(sp.home.book)+'</small><br>'+esc(g.a)+' '+pt(sp.away.point)+' '+pr(sp.away.price)+' <small>'+esc(sp.away.book)+'</small></span>');
+    if(tt.over&&tt.under) tile('Best total','<span data-best="total">o'+tt.over.point+' '+pr(tt.over.price)+' <small>'+esc(tt.over.book)+'</small><br>u'+tt.under.point+' '+pr(tt.under.price)+' <small>'+esc(tt.under.book)+'</small></span>');
+  }
   if(im){tile('Implied '+esc(g.a),im.a.toFixed(1)); tile('Implied '+esc(g.h),im.h.toFixed(1));}
   if(g.att) tile('Attendance',num(g.att).toLocaleString());
   if(!h) tile('Market','<span style="font-size:14px;color:var(--fg-4)">no line</span>');
@@ -2048,6 +2056,32 @@ function movesCard(){
   '</div>';
   return h+'</div>';
 }
+function propsCard(){
+  var P=D.propsarc; if(!P) return '';
+  function tile(id,k,v,s){ return '<div class="ttile" data-k="'+id+'"><span class="tk">'+esc(k)+'</span><span class="tv">'+esc(v)+'</span><span class="ts2">'+esc(s)+'</span></div>'; }
+  function rec(a){ return a[0]+'-'+a[1]+(a[2]?'-'+a[2]:''); }
+  var NM={qry:'Receiving yards',qrec:'Receptions',qru:'Rushing yards',qpy:'Passing yards'};
+  var h='<div class="mcard wide" id="propsarc"><h3>Prop lines, <em>kept and settled</em></h3>'+
+    '<p class="sub3">Every DraftKings player prop GridIron reads is now kept with GridIron\u2019s call on it \u2014 the line at the last daily run before kickoff \u2014 and settled on the player\u2019s real stat line. '+
+    'GridIron\u2019s side is the over when it gives the over better than even, the under when worse. The bar to clear is taking every under: books are known to shade overs, so leaning under can look good for that reason alone. '+
+    'No prices come with these lines, so 52.4% (-110) is break-even.</p>';
+  if(!P.settled) return h+'<div class="verdict">Collecting. '+plural(P.entries||0,'line')+' kept so far, '+(P.pending||0)+' waiting on a final stat line. A verdict needs a few hundred settled lines \u2014 most of a season.</div></div>';
+  h+='<div class="ttiles">'+
+    tile('gi','GridIron\u2019s side',P.gi_pct==null?'\u2014':num(P.gi_pct).toFixed(1)+'%',rec(P.gi)+' \u00b7 break-even 52.4%')+
+    tile('under','Every under',P.under_pct==null?'\u2014':num(P.under_pct).toFixed(1)+'%',rec(P.under)+' \u00b7 the bar to clear')+
+    tile('settled','Settled',String(P.settled),(P.void||0)+' void \u00b7 '+(P.pending||0)+' waiting')+
+    tile('lean','Leans under',P.lean_under==null?'\u2014':num(P.lean_under).toFixed(1)+'%','of GridIron\u2019s settled calls')+
+  '</div><div class="ftab">';
+  Object.keys(P.by||{}).forEach(function(k){ var b=P.by[k];
+    h+='<div class="frow" data-m="'+esc(k)+'"><span class="fk">'+esc(NM[k]||k)+'</span><span class="fv">'+(b.pct==null?'\u2014':num(b.pct).toFixed(1)+'%')+'</span><span class="fs">GridIron\u2019s side '+rec(b.rec)+'</span></div>'; });
+  h+='</div>';
+  var beat=P.gi_pct!=null&&P.under_pct!=null&&P.gi_pct>P.under_pct&&P.gi_pct>52.4;
+  h+='<div class="verdict'+(beat&&P.settled>=300?' ok':'')+'"><b>'+(P.settled<300?'Too early to say.':beat?'Ahead of the book so far.':'Not ahead of the book.')+'</b> '+
+    'GridIron\u2019s side is '+rec(P.gi)+(P.gi_pct!=null?' ('+num(P.gi_pct).toFixed(1)+'%)':'')+'; taking every under is '+rec(P.under)+(P.under_pct!=null?' ('+num(P.under_pct).toFixed(1)+'%)':'')+'. '+
+    (P.settled<300?'With '+P.settled+' settled lines either figure can swing by several points on chance; a verdict waits for 300.':
+      beat?'It beats both break-even and the all-unders bar, which is the only result that counts.':'An edge has to beat both 52.4% and the all-unders bar.')+'</div>';
+  return h+'</div>';
+}
 function trackCard(){
   var T=D.track; if(!T) return '';
   var A=T.held||T.all, W=T.wk1, F=T.ptsfit;
@@ -2105,7 +2139,7 @@ function trackCard(){
 
 function drawModel(){
   var C=D.cal; if(!C) return;
-  var h=trackCard()+ledgerCard()+movesCard()+reviewCard()+blindCard()+learnCard();
+  var h=trackCard()+ledgerCard()+movesCard()+propsCard()+reviewCard()+blindCard()+learnCard();
   /* calibration */
   var worst=Math.max.apply(null,C.pit.map(function(v){return Math.abs(v-0.1);}));
   h+='<div class="mcard"><h3>Calibration</h3>'+

@@ -96,6 +96,7 @@ jobs:
         env:
           SOURCES_CACHED: ${{ steps.sources.outputs.cache-hit }}
           GRIDIRON_SITE_URL: https://mvrcotc.github.io/gridiron
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: python3 refresh.py --lane "${{ steps.lane.outputs.lane }}"
 
       - name: Save the daily baseline

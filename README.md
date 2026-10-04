@@ -52,6 +52,8 @@ python3 refresh.py --stage props
 | `review` | post-game review of every settled frozen call: the miss split into yardage, finishing, turnovers, other scores and blend (they add up exactly), each part classed chance or team trait by measured repeatability, and how far the game moved the ratings (`pipeline/review.py`) |
 | `blindspots` | the blind-spot scan: factors the model leaves out, each tested on seasons it never saw; a proven one is filed for the owner, once, by the daily lane only (`pipeline/blindspots.py`, results and memory in `pipeline/learning/blindspots.json`). The daily lane first refreshes the play-by-play season files two candidates use (`pipeline/pbp.py`) |
 | `props` | DraftKings lines, de-duplicated, fetch time stamped |
+| `propsarc` | prop-line archive: each prop line before kickoff with GridIron's call, settled on nflverse's stat line; the daily lane records (`pipeline/propsarc.py`, `pipeline/learning/props_<season>.json`) |
+| `odds` | every US book's spread, total and moneyline from The Odds API when the `ODDS_API_KEY` secret is set; the daily lane takes one snapshot (`pipeline/learning/odds_<season>.jsonl`), every lane publishes the best number on each side (`pipeline/odds.py`) |
 | `ids` | ESPN athlete id -> gsis_id map the browser uses for live box scores |
 | `partners` | validates `partners.json` and publishes the partner ad card; off unless switched on with real links |
 | `site` | versioned site files |
@@ -340,6 +342,25 @@ with both, GridIron's own margin gets almost no weight (0.03 vs 0.95). The learn
 `live_market` and `live_market_total` each week on its own walk-forward evidence; turning either on is a big move,
 so it arrives as a proposal for the owner. The page and the audit (U9) use the last line the ledger recorded before
 kickoff.
+
+## Prop archive and multi-book odds
+
+**Prop archive** (`pipeline/propsarc.py`). The props stage reads DraftKings' player props and GridIron's chance of the
+over; until now nothing was kept, so nothing could be proven. Each daily run now records every line for games still
+before kickoff -- the first time it is seen (with DraftKings' opening line) and the latest daily run before kickoff --
+with GridIron's median and P(over), in `pipeline/learning/props_<season>.json`. Once nflverse publishes a game's player
+stats, each line is settled; a player with no stat line is void. The Model page compares GridIron's side with taking every
+under (books shade overs, so leaning under can look good for that reason alone) and with 52.4% break-even (no prices come
+with the lines). No verdict before 300 settled lines.
+
+**Multi-book odds** (`pipeline/odds.py`). Off until the repository secret `ODDS_API_KEY` is set (The Odds API; the free
+plan's 500 credits a month cover the one daily snapshot of spreads, totals and moneylines, 3 credits each). Each snapshot
+is appended to `pipeline/learning/odds_<season>.jsonl` -- a timestamped, multi-book line history -- and each game page
+before kickoff shows the best spread and total across books, with the book.
+
+Audit (`tools/audit/a15_market.py`): PA1 every archived line was recorded before kickoff, a kept line never changes
+against the committed archive, and settlements equal nflverse's stat; PA2 the record recomputes; OD1 the best number on
+each side is re-picked from the latest snapshot; U22 the Model page card and the game pages' best-line tiles match.
 
 ## The audit -- run it before every publish
 
