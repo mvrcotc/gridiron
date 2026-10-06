@@ -548,5 +548,301 @@
   "size": "small",
   "summary": "Efficiency trust ×1.00 of launch values → ×0.80 of launch values: expected PPR points error 4.586 → 4.583; 99.5% confidence after correcting for 10 ideas tested (need 95%); better in 4 of 4 seasons with 500+ player-weeks",
   "version": 3
+ },
+ "R2026-04:live:live_market": {
+  "review": "R2026-04",
+  "cutoff": [
+   2026,
+   4
+  ],
+  "model": "live",
+  "category": "live_market",
+  "name": "Betting line in the live margin",
+  "what": "how much of the pregame margin the live model starts from is the betting line before kickoff rather than GridIron's own number (a switch: off until approved)",
+  "metric": "logloss",
+  "variant": "full",
+  "title": "Betting line in the live margin off (GridIron's own margin) → betting line 100%, GridIron 0%",
+  "from_params": {
+   "margin": {
+    "a_ep": 0.6333,
+    "b_prior": 1.1364,
+    "c_frac": -0.6509,
+    "sigma": 13.5,
+    "eps": 2.3
+   }
+  },
+  "to_params": {
+   "margin": {
+    "a_ep": 0.6333,
+    "b_prior": 1.1364,
+    "c_frac": -0.6509,
+    "sigma": 13.5,
+    "eps": 2.3,
+    "w_market": 1.0
+   }
+  },
+  "steps": 4.0,
+  "onoff": true,
+  "turns": "on",
+  "n": 865,
+  "plays": 148575,
+  "base": 0.46056,
+  "cand": 0.45018,
+  "delta": 0.01038,
+  "se": 0.002435,
+  "p": 0.0005,
+  "blocks": [
+   {
+    "season": 2023,
+    "n": 272,
+    "base": 0.46517,
+    "cand": 0.45043
+   },
+   {
+    "season": 2024,
+    "n": 272,
+    "base": 0.43318,
+    "cand": 0.4242
+   },
+   {
+    "season": 2025,
+    "n": 272,
+    "base": 0.47866,
+    "cand": 0.47184
+   },
+   {
+    "season": 2026,
+    "n": 49,
+    "base": 0.48886,
+    "cand": 0.47558
+   }
+  ],
+  "sec": {
+   "logloss": [
+    0.46056405381415694,
+    0.45018165111262304
+   ],
+   "brier": [
+    0.15372179874341532,
+    0.149407275629223
+   ],
+   "final_margin": [
+    6.931299869552498,
+    6.769796056452377
+   ],
+   "final_total": [
+    7.270011283403997,
+    7.270011283403997
+   ]
+  },
+  "tuned_spread": 0.26,
+  "p_adj": 0.0035,
+  "checks": [
+   {
+    "id": "enough",
+    "ok": true,
+    "text": "865 games it never saw (need 500)"
+   },
+   {
+    "id": "better",
+    "ok": true,
+    "text": "win-probability log loss 0.4606 → 0.4502"
+   },
+   {
+    "id": "significant",
+    "ok": true,
+    "text": "99.7% confidence after correcting for 7 ideas tested (need 95%)"
+   },
+   {
+    "id": "consistent",
+    "ok": true,
+    "text": "better in 4 of 4 seasons with 48+ games"
+   },
+   {
+    "id": "no_damage",
+    "ok": true,
+    "text": "no other measure worse beyond tolerance"
+   },
+   {
+    "id": "confirmed",
+    "ok": true,
+    "text": "passed in two reviews with new games in between"
+   }
+  ],
+  "pros": [
+   {
+    "text": "Lower win-probability log loss on 865 games it never saw: 0.4606 → 0.4502",
+    "pts": 4.0
+   },
+   {
+    "text": "Better in 4 seasons, more than the 3 required",
+    "pts": 0.5
+   },
+   {
+    "text": "Also improves win-probability Brier score (0.1537 → 0.1494)",
+    "pts": 0.5
+   },
+   {
+    "text": "Also improves final-margin error (6.931 → 6.770)",
+    "pts": 0.5
+   }
+  ],
+  "cons": [
+   {
+    "text": "Adds a factor the model did not use before",
+    "pts": 1.0
+   },
+   {
+    "text": "Moves the weight 4.0 steps",
+    "pts": 2.0
+   }
+  ],
+  "net": 2.5,
+  "status": "proposed",
+  "size": "big",
+  "summary": "Betting line in the live margin off (GridIron's own margin) → betting line 100%, GridIron 0%: win-probability log loss 0.4606 → 0.4502; 99.7% confidence after correcting for 7 ideas tested (need 95%); better in 4 of 4 seasons with 48+ games",
+  "proposal": "R2026-04:live:live_market"
+ },
+ "R2026-04:live:live_market_total": {
+  "review": "R2026-04",
+  "cutoff": [
+   2026,
+   4
+  ],
+  "model": "live",
+  "category": "live_market_total",
+  "name": "Betting total in the live total",
+  "what": "how much of the pregame total the live projection starts from is the betting total before kickoff rather than GridIron's own (a switch: off until approved)",
+  "metric": "final_total",
+  "variant": "full",
+  "title": "Betting total in the live total off (GridIron's own total) → betting line 100%, GridIron 0%",
+  "from_params": {
+   "total": {
+    "t_prior": 0.8026,
+    "t_frac": 9.3898,
+    "t_ep": 0.6842
+   }
+  },
+  "to_params": {
+   "total": {
+    "t_prior": 0.8026,
+    "t_frac": 9.3898,
+    "t_ep": 0.6842,
+    "w_market": 1.0
+   }
+  },
+  "steps": 4.0,
+  "onoff": true,
+  "turns": "on",
+  "n": 865,
+  "plays": 148756,
+  "base": 7.27001,
+  "cand": 7.16474,
+  "delta": 0.10528,
+  "se": 0.029135,
+  "p": 0.0005,
+  "blocks": [
+   {
+    "season": 2023,
+    "n": 272,
+    "base": 7.21385,
+    "cand": 7.1263
+   },
+   {
+    "season": 2024,
+    "n": 272,
+    "base": 7.09729,
+    "cand": 7.00065
+   },
+   {
+    "season": 2025,
+    "n": 272,
+    "base": 7.37188,
+    "cand": 7.29758
+   },
+   {
+    "season": 2026,
+    "n": 49,
+    "base": 7.99036,
+    "cand": 7.56775
+   }
+  ],
+  "sec": {
+   "logloss": [
+    0.46056405381415694,
+    0.46056405381415694
+   ],
+   "brier": [
+    0.15372179874341532,
+    0.15372179874341532
+   ],
+   "final_margin": [
+    6.931299869552498,
+    6.931299869552498
+   ],
+   "final_total": [
+    7.270011283403997,
+    7.164735004767987
+   ]
+  },
+  "tuned_spread": 0.0,
+  "p_adj": 0.0035,
+  "checks": [
+   {
+    "id": "enough",
+    "ok": true,
+    "text": "865 games it never saw (need 500)"
+   },
+   {
+    "id": "better",
+    "ok": true,
+    "text": "final-total error 7.270 → 7.165"
+   },
+   {
+    "id": "significant",
+    "ok": true,
+    "text": "99.7% confidence after correcting for 7 ideas tested (need 95%)"
+   },
+   {
+    "id": "consistent",
+    "ok": true,
+    "text": "better in 4 of 4 seasons with 48+ games"
+   },
+   {
+    "id": "no_damage",
+    "ok": true,
+    "text": "no other measure worse beyond tolerance"
+   },
+   {
+    "id": "confirmed",
+    "ok": true,
+    "text": "passed in two reviews with new games in between"
+   }
+  ],
+  "pros": [
+   {
+    "text": "Lower final-total error on 865 games it never saw: 7.270 → 7.165",
+    "pts": 3.61
+   },
+   {
+    "text": "Better in 4 seasons, more than the 3 required",
+    "pts": 0.5
+   }
+  ],
+  "cons": [
+   {
+    "text": "Adds a factor the model did not use before",
+    "pts": 1.0
+   },
+   {
+    "text": "Moves the weight 4.0 steps",
+    "pts": 2.0
+   }
+  ],
+  "net": 1.11,
+  "status": "proposed",
+  "size": "big",
+  "summary": "Betting total in the live total off (GridIron's own total) → betting line 100%, GridIron 0%: final-total error 7.270 → 7.165; 99.7% confidence after correcting for 7 ideas tested (need 95%); better in 4 of 4 seasons with 48+ games",
+  "proposal": "R2026-04:live:live_market_total"
  }
 }

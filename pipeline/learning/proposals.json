@@ -1,15 +1,15 @@
 [
  {
-  "id": "R2026-03:live:live_market",
+  "id": "R2026-04:live:live_market",
   "model": "live",
   "category": "live_market",
   "name": "Betting line in the live margin",
   "title": "Betting line in the live margin off (GridIron's own margin) → betting line 100%, GridIron 0%",
   "status": "open",
-  "created": "2026-10-02",
+  "created": "2026-10-06",
   "cutoff": [
    2026,
-   3
+   4
   ],
   "reason": "switches a factor on",
   "from_params": {
@@ -31,10 +31,10 @@
     "w_market": 1.0
    }
   },
-  "summary": "Betting line in the live margin off (GridIron's own margin) → betting line 100%, GridIron 0%: win-probability log loss 0.4606 → 0.4501; 99.7% confidence after correcting for 7 ideas tested (need 95%); better in 4 of 4 seasons with 48+ games",
+  "summary": "Betting line in the live margin off (GridIron's own margin) → betting line 100%, GridIron 0%: win-probability log loss 0.4606 → 0.4502; 99.7% confidence after correcting for 7 ideas tested (need 95%); better in 4 of 4 seasons with 48+ games",
   "pros": [
    {
-    "text": "Lower win-probability log loss on 864 games it never saw: 0.4606 → 0.4501",
+    "text": "Lower win-probability log loss on 865 games it never saw: 0.4606 → 0.4502",
     "pts": 4.0
    },
    {
@@ -46,7 +46,7 @@
     "pts": 0.5
    },
    {
-    "text": "Also improves final-margin error (6.933 → 6.771)",
+    "text": "Also improves final-margin error (6.931 → 6.770)",
     "pts": 0.5
    }
   ],
@@ -64,16 +64,16 @@
   "m": 7
  },
  {
-  "id": "R2026-03:live:live_market_total",
+  "id": "R2026-04:live:live_market_total",
   "model": "live",
   "category": "live_market_total",
   "name": "Betting total in the live total",
   "title": "Betting total in the live total off (GridIron's own total) → betting line 100%, GridIron 0%",
   "status": "open",
-  "created": "2026-10-02",
+  "created": "2026-10-06",
   "cutoff": [
    2026,
-   3
+   4
   ],
   "reason": "switches a factor on",
   "from_params": {
@@ -91,11 +91,11 @@
     "w_market": 1.0
    }
   },
-  "summary": "Betting total in the live total off (GridIron's own total) → betting line 100%, GridIron 0%: final-total error 7.271 → 7.165; 99.4% confidence after correcting for 7 ideas tested (need 95%); better in 4 of 4 seasons with 48+ games",
+  "summary": "Betting total in the live total off (GridIron's own total) → betting line 100%, GridIron 0%: final-total error 7.270 → 7.165; 99.7% confidence after correcting for 7 ideas tested (need 95%); better in 4 of 4 seasons with 48+ games",
   "pros": [
    {
-    "text": "Lower final-total error on 864 games it never saw: 7.271 → 7.165",
-    "pts": 3.56
+    "text": "Lower final-total error on 865 games it never saw: 7.270 → 7.165",
+    "pts": 3.61
    },
    {
     "text": "Better in 4 seasons, more than the 3 required",
@@ -112,7 +112,7 @@
     "pts": 2.0
    }
   ],
-  "net": 1.06,
+  "net": 1.11,
   "m": 7
  }
 ]
