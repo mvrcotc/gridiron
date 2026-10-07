@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-06T15:52:48Z",
+ "updated": "2026-10-07T16:22:07Z",
  "record": {
   "frozen": 45,
   "settled": 45,
@@ -2686,6 +2686,666 @@
     "ou": 47.5,
     "src": "nflverse"
    }
+  },
+  "401872980": {
+   "id": "401872980",
+   "frozen": false,
+   "a": "TB",
+   "h": "DAL",
+   "kickoff": "2026-10-09T00:15Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -8.5,
+    "ou": 47.5,
+    "det": "DAL -8.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -8.5,
+    "ou": 47.5,
+    "det": "DAL -8.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": -3.0,
+    "tot": 49.5,
+    "wp": 61,
+    "ph": 26.4,
+    "pa": 23.2,
+    "bsp": -7.5,
+    "btot": 48.0
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -8.5,
+    "ou": 47.5,
+    "ph": 26.4,
+    "pa": 23.2
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872981": {
+   "id": "401872981",
+   "frozen": false,
+   "a": "PHI",
+   "h": "JAX",
+   "kickoff": "2026-10-11T13:30Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -7.0,
+    "ou": 42.5,
+    "det": "JAX -7"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -7.0,
+    "ou": 42.5,
+    "det": "JAX -7"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": -4.5,
+    "tot": 42.5,
+    "wp": 66,
+    "ph": 23.6,
+    "pa": 18.9,
+    "bsp": -6.5,
+    "btot": 42.5
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -7.0,
+    "ou": 42.5,
+    "ph": 23.6,
+    "pa": 18.9
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872982": {
+   "id": "401872982",
+   "frozen": false,
+   "a": "CIN",
+   "h": "MIA",
+   "kickoff": "2026-10-11T17:00Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 7.0,
+    "ou": 42.5,
+    "det": "CIN -7"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 7.0,
+    "ou": 42.5,
+    "det": "CIN -7"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": 4.5,
+    "tot": 45.5,
+    "wp": 32,
+    "ph": 20.7,
+    "pa": 25.0,
+    "bsp": 6.5,
+    "btot": 43.0
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 7.0,
+    "ou": 42.5,
+    "ph": 20.7,
+    "pa": 25.0
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872983": {
+   "id": "401872983",
+   "frozen": false,
+   "a": "CLE",
+   "h": "NYJ",
+   "kickoff": "2026-10-11T17:00Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -2.5,
+    "ou": 39.5,
+    "det": "NYJ -2.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -2.5,
+    "ou": 39.5,
+    "det": "NYJ -2.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": -0.5,
+    "tot": 40.5,
+    "wp": 49,
+    "ph": 20.5,
+    "pa": 20.2,
+    "bsp": -2.0,
+    "btot": 39.5
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -2.5,
+    "ou": 39.5,
+    "ph": 20.5,
+    "pa": 20.2
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872984": {
+   "id": "401872984",
+   "frozen": false,
+   "a": "HOU",
+   "h": "TEN",
+   "kickoff": "2026-10-11T17:00Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 7.5,
+    "ou": 37.5,
+    "det": "HOU -7.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 7.5,
+    "ou": 37.5,
+    "det": "HOU -7.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": 3.5,
+    "tot": 42.0,
+    "wp": 35,
+    "ph": 19.2,
+    "pa": 22.6,
+    "bsp": 7.0,
+    "btot": 38.0
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 7.5,
+    "ou": 37.5,
+    "ph": 19.2,
+    "pa": 22.6
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872985": {
+   "id": "401872985",
+   "frozen": false,
+   "a": "IND",
+   "h": "PIT",
+   "kickoff": "2026-10-11T17:00Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -2.5,
+    "ou": 44.5,
+    "det": "PIT -2.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -2.5,
+    "ou": 44.5,
+    "det": "PIT -2.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": -1.5,
+    "tot": 45.5,
+    "wp": 54,
+    "ph": 23.5,
+    "pa": 22.2,
+    "bsp": -2.5,
+    "btot": 44.5
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -2.5,
+    "ou": 44.5,
+    "ph": 23.5,
+    "pa": 22.2
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872986": {
+   "id": "401872986",
+   "frozen": false,
+   "a": "LV",
+   "h": "NE",
+   "kickoff": "2026-10-11T17:00Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.5,
+    "ou": 45.5,
+    "det": "NE -3.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.5,
+    "ou": 45.5,
+    "det": "NE -3.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": -2.5,
+    "tot": 43.5,
+    "wp": 58,
+    "ph": 23.1,
+    "pa": 20.6,
+    "bsp": -3.5,
+    "btot": 45.0
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.5,
+    "ou": 45.5,
+    "ph": 23.1,
+    "pa": 20.6
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872987": {
+   "id": "401872987",
+   "frozen": false,
+   "a": "MIN",
+   "h": "NO",
+   "kickoff": "2026-10-11T17:00Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 1.5,
+    "ou": 42.5,
+    "det": "MIN -1.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 1.5,
+    "ou": 42.5,
+    "det": "MIN -1.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": 2.5,
+    "tot": 40.5,
+    "wp": 39,
+    "ph": 19.0,
+    "pa": 21.5,
+    "bsp": 1.5,
+    "btot": 42.0
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 1.5,
+    "ou": 42.5,
+    "ph": 19.0,
+    "pa": 21.5
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872988": {
+   "id": "401872988",
+   "frozen": false,
+   "a": "NYG",
+   "h": "WSH",
+   "kickoff": "2026-10-11T17:00Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.5,
+    "ou": 43.5,
+    "det": "WSH -3.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.5,
+    "ou": 43.5,
+    "det": "WSH -3.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": -5.0,
+    "tot": 45.5,
+    "wp": 68,
+    "ph": 25.3,
+    "pa": 20.2,
+    "bsp": -3.5,
+    "btot": 44.0
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.5,
+    "ou": 43.5,
+    "ph": 25.3,
+    "pa": 20.2
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872990": {
+   "id": "401872990",
+   "frozen": false,
+   "a": "CHI",
+   "h": "GB",
+   "kickoff": "2026-10-11T17:00Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 3.0,
+    "ou": 45.5,
+    "det": "CHI -3"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 3.0,
+    "ou": 45.5,
+    "det": "CHI -3"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": 3.0,
+    "tot": 47.5,
+    "wp": 37,
+    "ph": 22.3,
+    "pa": 25.2,
+    "bsp": 3.0,
+    "btot": 46.0
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 3.0,
+    "ou": 45.5,
+    "ph": 22.3,
+    "pa": 25.2
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872989": {
+   "id": "401872989",
+   "frozen": false,
+   "a": "DEN",
+   "h": "LAC",
+   "kickoff": "2026-10-11T20:05Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 3.5,
+    "ou": 42.5,
+    "det": "DEN -3.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 3.5,
+    "ou": 42.5,
+    "det": "DEN -3.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": 0.0,
+    "tot": 41.0,
+    "wp": 48,
+    "ph": 20.4,
+    "pa": 20.6,
+    "bsp": 3.0,
+    "btot": 42.5
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 3.5,
+    "ou": 42.5,
+    "ph": 20.4,
+    "pa": 20.6
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872991": {
+   "id": "401872991",
+   "frozen": false,
+   "a": "DET",
+   "h": "ARI",
+   "kickoff": "2026-10-11T20:25Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 5.5,
+    "ou": 54.5,
+    "det": "DET -5.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 5.5,
+    "ou": 54.5,
+    "det": "DET -5.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": 5.5,
+    "tot": 55.0,
+    "wp": 28,
+    "ph": 24.8,
+    "pa": 30.3,
+    "bsp": 5.5,
+    "btot": 54.5
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": 5.5,
+    "ou": 54.5,
+    "ph": 24.8,
+    "pa": 30.3
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872992": {
+   "id": "401872992",
+   "frozen": false,
+   "a": "SF",
+   "h": "SEA",
+   "kickoff": "2026-10-11T20:25Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -2.5,
+    "ou": 46.5,
+    "det": "SEA -2.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -2.5,
+    "ou": 46.5,
+    "det": "SEA -2.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": 2.0,
+    "tot": 47.0,
+    "wp": 40,
+    "ph": 22.4,
+    "pa": 24.6,
+    "bsp": -2.0,
+    "btot": 46.5
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -2.5,
+    "ou": 46.5,
+    "ph": 22.4,
+    "pa": 24.6
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872993": {
+   "id": "401872993",
+   "frozen": false,
+   "a": "BAL",
+   "h": "ATL",
+   "kickoff": "2026-10-12T00:20Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.5,
+    "ou": 43.5,
+    "det": "ATL -3.5"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.5,
+    "ou": 43.5,
+    "det": "ATL -3.5"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": 0.5,
+    "tot": 49.0,
+    "wp": 46,
+    "ph": 24.2,
+    "pa": 24.8,
+    "bsp": -3.0,
+    "btot": 44.5
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.5,
+    "ou": 43.5,
+    "ph": 24.2,
+    "pa": 24.8
+   },
+   "season": 2026,
+   "week": 5
+  },
+  "401872994": {
+   "id": "401872994",
+   "frozen": false,
+   "a": "BUF",
+   "h": "LAR",
+   "kickoff": "2026-10-13T00:15Z",
+   "last": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.0,
+    "ou": 54.5,
+    "det": "LAR -3"
+   },
+   "first": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.0,
+    "ou": 54.5,
+    "det": "LAR -3"
+   },
+   "call": {
+    "at": "2026-10-07T16:22:07Z",
+    "v": {
+     "pregame": 1,
+     "live": 1,
+     "players": 3
+    },
+    "sp": -3.0,
+    "tot": 52.0,
+    "wp": 61,
+    "ph": 27.6,
+    "pa": 24.4,
+    "bsp": -3.0,
+    "btot": 54.0
+   },
+   "source": "refresh",
+   "entry": {
+    "at": "2026-10-07T16:22:07Z",
+    "spread": -3.0,
+    "ou": 54.5,
+    "ph": 27.6,
+    "pa": 24.4
+   },
+   "season": 2026,
+   "week": 5
   }
  },
  "note": "Each call is the last GridIron prediction recorded before kickoff; the first line is the first one GridIron saw, not necessarily the opening line; the entry is GridIron's first call made beside a line, kept for good. Closing lines and scores come from nflverse."
