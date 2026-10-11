@@ -1,5 +1,5 @@
 {
- "asof": "2026-10-09T16:07:43Z",
+ "asof": "2026-10-11T15:44:06Z",
  "n": 1936,
  "seasons": [
   2019,
@@ -114,23 +114,23 @@
    "why": "The backup-quarterback term only fires for a backup; a new regular starter inherits ratings built on someone else.",
    "form": "shift",
    "rel": "Flagged on the page, deliberately left out of the model after week-1 tests found no direction.",
-   "gain": -0.0,
-   "gain_touched": -0.004,
+   "gain": -0.001,
+   "gain_touched": -0.009,
    "n_test": 1424,
-   "n_touched": 142,
+   "n_touched": 143,
    "by_season": {
     "2021": -0.005,
     "2022": -0.003,
     "2023": -0.006,
     "2024": 0.001,
     "2025": -0.0,
-    "2026": 0.044
+    "2026": 0.033
    },
    "pos": 2,
-   "p": 0.5192,
+   "p": 0.5687,
    "beta": -0.715,
    "market": 0.943,
-   "n_flag": 189,
+   "n_flag": 190,
    "p_adj": 1.0,
    "verdict": "clear",
    "proposed": null
@@ -672,6 +672,7 @@
   },
   "2026_04_GB_TB": {
    "starters_out": 1.85,
+   "new_qb": -1.0,
    "pbp": 0.01,
    "qb_value": -0.01,
    "to_luck": 1.0
