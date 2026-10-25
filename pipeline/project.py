@@ -62,11 +62,16 @@ for team in sorted({b['team'] for b in base.values()}):
     if not outs or not live: continue
     ft=sum(base[p]['wx']['tgt'] for p in outs)*P['absorb_tgt']; fc=sum(base[p]['wx']['car'] for p in outs)*P['absorb_car']
     opos={base[p]['pos'] for p in outs}; wt={p:(1.0 if base[p]['pos'] in opos else 0.30) for p in live}; tw=sum(wt.values())
-    backs=sorted([p for p in live if base[p]['pos']=='RB'],key=lambda p:-base[p]['wx']['car']); rw=[0.5,0.3,0.15,0.05][:len(backs)]
+    # carries concentrate on the next back: the top four by projected volume share them, any deeper back gets none.
+    # The weight list is padded to the squad, because a team can dress a fifth back (GB did in 2026 week 7).
+    backs=sorted([p for p in live if base[p]['pos']=='RB'],key=lambda p:-base[p]['wx']['car'])
+    rw=([0.5,0.3,0.15,0.05]+[0.0]*len(backs))[:len(backs)]; rws=sum(rw)
     for p in live:
-        dt=ft*wt[p]/tw if tw else 0.0; dc=(fc*rw[backs.index(p)]/sum(rw)) if p in backs and rw else 0.0
+        dt=ft*wt[p]/tw if tw else 0.0; dc=(fc*rw[backs.index(p)]/rws) if p in backs and rws else 0.0
         base[p]['fin']['tgt']+=dt; base[p]['fin']['car']+=dc; base[p]['dt']=dt; base[p]['dc']=dc
         base[p]['who']=[PL[o]['n'] for o in outs]
+    got=sum(base[p]['dc'] for p in live)
+    if backs and abs(got-fc)>1e-6: sys.exit('%s: %.2f of %.2f lost carries were redistributed -- the weights do not cover every back'%(team,got,fc))
     REDIST[team]={'outs':outs,'live':live}
 
 # questionable players: the measured chance he plays and how much less he plays when he does (qmodel.py, qfit.json)

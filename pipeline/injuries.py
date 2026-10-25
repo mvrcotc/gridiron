@@ -15,9 +15,15 @@ def nrm(n):
     return ' '.join(re.sub(r'\b(jr|sr|ii|iii|iv|v)\b','',n).split())
 byname=defaultdict(list)
 for g,p in PL.items(): byname[(nrm(p['n']),nf(p['t']))].append(g)
-RAW=os.path.join(DATA,'raw','espn'); files={}
-for p in sorted(glob.glob(os.path.join(RAW,'s_*.json'))): files[os.path.basename(p)[2:]]=p
-for p in sorted(glob.glob(os.path.join(RAW,'f_*.json'))): files[os.path.basename(p)[2:]]=p     # a final summary supersedes the pre-game one
+# Only this week's games. Earlier weeks' summaries stay on disk for the box scores other stages need, but their
+# injury blocks are last week's report: a player cleared since, or traded, would otherwise keep a stale status.
+# Teams on a bye have no game file and so no entries, which is right -- nothing on the slate projects them.
+RAW=os.path.join(DATA,'raw','espn'); SLATE={g['id'] for g in D['games']}; files={}; skipped=0
+for pre in ('s_','f_'):                                        # a final summary supersedes the pre-game one
+    for p in sorted(glob.glob(os.path.join(RAW,pre+'*.json'))):
+        gid=os.path.basename(p)[2:-5]
+        if gid in SLATE: files[gid]=p
+        else: skipped+=1
 INJ={}; how={'id':0,'name':0}; unmatched=[]
 for p in files.values():
     for blk in json.load(open(p)).get('injuries') or []:
@@ -36,4 +42,5 @@ for p in files.values():
             INJ[g]=rec; how[m]+=1
 D['injd']=INJ
 json.dump(D,open(os.path.join(DATA,'gi2.json'),'w'),separators=(',',':'))
-print('injuries: %d (%d by ESPN id, %d by name+team); not on any app roster: %d'%(len(INJ),how['id'],how['name'],len(unmatched)))
+print('injuries: %d (%d by ESPN id, %d by name+team) from %d of this week\'s game files; %d older files ignored; not on any app roster: %d'%(
+      len(INJ),how['id'],how['name'],len(files),skipped,len(unmatched)))

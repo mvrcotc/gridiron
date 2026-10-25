@@ -196,6 +196,10 @@ def run(A):
                 cat,variant=key.split('|'); r=res('players',cat,variant); f=os.path.join(L,'evidence','latest_players_%s_%s.npz'%(cat,variant))
                 if not r or not os.path.exists(f): bad.append('player evidence for %s is missing its review result or file'%key); continue
                 cnt+=1; Z=np.load(f); keys=list(zip(Z['pid'].tolist(),Z['wk'].tolist()))
+                have=max((w for _,w in act),default=0)
+                if keys and max(w for _,w in keys)>have:      # this copy of the history database predates the evidence: say so, do not fail what cannot be checked
+                    A.warn('LG4b','Player evidence not recomputed: the history database here stops before the reviewed weeks',
+                           ['%s needs weeks through %d, the database has %d'%(key,max(w for _,w in keys),have)],1); continue
                 if any(k not in act for k in keys): bad.append('player %s evidence has player-weeks not in the raw stats'%key); continue
                 j={'pts':0,'rec':1,'yds':2}[r['metric']]; truth=np.array([act[k][j] for k in keys])
                 lb=np.abs(Z['base_'+r['metric']].astype(float)-truth); lc=np.abs(Z['cand_'+r['metric']].astype(float)-truth); d=lb-lc

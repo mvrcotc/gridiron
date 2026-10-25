@@ -130,9 +130,11 @@ def run(A):
         return ' '.join(_re.sub(r'\b(jr|sr|ii|iii|iv|v)\b','',s).split())
     byname={}
     for g,p in PL.items(): byname.setdefault((nrm(p['n']),nfl(p['t'])),[]).append(g)
-    files={}
-    for q in sorted(glob.glob(os.path.join(RAW,'espn','s_*.json'))): files[os.path.basename(q)[2:]]=q
-    for q in sorted(glob.glob(os.path.join(RAW,'espn','f_*.json'))): files[os.path.basename(q)[2:]]=q
+    SLATE={g['id'] for g in D['games']}; files={}          # this week's report only: an older week's file is a stale report
+    for pre in ('s_','f_'):
+        for q in sorted(glob.glob(os.path.join(RAW,'espn',pre+'*.json'))):
+            gid=os.path.basename(q)[2:-5]
+            if gid in SLATE: files[gid]=q
     src={}; byname_only=[]
     for q in files.values():
         for blk in json.load(open(q)).get('injuries') or []:
