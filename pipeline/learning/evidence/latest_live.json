@@ -1,8 +1,8 @@
 {
- "review": "R2026-04",
+ "review": "R2026-07",
  "cutoff": [
   2026,
-  4
+  7
  ],
  "candidates": [
   "live_market_total|full",
