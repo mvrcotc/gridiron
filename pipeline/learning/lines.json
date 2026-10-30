@@ -1,5 +1,6 @@
-{"updated":"2026-10-29T16:01:46Z","note":"Opening and closing lines from ESPN game summaries, one book per game (spread is the home spread: negative when the home team is favoured). A stored game is never rewritten. \"none\" lists games whose summary carried no usable line, so they are not fetched again.",
+{"updated":"2026-10-30T15:51:19Z","note":"Opening and closing lines from ESPN game summaries, one book per game (spread is the home spread: negative when the home team is favoured). A stored game is never rewritten. \"none\" lists games whose summary carried no usable line, so they are not fetched again.",
 "games":{
+ "401873023":{"a":"CAR","at":"2026-10-30T15:51:19Z","book":"Draft Kings","close":{"ou":47.5,"spread":-3.5},"h":"GB","open":{"ou":45.5,"spread":-7.0},"s":2026,"src":"slate","w":8},
  "401873009":{"a":"DAL","at":"2026-10-27T15:19:12Z","book":"DraftKings","close":{"ou":43.5,"spread":4.5},"h":"PHI","open":{"ou":48.5,"spread":-3.0},"s":2026,"src":"slate","w":7},
  "401873010":{"a":"NE","at":"2026-10-27T15:19:12Z","book":"DraftKings","close":{"ou":50.5,"spread":-3.0},"h":"CHI","open":{"ou":47.5,"spread":-1.5},"s":2026,"src":"slate","w":7},
  "401873011":{"a":"PIT","at":"2026-10-27T15:19:12Z","book":"DraftKings","close":{"ou":42.5,"spread":3.0},"h":"NO","open":{"ou":42.5,"spread":2.5},"s":2026,"src":"slate","w":7},
