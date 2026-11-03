@@ -20084,5 +20084,4187 @@
   "date": "2026-10-27",
   "tested": 32,
   "games": 1978
+ },
+ {
+  "id": "R2026-08",
+  "cutoff": [
+   2026,
+   8
+  ],
+  "models": {
+   "pregame": {
+    "games": 1992,
+    "champion": 1,
+    "rollback": null,
+    "tested": 15,
+    "champion_after": 1,
+    "seconds": 2.1
+   },
+   "live": {
+    "games": 1992,
+    "champion": 1,
+    "rollback": null,
+    "tested": 7,
+    "champion_after": 1,
+    "seconds": 6.8
+   },
+   "players": {
+    "games": 29135,
+    "champion": 3,
+    "rollback": {
+     "version": 3,
+     "previous": 2,
+     "games": 1201,
+     "new": 4.6657,
+     "old": 4.6659,
+     "p": 0.61769,
+     "status": "kept"
+    },
+    "tested": 10,
+    "champion_after": 3,
+    "seconds": 8.4
+   }
+  },
+  "results": [
+   {
+    "model": "pregame",
+    "category": "ratings_mix",
+    "name": "Rating ingredients",
+    "what": "how the team ratings weigh yards, efficiency (EPA) and points scored",
+    "metric": "margin_total",
+    "from_params": {
+     "wB": 0.3,
+     "wE": 0.1,
+     "wS": 0.6
+    },
+    "best_params": {
+     "wB": 0.1,
+     "wE": 0.2,
+     "wS": 0.7
+    },
+    "variant": "full",
+    "title": "Rating ingredients yards 30% / EPA 10% / points 60% → yards 10% / EPA 20% / points 70%",
+    "to_params": {
+     "wB": 0.1,
+     "wE": 0.2,
+     "wS": 0.7
+    },
+    "steps": 2.0,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "base": 10.3421,
+    "cand": 10.3328,
+    "delta": 0.0093,
+    "se": 0.01444,
+    "p": 0.26543,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.5137,
+      "cand": 10.5421
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.8985,
+      "cand": 9.8891
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.46,
+      "cand": 10.4477
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 10.6885,
+      "cand": 10.6016
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.218000167835244
+     ],
+     "total": [
+      10.451771596381562,
+      10.447641443304716
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6437260618992272
+     ],
+     "ats": [
+      49.122807017543856,
+      49.01315789473684
+     ],
+     "gap": [
+      2.304376619042558,
+      2.2610226395783646
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "average of margin and total error 10.342 → 10.333"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower average of margin and total error on 937 games it never saw: 10.342 → 10.333",
+      "pts": 0.64
+     },
+     {
+      "text": "Also improves margin error (10.232 → 10.218)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 2.0 steps",
+      "pts": 1.0
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -0.86,
+    "status": "watching",
+    "size": "big",
+    "summary": "Rating ingredients yards 30% / EPA 10% / points 60% → yards 10% / EPA 20% / points 70%: average of margin and total error 10.342 → 10.333; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 3 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "ratings_mix",
+    "name": "Rating ingredients",
+    "what": "how the team ratings weigh yards, efficiency (EPA) and points scored",
+    "metric": "margin_total",
+    "from_params": {
+     "wB": 0.3,
+     "wE": 0.1,
+     "wS": 0.6
+    },
+    "best_params": {
+     "wB": 0.1,
+     "wE": 0.2,
+     "wS": 0.7
+    },
+    "variant": "step",
+    "title": "Rating ingredients yards 30% / EPA 10% / points 60% → yards 20% / EPA 15% / points 65%",
+    "to_params": {
+     "wB": 0.2,
+     "wE": 0.15,
+     "wS": 0.65
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "base": 10.3421,
+    "cand": 10.3312,
+    "delta": 0.0109,
+    "se": 0.00863,
+    "p": 0.09373,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.5137,
+      "cand": 10.52
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.8985,
+      "cand": 9.8891
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.46,
+      "cand": 10.446
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 10.6885,
+      "cand": 10.6424
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.218946177732748
+     ],
+     "total": [
+      10.451771596381562,
+      10.443454491207893
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6435155638844126
+     ],
+     "ats": [
+      49.122807017543856,
+      49.122807017543856
+     ],
+     "gap": [
+      2.304376619042558,
+      2.2748199841210797
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "average of margin and total error 10.342 → 10.331"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower average of margin and total error on 937 games it never saw: 10.342 → 10.331",
+      "pts": 1.26
+     },
+     {
+      "text": "Also improves margin error (10.232 → 10.219)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     }
+    ],
+    "net": 0.76,
+    "status": "watching",
+    "size": "small",
+    "summary": "Rating ingredients yards 30% / EPA 10% / points 60% → yards 20% / EPA 15% / points 65%: average of margin and total error 10.342 → 10.331; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 3 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "memory",
+    "name": "Memory",
+    "what": "how fast older games fade from the ratings",
+    "metric": "margin_total",
+    "from_params": {
+     "decay": 0.9
+    },
+    "best_params": {
+     "decay": 0.93
+    },
+    "variant": "full",
+    "title": "Memory 0.9 → 0.93",
+    "to_params": {
+     "decay": 0.93
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "base": 10.3421,
+    "cand": 10.3444,
+    "delta": -0.0023,
+    "se": 0.00552,
+    "p": 0.66633,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.5137,
+      "cand": 10.5163
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.8985,
+      "cand": 9.9027
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.46,
+      "cand": 10.4547
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 10.6885,
+      "cand": 10.703
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.232977458514936
+     ],
+     "total": [
+      10.451771596381562,
+      10.4558549562676
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6447757156045619
+     ],
+     "ats": [
+      49.122807017543856,
+      48.90350877192983
+     ],
+     "gap": [
+      2.304376619042558,
+      2.275043593437883
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "average of margin and total error 10.342 → 10.344"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 1 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Slightly worse win-probability log loss (0.6440 → 0.6448)",
+      "pts": 0.5
+     },
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 3 seasons",
+      "pts": 1.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -3.0,
+    "status": "rejected",
+    "size": "small",
+    "summary": "Memory 0.9 → 0.93: average of margin and total error 10.342 → 10.344; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 1 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "trust",
+    "name": "Sample trust",
+    "what": "how many games a team needs before its own numbers outweigh the league average",
+    "metric": "margin_total",
+    "from_params": {
+     "kY": 8,
+     "kP": 6,
+     "kT": 40,
+     "kO": 4,
+     "kE": 320,
+     "kS": 10
+    },
+    "best_params": {
+     "kY": 10.0,
+     "kP": 7.5,
+     "kT": 50.0,
+     "kO": 5.0,
+     "kE": 400.0,
+     "kS": 12.5
+    },
+    "variant": "full",
+    "title": "Sample trust ×1.00 of launch values → ×1.25 of launch values",
+    "to_params": {
+     "kY": 10.0,
+     "kP": 7.5,
+     "kT": 50.0,
+     "kO": 5.0,
+     "kE": 400.0,
+     "kS": 12.5
+    },
+    "steps": 1.0,
+    "onoff": true,
+    "turns": "on",
+    "n": 937,
+    "base": 10.3421,
+    "cand": 10.3338,
+    "delta": 0.0083,
+    "se": 0.00754,
+    "p": 0.13447,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.5137,
+      "cand": 10.5095
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.8985,
+      "cand": 9.8925
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.46,
+      "cand": 10.4525
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 10.6885,
+      "cand": 10.6641
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.22732049179081
+     ],
+     "total": [
+      10.451771596381562,
+      10.440308617997736
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6436737768578126
+     ],
+     "ats": [
+      49.122807017543856,
+      48.68421052631579
+     ],
+     "gap": [
+      2.304376619042558,
+      2.3196214861036353
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "average of margin and total error 10.342 → 10.334"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 4 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower average of margin and total error on 937 games it never saw: 10.342 → 10.334",
+      "pts": 1.1
+     },
+     {
+      "text": "Better in 4 seasons, more than the 3 required",
+      "pts": 0.5
+     },
+     {
+      "text": "Also improves total error (10.452 → 10.440)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Adds a factor the model did not use before",
+      "pts": 1.0
+     },
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     }
+    ],
+    "net": 0.6,
+    "status": "watching",
+    "size": "big",
+    "summary": "Sample trust ×1.00 of launch values → ×1.25 of launch values: average of margin and total error 10.342 → 10.334; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 4 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "carryover",
+    "name": "Season carryover",
+    "what": "how much of last season a team carries into the new one",
+    "metric": "margin_total",
+    "from_params": {
+     "cY": 0.45,
+     "cP": 0.35,
+     "cT": 0.35,
+     "cO": 0.2,
+     "cE": 0.6,
+     "cS": 0.55
+    },
+    "best_params": {
+     "cY": 0.54,
+     "cP": 0.42,
+     "cT": 0.42,
+     "cO": 0.24,
+     "cE": 0.72,
+     "cS": 0.66
+    },
+    "variant": "full",
+    "title": "Season carryover ×1.00 of launch values → ×1.20 of launch values",
+    "to_params": {
+     "cY": 0.54,
+     "cP": 0.42,
+     "cT": 0.42,
+     "cO": 0.24,
+     "cE": 0.72,
+     "cS": 0.66
+    },
+    "steps": 1.0,
+    "onoff": true,
+    "turns": "on",
+    "n": 937,
+    "base": 10.3421,
+    "cand": 10.344,
+    "delta": -0.0019,
+    "se": 0.01216,
+    "p": 0.55186,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.5137,
+      "cand": 10.5288
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.8985,
+      "cand": 9.8986
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.46,
+      "cand": 10.4561
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 10.6885,
+      "cand": 10.6777
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.243008851782982
+     ],
+     "total": [
+      10.451771596381562,
+      10.44489261956652
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6448049332149298
+     ],
+     "ats": [
+      49.122807017543856,
+      49.23245614035088
+     ],
+     "gap": [
+      2.304376619042558,
+      2.285899296407349
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "average of margin and total error 10.342 → 10.344"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 2 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Slightly worse margin error (10.232 → 10.243)",
+      "pts": 0.5
+     },
+     {
+      "text": "Slightly worse win-probability log loss (0.6440 → 0.6448)",
+      "pts": 0.5
+     },
+     {
+      "text": "Adds a factor the model did not use before",
+      "pts": 1.0
+     },
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 2 seasons",
+      "pts": 1.0
+     }
+    ],
+    "net": -3.5,
+    "status": "rejected",
+    "size": "big",
+    "summary": "Season carryover ×1.00 of launch values → ×1.20 of launch values: average of margin and total error 10.342 → 10.344; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 2 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "home_edge",
+    "name": "Home field",
+    "what": "points added for playing at home (none at neutral sites)",
+    "metric": "margin",
+    "from_params": {
+     "hfa": 1.2
+    },
+    "best_params": {
+     "hfa": 1.3
+    },
+    "variant": "full",
+    "title": "Home field 1.2 → 1.3",
+    "to_params": {
+     "hfa": 1.3
+    },
+    "steps": 0.25,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "base": 10.2324,
+    "cand": 10.2367,
+    "delta": -0.0042,
+    "se": 0.00457,
+    "p": 0.82129,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.568,
+      "cand": 10.5719
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.9253,
+      "cand": 9.9319
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.3135,
+      "cand": 10.3135
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 9.9863,
+      "cand": 9.9955
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.236673398599196
+     ],
+     "total": [
+      10.451771596381562,
+      10.451771596381562
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6443479859686359
+     ],
+     "ats": [
+      49.122807017543856,
+      48.35526315789473
+     ],
+     "gap": [
+      2.304376619042558,
+      2.2966969407050475
+     ]
+    },
+    "tuned_spread": 0.25,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "margin error 10.232 → 10.237"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 0 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 0.2 steps",
+      "pts": 0.12
+     },
+     {
+      "text": "Worse in 4 seasons",
+      "pts": 2.0
+     }
+    ],
+    "net": -2.12,
+    "status": "rejected",
+    "size": "small",
+    "summary": "Home field 1.2 → 1.3: margin error 10.232 → 10.237; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 0 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "backup_qb",
+    "name": "Backup quarterback",
+    "what": "points of margin a team loses when its usual starter is out",
+    "metric": "margin",
+    "from_params": {
+     "qb": 3.9
+    },
+    "best_params": {
+     "qb": 2.25
+    },
+    "variant": "full",
+    "title": "Backup quarterback 3.9 → 2.25",
+    "to_params": {
+     "qb": 2.25
+    },
+    "steps": 1.65,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "base": 10.2324,
+    "cand": 10.1987,
+    "delta": 0.0338,
+    "se": 0.0258,
+    "p": 0.09998,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.568,
+      "cand": 10.493
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.9253,
+      "cand": 9.9635
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.3135,
+      "cand": 10.246
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 9.9863,
+      "cand": 9.9591
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.198651212549098
+     ],
+     "total": [
+      10.451771596381562,
+      10.451771596381562
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6401731746552448
+     ],
+     "ats": [
+      49.122807017543856,
+      49.122807017543856
+     ],
+     "gap": [
+      2.304376619042558,
+      2.1885722088583894
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "margin error 10.232 → 10.199"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower margin error on 937 games it never saw: 10.232 → 10.199",
+      "pts": 1.31
+     },
+     {
+      "text": "Also improves win-probability log loss (0.6440 → 0.6402)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.6 steps",
+      "pts": 0.82
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     }
+    ],
+    "net": 0.49,
+    "status": "watching",
+    "size": "big",
+    "summary": "Backup quarterback 3.9 → 2.25: margin error 10.232 → 10.199; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 3 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "backup_qb",
+    "name": "Backup quarterback",
+    "what": "points of margin a team loses when its usual starter is out",
+    "metric": "margin",
+    "from_params": {
+     "qb": 3.9
+    },
+    "best_params": {
+     "qb": 2.25
+    },
+    "variant": "step",
+    "title": "Backup quarterback 3.9 → 2.9",
+    "to_params": {
+     "qb": 2.9
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "base": 10.2324,
+    "cand": 10.2011,
+    "delta": 0.0314,
+    "se": 0.01637,
+    "p": 0.03324,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.568,
+      "cand": 10.5129
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.9253,
+      "cand": 9.9371
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.3135,
+      "cand": 10.2561
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 9.9863,
+      "cand": 9.9698
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.201061048545133
+     ],
+     "total": [
+      10.451771596381562,
+      10.451771596381562
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6411460451720707
+     ],
+     "ats": [
+      49.122807017543856,
+      49.23245614035088
+     ],
+     "gap": [
+      2.304376619042558,
+      2.2127547001745738
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 0.43212,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "margin error 10.232 → 10.201"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "56.8% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower margin error on 937 games it never saw: 10.232 → 10.201",
+      "pts": 1.92
+     },
+     {
+      "text": "Also improves win-probability log loss (0.6440 → 0.6411)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     }
+    ],
+    "net": 1.42,
+    "status": "watching",
+    "size": "small",
+    "summary": "Backup quarterback 3.9 → 2.9: margin error 10.232 → 10.201; 56.8% confidence after correcting for 15 ideas tested (need 95%); better in 3 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "wp_cal",
+    "name": "Win-probability calibration",
+    "what": "how a projected margin turns into a win probability",
+    "metric": "logloss",
+    "from_params": {
+     "wp_a": -0.5607864974415988,
+     "wp_b": 1.2945221678285592,
+     "wp_sd": 13.150882601642925
+    },
+    "best_params": {
+     "wp_a": 0.378,
+     "wp_b": 1.0519,
+     "wp_sd": 13.0937
+    },
+    "variant": "full",
+    "title": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a 0.38, b 1.052, sd 13.09",
+    "to_params": {
+     "wp_a": 0.378,
+     "wp_b": 1.0519,
+     "wp_sd": 13.0937
+    },
+    "steps": 3.13,
+    "onoff": false,
+    "turns": null,
+    "n": 935,
+    "base": 0.644,
+    "cand": 0.6411,
+    "delta": 0.0029,
+    "se": 0.00241,
+    "p": 0.11322,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 0.67,
+      "cand": 0.6607
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 0.6101,
+      "cand": 0.613
+     },
+     {
+      "season": 2025,
+      "n": 271,
+      "base": 0.6395,
+      "cand": 0.6363
+     },
+     {
+      "season": 2026,
+      "n": 120,
+      "base": 0.6721,
+      "cand": 0.6709
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.232426333258683
+     ],
+     "total": [
+      10.451771596381562,
+      10.451771596381562
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6410616555606151
+     ],
+     "ats": [
+      49.122807017543856,
+      49.122807017543856
+     ],
+     "gap": [
+      2.304376619042558,
+      2.304376619042558
+     ]
+    },
+    "tuned_spread": 0.33,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "935 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "win-probability log loss 0.6440 → 0.6411"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower win-probability log loss on 935 games it never saw: 0.6440 → 0.6411",
+      "pts": 1.2
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 3.1 steps",
+      "pts": 1.56
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -1.36,
+    "status": "watching",
+    "size": "big",
+    "summary": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a 0.38, b 1.052, sd 13.09: win-probability log loss 0.6440 → 0.6411; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 3 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "wp_cal",
+    "name": "Win-probability calibration",
+    "what": "how a projected margin turns into a win probability",
+    "metric": "logloss",
+    "from_params": {
+     "wp_a": -0.5607864974415988,
+     "wp_b": 1.2945221678285592,
+     "wp_sd": 13.150882601642925
+    },
+    "best_params": {
+     "wp_a": 0.378,
+     "wp_b": 1.0519,
+     "wp_sd": 13.0937
+    },
+    "variant": "step",
+    "title": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a -0.26, b 1.217, sd 13.13",
+    "to_params": {
+     "wp_a": -0.2608,
+     "wp_b": 1.217,
+     "wp_sd": 13.1326
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 935,
+    "base": 0.644,
+    "cand": 0.6419,
+    "delta": 0.0021,
+    "se": 0.00099,
+    "p": 0.01575,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 0.67,
+      "cand": 0.6648
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 0.6101,
+      "cand": 0.6103
+     },
+     {
+      "season": 2025,
+      "n": 271,
+      "base": 0.6395,
+      "cand": 0.6378
+     },
+     {
+      "season": 2026,
+      "n": 120,
+      "base": 0.6721,
+      "cand": 0.6712
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.232426333258683
+     ],
+     "total": [
+      10.451771596381562,
+      10.451771596381562
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.641934723735231
+     ],
+     "ats": [
+      49.122807017543856,
+      49.122807017543856
+     ],
+     "gap": [
+      2.304376619042558,
+      2.304376619042558
+     ]
+    },
+    "tuned_spread": 0.33,
+    "p_adj": 0.2205,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "935 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "win-probability log loss 0.6440 → 0.6419"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "78.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower win-probability log loss on 935 games it never saw: 0.6440 → 0.6419",
+      "pts": 2.12
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": 0.62,
+    "status": "watching",
+    "size": "small",
+    "summary": "Win-probability calibration a -0.56, b 1.295, sd 13.15 → a -0.26, b 1.217, sd 13.13: win-probability log loss 0.6440 → 0.6419; 78.0% confidence after correcting for 15 ideas tested (need 95%); better in 3 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "blend",
+    "name": "Blend with Vegas",
+    "what": "how much of GridIron's own number goes into the blended line",
+    "metric": "blend",
+    "from_params": {
+     "blend": 0.15
+    },
+    "best_params": {
+     "blend": 0.0
+    },
+    "variant": "full",
+    "title": "Blend with Vegas 15% GridIron → 0% GridIron",
+    "to_params": {
+     "blend": 0.0
+    },
+    "steps": 3.0,
+    "onoff": true,
+    "turns": "off",
+    "n": 937,
+    "base": 9.9787,
+    "cand": 9.956,
+    "delta": 0.0228,
+    "se": 0.00909,
+    "p": 0.007,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.1032,
+      "cand": 10.0699
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.6627,
+      "cand": 9.67
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.0784,
+      "cand": 10.0579
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 10.1853,
+      "cand": 10.1136
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.232426333258683
+     ],
+     "total": [
+      10.451771596381562,
+      10.451771596381562
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6440037013504641
+     ],
+     "ats": [
+      49.122807017543856,
+      49.122807017543856
+     ],
+     "gap": [
+      2.304376619042558,
+      2.304376619042558
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 0.105,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "blended-line error 9.979 → 9.956"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "89.5% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower blended-line error on 937 games it never saw: 9.979 → 9.956",
+      "pts": 2.51
+     },
+     {
+      "text": "Simpler: removes a factor",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 3.0 steps",
+      "pts": 1.5
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     }
+    ],
+    "net": 1.01,
+    "status": "watching",
+    "size": "big",
+    "summary": "Blend with Vegas 15% GridIron → 0% GridIron: blended-line error 9.979 → 9.956; 89.5% confidence after correcting for 15 ideas tested (need 95%); better in 3 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "venue",
+    "name": "Venue edge",
+    "what": "extra home edge for venues that have measured tougher or softer than average",
+    "metric": "margin",
+    "from_params": {
+     "venue": 0.0
+    },
+    "best_params": {
+     "venue": 0.24
+    },
+    "variant": "full",
+    "title": "Venue edge 0 → 0.24",
+    "to_params": {
+     "venue": 0.24
+    },
+    "steps": 1.6,
+    "onoff": true,
+    "turns": "on",
+    "n": 937,
+    "base": 10.2324,
+    "cand": 10.2199,
+    "delta": 0.0126,
+    "se": 0.01268,
+    "p": 0.15396,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.568,
+      "cand": 10.5435
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.9253,
+      "cand": 9.9439
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.3135,
+      "cand": 10.3206
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 9.9863,
+      "cand": 9.8863
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.219858627628806
+     ],
+     "total": [
+      10.451771596381562,
+      10.451771596381562
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6428765026793218
+     ],
+     "ats": [
+      49.122807017543856,
+      49.23245614035088
+     ],
+     "gap": [
+      2.304376619042558,
+      2.3271323611724863
+     ]
+    },
+    "tuned_spread": 0.67,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "margin error 10.232 → 10.220"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 2 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower margin error on 937 games it never saw: 10.232 → 10.220",
+      "pts": 0.99
+     },
+     {
+      "text": "Also improves win-probability log loss (0.6440 → 0.6429)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Adds a factor the model did not use before",
+      "pts": 1.0
+     },
+     {
+      "text": "Moves the weight 1.6 steps",
+      "pts": 0.8
+     },
+     {
+      "text": "Worse in 2 seasons",
+      "pts": 1.0
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -1.81,
+    "status": "watching",
+    "size": "big",
+    "summary": "Venue edge 0 → 0.24: margin error 10.232 → 10.220; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 2 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "rest",
+    "name": "Rest days",
+    "what": "points per extra day of rest over the opponent",
+    "metric": "margin",
+    "from_params": {
+     "rest": 0.0
+    },
+    "best_params": {
+     "rest": 0.1
+    },
+    "variant": "full",
+    "title": "Rest days 0 → 0.1",
+    "to_params": {
+     "rest": 0.1
+    },
+    "steps": 1.0,
+    "onoff": true,
+    "turns": "on",
+    "n": 937,
+    "base": 10.2324,
+    "cand": 10.2334,
+    "delta": -0.001,
+    "se": 0.00355,
+    "p": 0.5986,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.568,
+      "cand": 10.5776
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.9253,
+      "cand": 9.9288
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.3135,
+      "cand": 10.3132
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 9.9863,
+      "cand": 9.9654
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.233449378782183
+     ],
+     "total": [
+      10.451771596381562,
+      10.451771596381562
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6442183659789142
+     ],
+     "ats": [
+      49.122807017543856,
+      48.79385964912281
+     ],
+     "gap": [
+      2.304376619042558,
+      2.3028962964866544
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "margin error 10.232 → 10.233"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 2 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Adds a factor the model did not use before",
+      "pts": 1.0
+     },
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 2 seasons",
+      "pts": 1.0
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -3.0,
+    "status": "rejected",
+    "size": "big",
+    "summary": "Rest days 0 → 0.1: margin error 10.232 → 10.233; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 2 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "weather_total",
+    "name": "Weather on the total",
+    "what": "points added to or taken off the game total for a roof, sustained wind and cold",
+    "metric": "total",
+    "from_params": {
+     "wx_dome": 0.0,
+     "wx_wind": 0.0,
+     "wx_cold": 0.0
+    },
+    "best_params": {
+     "wx_dome": 2.2023,
+     "wx_wind": -0.3226,
+     "wx_cold": -0.9837
+    },
+    "variant": "full",
+    "title": "Weather on the total roof +0.00, wind +0.000/mph, cold +0.00/10°F → roof +2.20, wind -0.323/mph, cold -0.98/10°F",
+    "to_params": {
+     "wx_dome": 2.2023,
+     "wx_wind": -0.3226,
+     "wx_cold": -0.9837
+    },
+    "steps": 3.23,
+    "onoff": true,
+    "turns": "on",
+    "n": 937,
+    "base": 10.4518,
+    "cand": 10.4904,
+    "delta": -0.0386,
+    "se": 0.05703,
+    "p": 0.74706,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.4594,
+      "cand": 10.5351
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.8718,
+      "cand": 9.9741
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.6065,
+      "cand": 10.5636
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 11.3906,
+      "cand": 11.3859
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.232426333258683
+     ],
+     "total": [
+      10.451771596381562,
+      10.490406969230492
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6440037013504641
+     ],
+     "ats": [
+      49.122807017543856,
+      49.122807017543856
+     ],
+     "gap": [
+      2.304376619042558,
+      2.304376619042558
+     ]
+    },
+    "tuned_spread": 0.17,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "total error 10.452 → 10.490"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 2 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Adds a factor the model did not use before",
+      "pts": 1.0
+     },
+     {
+      "text": "Moves the weight 3.2 steps",
+      "pts": 1.61
+     },
+     {
+      "text": "Worse in 2 seasons",
+      "pts": 1.0
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -4.12,
+    "status": "rejected",
+    "size": "big",
+    "summary": "Weather on the total roof +0.00, wind +0.000/mph, cold +0.00/10°F → roof +2.20, wind -0.323/mph, cold -0.98/10°F: total error 10.452 → 10.490; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 2 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "pregame",
+    "category": "referee",
+    "name": "Referee crew",
+    "what": "points added to the total for a referee whose recent games have run over or under the line",
+    "metric": "total",
+    "from_params": {
+     "ref": 0.0
+    },
+    "best_params": {
+     "ref": -0.34
+    },
+    "variant": "full",
+    "title": "Referee crew 0 → -0.34",
+    "to_params": {
+     "ref": -0.34
+    },
+    "steps": 2.27,
+    "onoff": true,
+    "turns": "on",
+    "n": 937,
+    "base": 10.4518,
+    "cand": 10.4379,
+    "delta": 0.0139,
+    "se": 0.01819,
+    "p": 0.22019,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 10.4594,
+      "cand": 10.447
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 9.8718,
+      "cand": 9.88
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 10.6065,
+      "cand": 10.5646
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 11.3906,
+      "cand": 11.3867
+     }
+    ],
+    "sec": {
+     "margin": [
+      10.232426333258683,
+      10.232426333258683
+     ],
+     "total": [
+      10.451771596381562,
+      10.43789730237892
+     ],
+     "logloss": [
+      0.6440037013504641,
+      0.6440037013504641
+     ],
+     "ats": [
+      49.122807017543856,
+      49.122807017543856
+     ],
+     "gap": [
+      2.304376619042558,
+      2.304376619042558
+     ]
+    },
+    "tuned_spread": 0.13,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "total error 10.452 → 10.438"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 15 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower total error on 937 games it never saw: 10.452 → 10.438",
+      "pts": 0.76
+     }
+    ],
+    "cons": [
+     {
+      "text": "Adds a factor the model did not use before",
+      "pts": 1.0
+     },
+     {
+      "text": "Moves the weight 2.3 steps",
+      "pts": 1.14
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -2.37,
+    "status": "watching",
+    "size": "big",
+    "summary": "Referee crew 0 → -0.34: total error 10.452 → 10.438; 0.0% confidence after correcting for 15 ideas tested (need 95%); better in 3 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "live",
+    "category": "live_ep",
+    "name": "Possession value",
+    "what": "expected points of the drive in progress, by field position, down and distance",
+    "metric": "logloss",
+    "status": "holds",
+    "summary": "Possession value: the best-fitting value is within the minimum meaningful change of the current one, so nothing to test."
+   },
+   {
+    "model": "live",
+    "category": "live_margin",
+    "name": "Score, possession and pregame fade",
+    "what": "how much the possession counts and how fast GridIron's pregame margin fades as the clock runs",
+    "metric": "logloss",
+    "variant": "full",
+    "title": "Score, possession and pregame fade possession 0.633, pregame 1.136, clock -0.651 → possession 0.629, pregame 1.037, clock +0.030",
+    "from_params": {
+     "margin": {
+      "a_ep": 0.6333,
+      "b_prior": 1.1364,
+      "c_frac": -0.6509,
+      "sigma": 13.5,
+      "eps": 2.3
+     }
+    },
+    "to_params": {
+     "margin": {
+      "a_ep": 0.6287,
+      "b_prior": 1.0368,
+      "c_frac": 0.0301,
+      "sigma": 13.5,
+      "eps": 2.3
+     }
+    },
+    "steps": 1.36,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "plays": 160928,
+    "base": 0.46493,
+    "cand": 0.46532,
+    "delta": -0.00038,
+    "se": 0.000543,
+    "p": 0.74613,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 0.46517,
+      "cand": 0.46457
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 0.43318,
+      "cand": 0.43442
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 0.47866,
+      "cand": 0.47877
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 0.50589,
+      "cand": 0.50717
+     }
+    ],
+    "sec": {
+     "logloss": [
+      0.46493466011594575,
+      0.4653178091480222
+     ],
+     "brier": [
+      0.15542175411901035,
+      0.1556262163755522
+     ],
+     "final_margin": [
+      6.95207014366221,
+      6.939607432580675
+     ],
+     "final_total": [
+      7.2850048288581215,
+      7.2850048288581215
+     ]
+    },
+    "tuned_spread": 0.3,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "win-probability log loss 0.4649 → 0.4653"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 7 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 1 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Also improves final-margin error (6.952 → 6.940)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.4 steps",
+      "pts": 0.68
+     },
+     {
+      "text": "Worse in 3 seasons",
+      "pts": 1.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -2.18,
+    "status": "rejected",
+    "size": "big",
+    "summary": "Score, possession and pregame fade possession 0.633, pregame 1.136, clock -0.651 → possession 0.629, pregame 1.037, clock +0.030: win-probability log loss 0.4649 → 0.4653; 0.0% confidence after correcting for 7 ideas tested (need 95%); better in 1 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "live",
+    "category": "live_margin",
+    "name": "Score, possession and pregame fade",
+    "what": "how much the possession counts and how fast GridIron's pregame margin fades as the clock runs",
+    "metric": "logloss",
+    "variant": "step",
+    "title": "Score, possession and pregame fade possession 0.633, pregame 1.136, clock -0.651 → possession 0.630, pregame 1.063, clock -0.151",
+    "from_params": {
+     "margin": {
+      "a_ep": 0.6333,
+      "b_prior": 1.1364,
+      "c_frac": -0.6509,
+      "sigma": 13.5,
+      "eps": 2.3
+     }
+    },
+    "to_params": {
+     "margin": {
+      "a_ep": 0.6299,
+      "b_prior": 1.0633,
+      "c_frac": -0.1509,
+      "sigma": 13.5,
+      "eps": 2.3
+     }
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "plays": 160928,
+    "base": 0.46493,
+    "cand": 0.46513,
+    "delta": -0.0002,
+    "se": 0.000435,
+    "p": 0.68266,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 0.46517,
+      "cand": 0.46457
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 0.43318,
+      "cand": 0.43415
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 0.47866,
+      "cand": 0.47858
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 0.50589,
+      "cand": 0.50675
+     }
+    ],
+    "sec": {
+     "logloss": [
+      0.46493466011594575,
+      0.4651324159869813
+     ],
+     "brier": [
+      0.15542175411901035,
+      0.15553701614387846
+     ],
+     "final_margin": [
+      6.95207014366221,
+      6.93973493592139
+     ],
+     "final_total": [
+      7.2850048288581215,
+      7.2850048288581215
+     ]
+    },
+    "tuned_spread": 0.3,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "win-probability log loss 0.4649 → 0.4651"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 7 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 2 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Also improves final-margin error (6.952 → 6.940)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 2 seasons",
+      "pts": 1.0
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -1.5,
+    "status": "rejected",
+    "size": "small",
+    "summary": "Score, possession and pregame fade possession 0.633, pregame 1.136, clock -0.651 → possession 0.630, pregame 1.063, clock -0.151: win-probability log loss 0.4649 → 0.4651; 0.0% confidence after correcting for 7 ideas tested (need 95%); better in 2 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "live",
+    "category": "live_spread",
+    "name": "Live uncertainty",
+    "what": "how wide the range of final margins is at each point of the game",
+    "metric": "logloss",
+    "status": "holds",
+    "summary": "Live uncertainty: the best-fitting value is within the minimum meaningful change of the current one, so nothing to test."
+   },
+   {
+    "model": "live",
+    "category": "live_tails",
+    "name": "Tail calibration",
+    "what": "a correction for over- or under-confidence near 0% and 100%",
+    "metric": "logloss",
+    "variant": "full",
+    "title": "Tail calibration shift +0.002, stretch 0.826 → shift +0.028, stretch 0.825",
+    "from_params": {
+     "platt": {
+      "alpha": 0.00229,
+      "beta": 0.82557
+     }
+    },
+    "to_params": {
+     "platt": {
+      "alpha": 0.02847,
+      "beta": 0.82544
+     }
+    },
+    "steps": 0.52,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "plays": 160928,
+    "base": 0.46493,
+    "cand": 0.46528,
+    "delta": -0.00035,
+    "se": 0.000394,
+    "p": 0.81059,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 0.46517,
+      "cand": 0.46545
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 0.43318,
+      "cand": 0.4333
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 0.47866,
+      "cand": 0.4789
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 0.50589,
+      "cand": 0.50716
+     }
+    ],
+    "sec": {
+     "logloss": [
+      0.46493466011594575,
+      0.4652834925808521
+     ],
+     "brier": [
+      0.15542175411901035,
+      0.15554697124085243
+     ],
+     "final_margin": [
+      6.95207014366221,
+      6.95207014366221
+     ],
+     "final_total": [
+      7.2850048288581215,
+      7.2850048288581215
+     ]
+    },
+    "tuned_spread": 0.38,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "win-probability log loss 0.4649 → 0.4653"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 7 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 0 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 0.5 steps",
+      "pts": 0.26
+     },
+     {
+      "text": "Worse in 4 seasons",
+      "pts": 2.0
+     }
+    ],
+    "net": -2.26,
+    "status": "rejected",
+    "size": "small",
+    "summary": "Tail calibration shift +0.002, stretch 0.826 → shift +0.028, stretch 0.825: win-probability log loss 0.4649 → 0.4653; 0.0% confidence after correcting for 7 ideas tested (need 95%); better in 0 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "live",
+    "category": "live_total",
+    "name": "Live total",
+    "what": "how the projected final total combines the score so far, GridIron's pregame total and the clock",
+    "metric": "final_total",
+    "variant": "full",
+    "title": "Live total pregame 0.803, clock 9.39, possession 0.684 → pregame 0.872, clock 6.39, possession 0.703",
+    "from_params": {
+     "total": {
+      "t_prior": 0.8026,
+      "t_frac": 9.3898,
+      "t_ep": 0.6842
+     }
+    },
+    "to_params": {
+     "total": {
+      "t_prior": 0.8723,
+      "t_frac": 6.3922,
+      "t_ep": 0.7027
+     }
+    },
+    "steps": 2.0,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "plays": 161285,
+    "base": 7.285,
+    "cand": 7.29258,
+    "delta": -0.00758,
+    "se": 0.003346,
+    "p": 0.98801,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 7.21385,
+      "cand": 7.22939
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 7.09729,
+      "cand": 7.10123
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 7.37188,
+      "cand": 7.3808
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 7.67497,
+      "cand": 7.66986
+     }
+    ],
+    "sec": {
+     "logloss": [
+      0.46493466011594575,
+      0.46493466011594575
+     ],
+     "brier": [
+      0.15542175411901035,
+      0.15542175411901035
+     ],
+     "final_margin": [
+      6.95207014366221,
+      6.95207014366221
+     ],
+     "final_total": [
+      7.2850048288581215,
+      7.292582817520547
+     ]
+    },
+    "tuned_spread": 0.29,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "final-total error 7.285 → 7.293"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 7 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 1 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 2.0 steps",
+      "pts": 1.0
+     },
+     {
+      "text": "Worse in 3 seasons",
+      "pts": 1.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -3.0,
+    "status": "rejected",
+    "size": "big",
+    "summary": "Live total pregame 0.803, clock 9.39, possession 0.684 → pregame 0.872, clock 6.39, possession 0.703: final-total error 7.285 → 7.293; 0.0% confidence after correcting for 7 ideas tested (need 95%); better in 1 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "live",
+    "category": "live_total",
+    "name": "Live total",
+    "what": "how the projected final total combines the score so far, GridIron's pregame total and the clock",
+    "metric": "final_total",
+    "variant": "step",
+    "title": "Live total pregame 0.803, clock 9.39, possession 0.684 → pregame 0.838, clock 7.89, possession 0.694",
+    "from_params": {
+     "total": {
+      "t_prior": 0.8026,
+      "t_frac": 9.3898,
+      "t_ep": 0.6842
+     }
+    },
+    "to_params": {
+     "total": {
+      "t_prior": 0.8375,
+      "t_frac": 7.8898,
+      "t_ep": 0.6935
+     }
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 937,
+    "plays": 161285,
+    "base": 7.285,
+    "cand": 7.2912,
+    "delta": -0.00619,
+    "se": 0.002816,
+    "p": 0.98651,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 7.21385,
+      "cand": 7.22868
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 7.09729,
+      "cand": 7.09918
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 7.37188,
+      "cand": 7.3783
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 7.67497,
+      "cand": 7.67091
+     }
+    ],
+    "sec": {
+     "logloss": [
+      0.46493466011594575,
+      0.46493466011594575
+     ],
+     "brier": [
+      0.15542175411901035,
+      0.15542175411901035
+     ],
+     "final_margin": [
+      6.95207014366221,
+      6.95207014366221
+     ],
+     "final_total": [
+      7.2850048288581215,
+      7.291197787717554
+     ]
+    },
+    "tuned_spread": 0.29,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "final-total error 7.285 → 7.291"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 7 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 1 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 3 seasons",
+      "pts": 1.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -2.5,
+    "status": "rejected",
+    "size": "small",
+    "summary": "Live total pregame 0.803, clock 9.39, possession 0.684 → pregame 0.838, clock 7.89, possession 0.694: final-total error 7.285 → 7.291; 0.0% confidence after correcting for 7 ideas tested (need 95%); better in 1 of 4 seasons with 48+ games"
+   },
+   {
+    "model": "live",
+    "category": "live_market",
+    "name": "Betting line in the live margin",
+    "what": "how much of the pregame margin the live model starts from is the betting line before kickoff rather than GridIron's own number (a switch: off until approved)",
+    "metric": "logloss",
+    "variant": "full",
+    "title": "Betting line in the live margin off (GridIron's own margin) → betting line 100%, GridIron 0%",
+    "from_params": {
+     "margin": {
+      "a_ep": 0.6333,
+      "b_prior": 1.1364,
+      "c_frac": -0.6509,
+      "sigma": 13.5,
+      "eps": 2.3
+     }
+    },
+    "to_params": {
+     "margin": {
+      "a_ep": 0.6333,
+      "b_prior": 1.1364,
+      "c_frac": -0.6509,
+      "sigma": 13.5,
+      "eps": 2.3,
+      "w_market": 1.0
+     }
+    },
+    "steps": 4.0,
+    "onoff": true,
+    "turns": "on",
+    "n": 937,
+    "plays": 160928,
+    "base": 0.46493,
+    "cand": 0.45496,
+    "delta": 0.00997,
+    "se": 0.002297,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 0.46517,
+      "cand": 0.45043
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 0.43318,
+      "cand": 0.4242
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 0.47866,
+      "cand": 0.47184
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 0.50589,
+      "cand": 0.4975
+     }
+    ],
+    "sec": {
+     "logloss": [
+      0.46493466011594575,
+      0.4549607678927783
+     ],
+     "brier": [
+      0.15542175411901035,
+      0.15122249315440245
+     ],
+     "final_margin": [
+      6.95207014366221,
+      6.797340523661137
+     ],
+     "final_total": [
+      7.2850048288581215,
+      7.2850048288581215
+     ]
+    },
+    "tuned_spread": 0.12,
+    "p_adj": 0.0035,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "win-probability log loss 0.4649 → 0.4550"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.7% confidence after correcting for 7 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 4 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": true,
+      "text": "passed in two reviews with new games in between"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower win-probability log loss on 937 games it never saw: 0.4649 → 0.4550",
+      "pts": 4.0
+     },
+     {
+      "text": "Better in 4 seasons, more than the 3 required",
+      "pts": 0.5
+     },
+     {
+      "text": "Also improves win-probability Brier score (0.1554 → 0.1512)",
+      "pts": 0.5
+     },
+     {
+      "text": "Also improves final-margin error (6.952 → 6.797)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Adds a factor the model did not use before",
+      "pts": 1.0
+     },
+     {
+      "text": "Moves the weight 4.0 steps",
+      "pts": 2.0
+     }
+    ],
+    "net": 2.5,
+    "status": "proposed",
+    "size": "big",
+    "summary": "Betting line in the live margin off (GridIron's own margin) → betting line 100%, GridIron 0%: win-probability log loss 0.4649 → 0.4550; 99.7% confidence after correcting for 7 ideas tested (need 95%); better in 4 of 4 seasons with 48+ games",
+    "proposal": "R2026-08:live:live_market"
+   },
+   {
+    "model": "live",
+    "category": "live_market_total",
+    "name": "Betting total in the live total",
+    "what": "how much of the pregame total the live projection starts from is the betting total before kickoff rather than GridIron's own (a switch: off until approved)",
+    "metric": "final_total",
+    "variant": "full",
+    "title": "Betting total in the live total off (GridIron's own total) → betting line 100%, GridIron 0%",
+    "from_params": {
+     "total": {
+      "t_prior": 0.8026,
+      "t_frac": 9.3898,
+      "t_ep": 0.6842
+     }
+    },
+    "to_params": {
+     "total": {
+      "t_prior": 0.8026,
+      "t_frac": 9.3898,
+      "t_ep": 0.6842,
+      "w_market": 1.0
+     }
+    },
+    "steps": 4.0,
+    "onoff": true,
+    "turns": "on",
+    "n": 937,
+    "plays": 161285,
+    "base": 7.285,
+    "cand": 7.18179,
+    "delta": 0.10321,
+    "se": 0.02831,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 272,
+      "base": 7.21385,
+      "cand": 7.1263
+     },
+     {
+      "season": 2024,
+      "n": 272,
+      "base": 7.09729,
+      "cand": 7.00065
+     },
+     {
+      "season": 2025,
+      "n": 272,
+      "base": 7.37188,
+      "cand": 7.29758
+     },
+     {
+      "season": 2026,
+      "n": 121,
+      "base": 7.67497,
+      "cand": 7.45802
+     }
+    ],
+    "sec": {
+     "logloss": [
+      0.46493466011594575,
+      0.46493466011594575
+     ],
+     "brier": [
+      0.15542175411901035,
+      0.15542175411901035
+     ],
+     "final_margin": [
+      6.95207014366221,
+      6.95207014366221
+     ],
+     "final_total": [
+      7.2850048288581215,
+      7.181790068207279
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 0.0035,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "937 games it never saw (need 500)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "final-total error 7.285 → 7.182"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.7% confidence after correcting for 7 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 4 of 4 seasons with 48+ games"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": true,
+      "text": "passed in two reviews with new games in between"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower final-total error on 937 games it never saw: 7.285 → 7.182",
+      "pts": 3.65
+     },
+     {
+      "text": "Better in 4 seasons, more than the 3 required",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Adds a factor the model did not use before",
+      "pts": 1.0
+     },
+     {
+      "text": "Moves the weight 4.0 steps",
+      "pts": 2.0
+     }
+    ],
+    "net": 1.15,
+    "status": "proposed",
+    "size": "big",
+    "summary": "Betting total in the live total off (GridIron's own total) → betting line 100%, GridIron 0%: final-total error 7.285 → 7.182; 99.7% confidence after correcting for 7 ideas tested (need 95%); better in 4 of 4 seasons with 48+ games",
+    "proposal": "R2026-08:live:live_market_total"
+   },
+   {
+    "model": "players",
+    "category": "pl_history",
+    "name": "Last season's games",
+    "what": "how much a player's previous season counts next to this season's games",
+    "metric": "pts",
+    "from_params": {
+     "prev_weight": 0.1
+    },
+    "variant": "full",
+    "title": "Last season's games ×0.1 → ×0.15",
+    "to_params": {
+     "prev_weight": 0.15
+    },
+    "steps": 0.5,
+    "onoff": false,
+    "turns": null,
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5882,
+    "delta": 0.0037,
+    "se": 0.00475,
+    "p": 0.22739,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.5071
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6409
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.547
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.7508
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.588155637275862
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.3484701912139598
+     ],
+     "yds": [
+      22.275256213632655,
+      22.225376822291118
+     ]
+    },
+    "tuned_spread": 0.5,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.592 → 4.588"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 15573 player-weeks it never saw: 4.592 → 4.588",
+      "pts": 0.78
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 0.5 steps",
+      "pts": 0.25
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     }
+    ],
+    "net": 0.03,
+    "status": "watching",
+    "size": "small",
+    "summary": "Last season's games ×0.1 → ×0.15: expected PPR points error 4.592 → 4.588; 0.0% confidence after correcting for 10 ideas tested (need 95%); better in 3 of 4 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_volume_trust",
+    "name": "Volume trust",
+    "what": "how many team plays before a player's own target and carry share outweighs his position's average",
+    "metric": "pts",
+    "from_params": {
+     "k_ts": 12.0,
+     "k_cshare": 16.0
+    },
+    "variant": "full",
+    "title": "Volume trust ×0.80 of launch values → ×0.41 of launch values",
+    "to_params": {
+     "k_ts": 6.144,
+     "k_cshare": 8.192
+    },
+    "steps": 3.0,
+    "onoff": false,
+    "turns": null,
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5597,
+    "delta": 0.0321,
+    "se": 0.00412,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.4673
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6165
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.5204
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.7358
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.559739109166724
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.3487353337199672
+     ],
+     "yds": [
+      22.275256213632655,
+      22.072860955103902
+     ]
+    },
+    "tuned_spread": 1.0,
+    "p_adj": 0.005,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.592 → 4.560"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.5% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 4 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": true,
+      "text": "passed in two reviews with new games in between"
+     },
+     {
+      "id": "one_at_a_time",
+      "ok": false,
+      "text": "a one-step move for this weight is queued first; the bigger move is re-tested after it"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 15573 player-weeks it never saw: 4.592 → 4.560",
+      "pts": 4.0
+     },
+     {
+      "text": "Better in 4 seasons, more than the 3 required",
+      "pts": 0.5
+     },
+     {
+      "text": "Also improves scrimmage yards error (22.275 → 22.073)",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 3.0 steps",
+      "pts": 1.5
+     }
+    ],
+    "net": 3.5,
+    "status": "pending",
+    "size": "big",
+    "summary": "Volume trust ×0.80 of launch values → ×0.41 of launch values: expected PPR points error 4.592 → 4.560; 99.5% confidence after correcting for 10 ideas tested (need 95%); better in 4 of 4 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_volume_trust",
+    "name": "Volume trust",
+    "what": "how many team plays before a player's own target and carry share outweighs his position's average",
+    "metric": "pts",
+    "from_params": {
+     "k_ts": 12.0,
+     "k_cshare": 16.0
+    },
+    "variant": "step",
+    "title": "Volume trust ×0.80 of launch values → ×0.64 of launch values",
+    "to_params": {
+     "k_ts": 9.6,
+     "k_cshare": 12.8
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5784,
+    "delta": 0.0135,
+    "se": 0.00172,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.484
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6366
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.5364
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.7614
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.57835812551204
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.3495946019835972
+     ],
+     "yds": [
+      22.275256213632655,
+      22.189900174618856
+     ]
+    },
+    "tuned_spread": 1.0,
+    "p_adj": 0.005,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.592 → 4.578"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.5% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 4 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": true,
+      "text": "passed in two reviews with new games in between"
+     },
+     {
+      "id": "one_at_a_time",
+      "ok": false,
+      "text": "a one-step move for this weight is queued first; the bigger move is re-tested after it"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 15573 player-weeks it never saw: 4.592 → 4.578",
+      "pts": 4.0
+     },
+     {
+      "text": "Better in 4 seasons, more than the 3 required",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     }
+    ],
+    "net": 4.0,
+    "status": "pending",
+    "size": "small",
+    "summary": "Volume trust ×0.80 of launch values → ×0.64 of launch values: expected PPR points error 4.592 → 4.578; 99.5% confidence after correcting for 10 ideas tested (need 95%); better in 4 of 4 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_efficiency_trust",
+    "name": "Efficiency trust",
+    "what": "how many targets and carries before a player's own catch rate, yards and touchdown rates are trusted",
+    "metric": "pts",
+    "from_params": {
+     "k_cr": 48.0,
+     "k_ypt": 96.0,
+     "k_adot": 32.0,
+     "k_ypc": 32.0,
+     "k_rutd": 32.0
+    },
+    "variant": "full",
+    "title": "Efficiency trust ×0.80 of launch values → ×0.41 of launch values",
+    "to_params": {
+     "k_cr": 24.576,
+     "k_ypt": 49.152,
+     "k_adot": 16.384,
+     "k_ypc": 16.384,
+     "k_rutd": 16.384
+    },
+    "steps": 3.0,
+    "onoff": false,
+    "turns": null,
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5859,
+    "delta": 0.006,
+    "se": 0.00118,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.4907
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6439
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.5441
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.7711
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.5858852534986605
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.3498402425649936
+     ],
+     "yds": [
+      22.275256213632655,
+      22.237655825064202
+     ]
+    },
+    "tuned_spread": 1.0,
+    "p_adj": 0.005,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.592 → 4.586"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.5% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 4 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": true,
+      "text": "passed in two reviews with new games in between"
+     },
+     {
+      "id": "one_at_a_time",
+      "ok": false,
+      "text": "a one-step move for this weight is queued first; the bigger move is re-tested after it"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 15573 player-weeks it never saw: 4.592 → 4.586",
+      "pts": 4.0
+     },
+     {
+      "text": "Better in 4 seasons, more than the 3 required",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 3.0 steps",
+      "pts": 1.5
+     }
+    ],
+    "net": 3.0,
+    "status": "pending",
+    "size": "big",
+    "summary": "Efficiency trust ×0.80 of launch values → ×0.41 of launch values: expected PPR points error 4.592 → 4.586; 99.5% confidence after correcting for 10 ideas tested (need 95%); better in 4 of 4 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_efficiency_trust",
+    "name": "Efficiency trust",
+    "what": "how many targets and carries before a player's own catch rate, yards and touchdown rates are trusted",
+    "metric": "pts",
+    "from_params": {
+     "k_cr": 48.0,
+     "k_ypt": 96.0,
+     "k_adot": 32.0,
+     "k_ypc": 32.0,
+     "k_rutd": 32.0
+    },
+    "variant": "step",
+    "title": "Efficiency trust ×0.80 of launch values → ×0.64 of launch values",
+    "to_params": {
+     "k_cr": 38.4,
+     "k_ypt": 76.8,
+     "k_adot": 25.6,
+     "k_ypc": 25.6,
+     "k_rutd": 25.6
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5898,
+    "delta": 0.0021,
+    "se": 0.00039,
+    "p": 0.0005,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.4943
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6487
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.5469
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.776
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.58976971955549
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.3503447327741218
+     ],
+     "yds": [
+      22.275256213632655,
+      22.260950098620597
+     ]
+    },
+    "tuned_spread": 1.0,
+    "p_adj": 0.005,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.592 → 4.590"
+     },
+     {
+      "id": "significant",
+      "ok": true,
+      "text": "99.5% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 4 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     },
+     {
+      "id": "confirmed",
+      "ok": true,
+      "text": "passed in two reviews with new games in between"
+     },
+     {
+      "id": "one_at_a_time",
+      "ok": false,
+      "text": "a one-step move for this weight is queued first; the bigger move is re-tested after it"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 15573 player-weeks it never saw: 4.592 → 4.590",
+      "pts": 4.0
+     },
+     {
+      "text": "Better in 4 seasons, more than the 3 required",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     }
+    ],
+    "net": 4.0,
+    "status": "pending",
+    "size": "small",
+    "summary": "Efficiency trust ×0.80 of launch values → ×0.64 of launch values: expected PPR points error 4.592 → 4.590; 99.5% confidence after correcting for 10 ideas tested (need 95%); better in 4 of 4 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_passing_trust",
+    "name": "Passing trust",
+    "what": "how many attempts before a quarterback's own completion, yardage, touchdown and interception rates are trusted",
+    "metric": "pts",
+    "from_params": {
+     "k_pcmp": 60,
+     "k_pass": 120
+    },
+    "variant": "full",
+    "title": "Passing trust ×1.00 of launch values → ×1.95 of launch values",
+    "to_params": {
+     "k_pcmp": 117.1875,
+     "k_pass": 234.375
+    },
+    "steps": 3.0,
+    "onoff": false,
+    "turns": null,
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5918,
+    "delta": 0.0,
+    "se": 0.0,
+    "p": 1.0,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.4964
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6514
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.5483
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.7783
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.591842908858118
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.3507242322996214
+     ],
+     "yds": [
+      22.275256213632655,
+      22.275256213632655
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "expected PPR points error 4.592 → 4.592"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 0 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 3.0 steps",
+      "pts": 1.5
+     },
+     {
+      "text": "Worse in 4 seasons",
+      "pts": 2.0
+     }
+    ],
+    "net": -3.5,
+    "status": "rejected",
+    "size": "big",
+    "summary": "Passing trust ×1.00 of launch values → ×1.95 of launch values: expected PPR points error 4.592 → 4.592; 0.0% confidence after correcting for 10 ideas tested (need 95%); better in 0 of 4 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_passing_trust",
+    "name": "Passing trust",
+    "what": "how many attempts before a quarterback's own completion, yardage, touchdown and interception rates are trusted",
+    "metric": "pts",
+    "from_params": {
+     "k_pcmp": 60,
+     "k_pass": 120
+    },
+    "variant": "step",
+    "title": "Passing trust ×1.00 of launch values → ×1.25 of launch values",
+    "to_params": {
+     "k_pcmp": 75.0,
+     "k_pass": 150.0
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5918,
+    "delta": 0.0,
+    "se": 0.0,
+    "p": 1.0,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.4964
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6514
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.5483
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.7783
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.591842908858118
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.3507242322996214
+     ],
+     "yds": [
+      22.275256213632655,
+      22.275256213632655
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "expected PPR points error 4.592 → 4.592"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 0 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 4 seasons",
+      "pts": 2.0
+     }
+    ],
+    "net": -2.5,
+    "status": "rejected",
+    "size": "small",
+    "summary": "Passing trust ×1.00 of launch values → ×1.25 of launch values: expected PPR points error 4.592 → 4.592; 0.0% confidence after correcting for 10 ideas tested (need 95%); better in 0 of 4 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_opponent",
+    "name": "Opponent pass defence",
+    "what": "how strongly the opposing pass defence moves a receiver's yards per target",
+    "metric": "pts",
+    "from_params": {
+     "opp_scale": 1.0
+    },
+    "variant": "full",
+    "title": "Opponent pass defence ×1 → ×0.25",
+    "to_params": {
+     "opp_scale": 0.25
+    },
+    "steps": 3.0,
+    "onoff": false,
+    "turns": null,
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5921,
+    "delta": -0.0003,
+    "se": 0.0012,
+    "p": 0.6012,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.4959
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6471
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.5536
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.7793
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.592143251176193
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.3507242322996214
+     ],
+     "yds": [
+      22.275256213632655,
+      22.253795079610025
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": false,
+      "text": "expected PPR points error 4.592 → 4.592"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 2 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [],
+    "cons": [
+     {
+      "text": "Moves the weight 3.0 steps",
+      "pts": 1.5
+     },
+     {
+      "text": "Worse in 2 seasons",
+      "pts": 1.0
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -3.0,
+    "status": "rejected",
+    "size": "big",
+    "summary": "Opponent pass defence ×1 → ×0.25: expected PPR points error 4.592 → 4.592; 0.0% confidence after correcting for 10 ideas tested (need 95%); better in 2 of 4 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_opponent",
+    "name": "Opponent pass defence",
+    "what": "how strongly the opposing pass defence moves a receiver's yards per target",
+    "metric": "pts",
+    "from_params": {
+     "opp_scale": 1.0
+    },
+    "variant": "step",
+    "title": "Opponent pass defence ×1 → ×0.75",
+    "to_params": {
+     "opp_scale": 0.75
+    },
+    "steps": 1.0,
+    "onoff": false,
+    "turns": null,
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5917,
+    "delta": 0.0002,
+    "se": 0.00039,
+    "p": 0.31634,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.496
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6496
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.5498
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.7784
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.591657765986722
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.3507242322996214
+     ],
+     "yds": [
+      22.275256213632655,
+      22.263199897189473
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 1.0,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.592 → 4.592"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "0.0% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": false,
+      "text": "better in 2 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 15573 player-weeks it never saw: 4.592 → 4.592",
+      "pts": 0.51
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 1.0 step",
+      "pts": 0.5
+     },
+     {
+      "text": "Worse in 2 seasons",
+      "pts": 1.0
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": -1.49,
+    "status": "watching",
+    "size": "small",
+    "summary": "Opponent pass defence ×1 → ×0.75: expected PPR points error 4.592 → 4.592; 0.0% confidence after correcting for 10 ideas tested (need 95%); better in 2 of 4 seasons with 500+ player-weeks"
+   },
+   {
+    "model": "players",
+    "category": "pl_script",
+    "name": "Game script",
+    "what": "how strongly the point spread shifts a team between passing and running",
+    "metric": "pts",
+    "from_params": {
+     "script_scale": 1.0
+    },
+    "variant": "full",
+    "title": "Game script ×1 → ×0",
+    "to_params": {
+     "script_scale": 0.0
+    },
+    "steps": 2.0,
+    "onoff": true,
+    "turns": "off",
+    "n": 15573,
+    "base": 4.5918,
+    "cand": 4.5884,
+    "delta": 0.0035,
+    "se": 0.00167,
+    "p": 0.01149,
+    "blocks": [
+     {
+      "season": 2023,
+      "n": 4573,
+      "base": 4.4964,
+      "cand": 4.4968
+     },
+     {
+      "season": 2024,
+      "n": 4487,
+      "base": 4.6514,
+      "cand": 4.6511
+     },
+     {
+      "season": 2025,
+      "n": 4543,
+      "base": 4.5483,
+      "cand": 4.5394
+     },
+     {
+      "season": 2026,
+      "n": 1970,
+      "base": 4.7783,
+      "cand": 4.7708
+     }
+    ],
+    "sec": {
+     "pts": [
+      4.591842908858118,
+      4.588361079728258
+     ],
+     "rec": [
+      1.3507242322996214,
+      1.350485156411976
+     ],
+     "yds": [
+      22.275256213632655,
+      22.280427444689586
+     ]
+    },
+    "tuned_spread": 0.0,
+    "p_adj": 0.06894,
+    "checks": [
+     {
+      "id": "enough",
+      "ok": true,
+      "text": "15573 player-weeks it never saw (need 2000)"
+     },
+     {
+      "id": "better",
+      "ok": true,
+      "text": "expected PPR points error 4.592 → 4.588"
+     },
+     {
+      "id": "significant",
+      "ok": false,
+      "text": "93.1% confidence after correcting for 10 ideas tested (need 95%)"
+     },
+     {
+      "id": "consistent",
+      "ok": true,
+      "text": "better in 3 of 4 seasons with 500+ player-weeks"
+     },
+     {
+      "id": "no_damage",
+      "ok": true,
+      "text": "no other measure worse beyond tolerance"
+     }
+    ],
+    "pros": [
+     {
+      "text": "Lower expected PPR points error on 15573 player-weeks it never saw: 4.592 → 4.588",
+      "pts": 2.1
+     },
+     {
+      "text": "Simpler: removes a factor",
+      "pts": 0.5
+     }
+    ],
+    "cons": [
+     {
+      "text": "Moves the weight 2.0 steps",
+      "pts": 1.0
+     },
+     {
+      "text": "Worse in 1 season",
+      "pts": 0.5
+     },
+     {
+      "text": "Most of the gain comes from one season",
+      "pts": 0.5
+     }
+    ],
+    "net": 0.6,
+    "status": "watching",
+    "size": "big",
+    "summary": "Game script ×1 → ×0: expected PPR points error 4.592 → 4.588; 93.1% confidence after correcting for 10 ideas tested (need 95%); better in 3 of 4 seasons with 500+ player-weeks"
+   }
+  ],
+  "applied": [],
+  "proposed": [
+   "R2026-08:live:live_market",
+   "R2026-08:live:live_market_total"
+  ],
+  "date": "2026-11-03",
+  "tested": 32,
+  "games": 1992
  }
 ]
