@@ -1,6 +1,6 @@
 {
- "asof": "2026-11-08T16:01:20Z",
- "n": 1993,
+ "asof": "2026-11-12T17:35:08Z",
+ "n": 2007,
  "seasons": [
   2019,
   2026
@@ -21,7 +21,7 @@
   "bootstrap": 2000,
   "correction": "Holm"
  },
- "sd": 13.16,
+ "sd": 13.15,
  "candidates": [
   {
    "id": "early",
@@ -32,7 +32,7 @@
    "rel": "The learning loop tunes these trust constants over whole seasons, where they barely matter.",
    "gain": -0.005,
    "gain_touched": -0.025,
-   "n_test": 1481,
+   "n_test": 1495,
    "n_touched": 288,
    "by_season": {
     "2021": -0.003,
@@ -40,7 +40,7 @@
     "2023": -0.0,
     "2024": -0.01,
     "2025": 0.0,
-    "2026": -0.007
+    "2026": -0.006
    },
    "pos": 0,
    "p": 0.986,
@@ -58,25 +58,25 @@
    "why": "The game model adjusts for a backup quarterback and nothing else; a team missing its left tackle, top receiver and best corner is rated as if all three were playing.",
    "form": "shift",
    "rel": "Only the quarterback is in the model.",
-   "gain": 0.018,
-   "gain_touched": 0.019,
-   "n_test": 1481,
-   "n_touched": 1425,
+   "gain": 0.016,
+   "gain_touched": 0.017,
+   "n_test": 1495,
+   "n_touched": 1439,
    "by_season": {
     "2021": 0.001,
     "2022": -0.012,
     "2023": 0.016,
     "2024": 0.055,
     "2025": 0.038,
-    "2026": -0.001
+    "2026": -0.015
    },
    "pos": 4,
-   "p": 0.0975,
+   "p": 0.1124,
    "beta": 0.611,
    "market": 0.301,
-   "n_flag": 1898,
+   "n_flag": 1912,
    "p_adj": 1.0,
-   "verdict": "watch",
+   "verdict": "clear",
    "proposed": null
   },
   {
@@ -87,22 +87,22 @@
    "form": "shift",
    "rel": "Not in the model.",
    "gain": 0.008,
-   "gain_touched": 0.021,
-   "n_test": 1481,
-   "n_touched": 543,
+   "gain_touched": 0.022,
+   "n_test": 1495,
+   "n_touched": 563,
    "by_season": {
     "2021": 0.119,
     "2022": 0.043,
     "2023": -0.027,
     "2024": -0.022,
     "2025": -0.033,
-    "2026": -0.083
+    "2026": -0.066
    },
    "pos": 2,
-   "p": 0.4068,
+   "p": 0.3973,
    "beta": 1.718,
    "market": 0.796,
-   "n_flag": 734,
+   "n_flag": 754,
    "p_adj": 1.0,
    "verdict": "clear",
    "proposed": null
@@ -116,7 +116,7 @@
    "rel": "Flagged on the page, deliberately left out of the model after week-1 tests found no direction.",
    "gain": -0.001,
    "gain_touched": -0.014,
-   "n_test": 1481,
+   "n_test": 1495,
    "n_touched": 142,
    "by_season": {
     "2021": -0.005,
@@ -124,10 +124,10 @@
     "2023": -0.006,
     "2024": 0.001,
     "2025": -0.0,
-    "2026": 0.012
+    "2026": 0.011
    },
    "pos": 2,
-   "p": 0.6092,
+   "p": 0.6087,
    "beta": -0.715,
    "market": 0.943,
    "n_flag": 189,
@@ -144,7 +144,7 @@
    "rel": "The loop's rest factor covers a rest gap between the teams; a short week is almost never one -- of 1,920 games since 2019, both sides shared it in 123 and only one side had it in 3.",
    "gain": -0.005,
    "gain_touched": -0.077,
-   "n_test": 1481,
+   "n_test": 1495,
    "n_touched": 99,
    "by_season": {
     "2021": 0.002,
@@ -152,10 +152,10 @@
     "2023": -0.02,
     "2024": -0.007,
     "2025": -0.007,
-    "2026": 0.001
+    "2026": 0.0
    },
-   "pos": 3,
-   "p": 0.9045,
+   "pos": 2,
+   "p": 0.9055,
    "beta": -0.277,
    "market": 0.075,
    "n_flag": 128,
@@ -170,23 +170,23 @@
    "why": "A long-cited effect of early kickoffs on travelling western teams.",
    "form": "shift",
    "rel": "Not in the model.",
-   "gain": 0.003,
-   "gain_touched": -0.008,
-   "n_test": 1481,
-   "n_touched": 92,
+   "gain": 0.004,
+   "gain_touched": 0.014,
+   "n_test": 1495,
+   "n_touched": 94,
    "by_season": {
     "2021": 0.022,
     "2022": 0.005,
     "2023": -0.007,
     "2024": 0.011,
     "2025": 0.004,
-    "2026": -0.041
+    "2026": -0.025
    },
    "pos": 4,
-   "p": 0.3668,
+   "p": 0.3093,
    "beta": -1.117,
    "market": 0.111,
-   "n_flag": 137,
+   "n_flag": 139,
    "p_adj": 1.0,
    "verdict": "clear",
    "proposed": null
@@ -199,22 +199,22 @@
    "form": "shift",
    "rel": "The model uses one flat home edge.",
    "gain": -0.009,
-   "gain_touched": -0.014,
-   "n_test": 1481,
-   "n_touched": 310,
+   "gain_touched": -0.013,
+   "n_test": 1495,
+   "n_touched": 312,
    "by_season": {
     "2021": 0.005,
     "2022": -0.043,
     "2023": -0.003,
     "2024": 0.002,
     "2025": -0.001,
-    "2026": -0.017
+    "2026": -0.014
    },
    "pos": 2,
-   "p": 0.903,
+   "p": 0.9015,
    "beta": -0.233,
    "market": 0.207,
-   "n_flag": 409,
+   "n_flag": 411,
    "p_adj": 1.0,
    "verdict": "clear",
    "proposed": null
@@ -226,23 +226,23 @@
    "why": "Division rivals meet twice a year and know each other; favourites may win by less.",
    "form": "scale",
    "rel": "Shown on the page, not in the model.",
-   "gain": -0.032,
-   "gain_touched": -0.087,
-   "n_test": 1481,
-   "n_touched": 520,
+   "gain": -0.031,
+   "gain_touched": -0.086,
+   "n_test": 1495,
+   "n_touched": 522,
    "by_season": {
     "2021": 0.049,
     "2022": -0.148,
     "2023": -0.027,
     "2024": -0.042,
     "2025": -0.0,
-    "2026": -0.018
+    "2026": -0.011
    },
    "pos": 1,
-   "p": 0.985,
+   "p": 0.9835,
    "beta": 0.039,
    "market": 0.012,
-   "n_flag": 712,
+   "n_flag": 714,
    "p_adj": 1.0,
    "verdict": "clear",
    "proposed": null
@@ -254,23 +254,23 @@
    "why": "Box-score ratings see totals; play-by-play sees every down, so a team that moves the ball steadily but lost on a few big plays is rated on how it played, not on the scoreboard. It is what sharper models are built on.",
    "form": "shift",
    "rel": "GridIron's ratings use weekly team box scores, team EPA included; play-by-play is not in the model.",
-   "gain": -0.04,
-   "gain_touched": -0.04,
-   "n_test": 1481,
-   "n_touched": 1481,
+   "gain": -0.031,
+   "gain_touched": -0.031,
+   "n_test": 1495,
+   "n_touched": 1495,
    "by_season": {
     "2021": 0.17,
     "2022": -0.042,
     "2023": -0.131,
     "2024": -0.054,
     "2025": -0.049,
-    "2026": -0.255
+    "2026": -0.126
    },
    "pos": 1,
-   "p": 0.8096,
+   "p": 0.7396,
    "beta": 21.68,
    "market": 14.999,
-   "n_flag": 1993,
+   "n_flag": 2007,
    "p_adj": 1.0,
    "verdict": "clear",
    "proposed": null
@@ -282,23 +282,23 @@
    "why": "The model knows only whether a backup is starting, as a flat penalty. A good backup and a bad one, or a starter returning from injury to ratings his stand-in built, all look the same to it.",
    "form": "shift",
    "rel": "Only the flat backup-quarterback term is in the model.",
-   "gain": 0.004,
-   "gain_touched": 0.004,
-   "n_test": 1481,
-   "n_touched": 1284,
+   "gain": 0.001,
+   "gain_touched": 0.001,
+   "n_test": 1495,
+   "n_touched": 1297,
    "by_season": {
     "2021": -0.008,
     "2022": -0.014,
     "2023": 0.001,
     "2024": 0.009,
     "2025": 0.029,
-    "2026": 0.006
+    "2026": -0.025
    },
-   "pos": 4,
-   "p": 0.3038,
+   "pos": 3,
+   "p": 0.4543,
    "beta": 11.62,
    "market": 9.127,
-   "n_flag": 1725,
+   "n_flag": 1738,
    "p_adj": 1.0,
    "verdict": "clear",
    "proposed": null
@@ -312,21 +312,21 @@
    "rel": "The ratings shrink turnovers hard already; this checks whether they shrink them enough.",
    "gain": -0.01,
    "gain_touched": -0.012,
-   "n_test": 1481,
-   "n_touched": 1234,
+   "n_test": 1495,
+   "n_touched": 1247,
    "by_season": {
     "2021": -0.037,
     "2022": 0.007,
     "2023": -0.01,
     "2024": 0.007,
     "2025": -0.024,
-    "2026": 0.004
+    "2026": 0.006
    },
    "pos": 3,
-   "p": 0.93,
+   "p": 0.9275,
    "beta": -0.065,
    "market": 0.007,
-   "n_flag": 1670,
+   "n_flag": 1683,
    "p_adj": 1.0,
    "verdict": "clear",
    "proposed": null
@@ -357,6 +357,7 @@
    "pbp": 0.05
   },
   "2026_01_BUF_HOU": {
+   "new_coach": 1.0,
    "pbp": -0.02
   },
   "2026_01_BAL_IND": {
@@ -372,7 +373,6 @@
   },
   "2026_01_ATL_PIT": {
    "starters_out": 1.6,
-   "new_coach": -1.0,
    "pbp": 0.01
   },
   "2026_01_NYJ_TEN": {
@@ -383,6 +383,7 @@
   },
   "2026_01_ARI_LAC": {
    "starters_out": 2.33,
+   "new_coach": 1.0,
    "pbp": 0.04
   },
   "2026_01_MIA_LV": {
@@ -411,11 +412,13 @@
   },
   "2026_02_DET_BUF": {
    "starters_out": 0.7,
+   "new_coach": -1.0,
    "primetime": 1.0,
    "pbp": -0.01
   },
   "2026_02_CAR_ATL": {
    "starters_out": -0.38,
+   "new_coach": -1.0,
    "pbp": 0.05,
    "qb_value": 0.22
   },
@@ -476,6 +479,7 @@
   },
   "2026_02_SEA_ARI": {
    "starters_out": 1.03,
+   "new_coach": -1.0,
    "new_qb": 1.0,
    "pbp": -0.05,
    "qb_value": 0.01,
@@ -508,6 +512,7 @@
   },
   "2026_03_ATL_GB": {
    "starters_out": -1.19,
+   "new_coach": 1.0,
    "primetime": 1.0,
    "pbp": 0.01,
    "qb_value": -0.13,
@@ -515,6 +520,7 @@
   },
   "2026_03_LAC_BUF": {
    "starters_out": 2.18,
+   "new_coach": -1.0,
    "body_clock": 1.0,
    "pbp": 0.06,
    "to_luck": -3.0
@@ -575,6 +581,7 @@
   },
   "2026_03_ARI_SF": {
    "starters_out": -0.63,
+   "new_coach": 1.0,
    "pbp": 0.07,
    "qb_value": -0.0,
    "to_luck": 0.5
@@ -633,6 +640,7 @@
   },
   "2026_04_NE_BUF": {
    "starters_out": 1.68,
+   "new_coach": -1.0,
    "pbp": 0.01,
    "qb_value": -0.0,
    "to_luck": -1.0
@@ -657,7 +665,6 @@
   },
   "2026_04_ARI_NYG": {
    "starters_out": 0.47,
-   "new_coach": -1.0,
    "new_qb": -1.0,
    "body_clock": 1.0,
    "pbp": -0.03,
@@ -710,6 +717,7 @@
   },
   "2026_04_ATL_NO": {
    "starters_out": -1.91,
+   "new_coach": 1.0,
    "primetime": 1.0,
    "pbp": -0.05,
    "qb_value": -0.09,
@@ -788,6 +796,7 @@
   },
   "2026_05_DET_ARI": {
    "starters_out": 1.57,
+   "new_coach": -1.0,
    "pbp": -0.02,
    "to_luck": 0.33
   },
@@ -799,7 +808,6 @@
   },
   "2026_05_BAL_ATL": {
    "starters_out": 1.23,
-   "new_coach": 1.0,
    "primetime": 1.0,
    "pbp": 0.01,
    "qb_value": 0.27,
@@ -807,6 +815,7 @@
   },
   "2026_05_BUF_LA": {
    "starters_out": 0.95,
+   "new_coach": 1.0,
    "primetime": 1.0,
    "pbp": 0.05,
    "qb_value": 0.0
@@ -826,6 +835,7 @@
   },
   "2026_06_CHI_ATL": {
    "starters_out": 0.55,
+   "new_coach": -1.0,
    "pbp": 0.02,
    "qb_value": 0.01,
    "to_luck": -1.67
@@ -871,6 +881,7 @@
   },
   "2026_06_ARI_LA": {
    "starters_out": 0.68,
+   "new_coach": 1.0,
    "pbp": 0.07,
    "qb_value": 0.0
   },
@@ -882,7 +893,6 @@
   },
   "2026_06_BUF_LV": {
    "starters_out": -0.76,
-   "new_coach": -1.0,
    "pbp": -0.07,
    "qb_value": 0.0,
    "to_luck": -3.0
@@ -915,6 +925,7 @@
   },
   "2026_07_SF_ATL": {
    "starters_out": 0.14,
+   "new_coach": -1.0,
    "body_clock": 1.0,
    "pbp": -0.06,
    "qb_value": 0.03
@@ -960,6 +971,7 @@
   },
   "2026_07_DEN_ARI": {
    "starters_out": -0.01,
+   "new_coach": -1.0,
    "pbp": -0.03,
    "qb_value": -0.0,
    "to_luck": 2.0
@@ -1000,7 +1012,6 @@
   },
   "2026_08_BAL_BUF": {
    "starters_out": 0.32,
-   "new_coach": 1.0,
    "pbp": 0.02,
    "qb_value": -0.1,
    "to_luck": -0.33
@@ -1013,6 +1024,7 @@
   },
   "2026_08_ARI_DAL": {
    "starters_out": 0.14,
+   "new_coach": 1.0,
    "pbp": 0.0,
    "qb_value": 0.0,
    "to_luck": 0.33
@@ -1045,6 +1057,7 @@
   },
   "2026_08_ATL_TB": {
    "starters_out": -0.62,
+   "new_coach": 1.0,
    "pbp": -0.02,
    "qb_value": 0.02
   },
@@ -1086,11 +1099,104 @@
    "pbp": -0.05,
    "qb_value": -0.08,
    "to_luck": 1.33
+  },
+  "2026_09_CIN_ATL": {
+   "starters_out": -0.85,
+   "new_coach": -1.0,
+   "pbp": -0.05,
+   "qb_value": 0.02
+  },
+  "2026_09_DEN_CAR": {
+   "starters_out": -0.66,
+   "body_clock": 1.0,
+   "pbp": -0.07,
+   "qb_value": 0.0,
+   "to_luck": 1.67
+  },
+  "2026_09_DAL_IND": {
+   "starters_out": -1.46,
+   "pbp": -0.01,
+   "qb_value": 0.0,
+   "to_luck": 2.33
+  },
+  "2026_09_NYJ_KC": {
+   "starters_out": 1.33,
+   "pbp": 0.08,
+   "qb_value": 0.0,
+   "to_luck": -0.67
+  },
+  "2026_09_DET_MIA": {
+   "starters_out": 3.95,
+   "new_coach": -1.0,
+   "pbp": -0.12,
+   "to_luck": 0.33
+  },
+  "2026_09_CLE_NO": {
+   "starters_out": 0.62,
+   "new_coach": 1.0,
+   "pbp": -0.02,
+   "qb_value": 0.18,
+   "to_luck": -0.33
+  },
+  "2026_09_NYG_PHI": {
+   "starters_out": -2.11,
+   "new_coach": 1.0,
+   "pbp": 0.0,
+   "qb_value": 0.09,
+   "to_luck": -0.67
+  },
+  "2026_09_LA_WAS": {
+   "starters_out": -0.14,
+   "body_clock": 1.0,
+   "pbp": -0.13,
+   "qb_value": 0.01,
+   "to_luck": -1.67
+  },
+  "2026_09_HOU_LAC": {
+   "starters_out": -0.4,
+   "pbp": -0.07,
+   "qb_value": -0.0,
+   "to_luck": 2.0
+  },
+  "2026_09_LV_SF": {
+   "starters_out": -1.16,
+   "new_coach": 1.0,
+   "pbp": 0.13,
+   "qb_value": -0.0,
+   "to_luck": 1.67
+  },
+  "2026_09_GB_NE": {
+   "starters_out": 2.5,
+   "pbp": 0.04,
+   "qb_value": 0.0,
+   "to_luck": 1.0
+  },
+  "2026_09_ARI_SEA": {
+   "starters_out": -2.44,
+   "new_coach": 1.0,
+   "pbp": 0.06,
+   "qb_value": -0.08,
+   "to_luck": 0.33
+  },
+  "2026_09_TB_CHI": {
+   "starters_out": 0.37,
+   "primetime": 1.0,
+   "pbp": 0.07,
+   "qb_value": -0.01,
+   "to_luck": 1.33
+  },
+  "2026_09_BUF_MIN": {
+   "starters_out": -0.29,
+   "new_coach": 1.0,
+   "primetime": 1.0,
+   "pbp": -0.05,
+   "qb_value": -0.02,
+   "to_luck": -0.33
   }
  },
  "counts": {
   "blind_spot": 0,
-  "watch": 1,
-  "clear": 10
+  "watch": 0,
+  "clear": 11
  }
 }
